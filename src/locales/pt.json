@@ -238,7 +238,13 @@
     "Cancel": "Cancelar",
     "Done": "Concluído",
     "The name cannot be empty": "O nome não pode ficar vazio",
-    "Delete": "Excluir"
+    "Delete": "Excluir",
+    "Turn {count} derived passwords into stored ones": {
+      "one": "Transformar {count} senha derivada em armazenada",
+      "many": "Transformar {count} de senhas derivadas em armazenadas",
+      "other": "Transformar {count} senhas derivadas em armazenadas"
+    },
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Senhas derivadas são calculadas a partir da senha mestra: com uma nova, cada uma vira outra senha. Armazenadas, ficam como estão, mas não podem mais ser recuperadas sem o arquivo."
   },
   "app": {
     "Password manager": "Gerenciador de senhas"
@@ -288,5 +294,24 @@
     "Entries": "Entradas",
     "Entry list width": "Largura da lista de entradas",
     "Entry": "Entrada"
+  },
+  "derived": {
+    "This password is derived by generator {version}, which this version of the app does not know": "Esta senha é derivada pelo gerador {version}, que esta versão do aplicativo não conhece",
+    "The derived password settings are damaged: {reason}": "As configurações da senha derivada estão danificadas: {reason}",
+    "The version is a whole number from 1 to {max}": "A versão é um número inteiro de 1 a {max}",
+    "The length is from {min} to {max}": "O comprimento vai de {min} a {max}",
+    "Pick at least one character set": "Escolha pelo menos um conjunto de caracteres",
+    "The database has no master password to derive passwords from": "O banco de dados não tem uma senha mestra da qual derivar senhas",
+    "Derived · {site} · version {version}": "Derivada · {site} · versão {version}",
+    "Stored": "Armazenada",
+    "Derived": "Derivada",
+    "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "Calculada a partir da senha mestra, do site, do nome de usuário e da versão: pode ser recuperada sem o arquivo",
+    "Needs a master password, and this database opens with a key file alone": "Precisa de uma senha mestra, e este banco de dados abre só com um arquivo de chave",
+    "Version": "Versão",
+    "Next version: a new password for the same site and user name": "Próxima versão: uma senha nova para o mesmo site e usuário",
+    "Nothing but these settings is saved; the password is computed each time.": "Só estas configurações são salvas; a senha é calculada a cada vez.",
+    "Enter the website: the password is derived from its domain": "Informe o site: a senha é derivada do domínio dele",
+    "Site: {site}, from the website": "Site: {site}, do campo site",
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "A senha mestra, o site ou o nome de usuário mudou desde que esta senha foi salva, então agora é outra senha."
   }
 }

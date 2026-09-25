@@ -737,6 +737,38 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
 .field-inline { display: flex; align-items: center; gap: 4px; min-width: 0; }
 .field-stack { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .custom-name { font-size: 0.92em; color: var(--muted); }
+
+/* Derived passwords: computed from the master password, not stored */
+.field-stack--tight { gap: 2px; }
+.field-hint { color: var(--faint); font-size: 0.85em; }
+.field-note { color: var(--warn); font-size: 0.88em; line-height: 1.4; }
+.field-value--error { color: var(--danger); font-family: inherit; letter-spacing: 0; }
+.segments { display: inline-flex; align-self: flex-start; padding: 2px; border-radius: 8px; background: var(--panel-2); }
+.segment {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+.segment[aria-pressed='true'] { background: var(--bg); color: var(--text); font-weight: 550; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
+.segment:disabled { opacity: 0.45; cursor: default; }
+.derived-preview {
+  flex: 1;
+  background: var(--code-bg);
+  border-radius: 8px;
+  padding: 0.4em 0.65em;
+  min-height: 2.2em;
+  user-select: all;
+}
+.derived-inputs { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 14px; }
+.derived-input { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.derived-site { color: var(--muted); font-size: 0.9em; padding-bottom: 0.5em; overflow-wrap: anywhere; }
+.derived-caption { color: var(--muted); font-size: 0.82em; }
+.derived-version { width: 8.5em; }
+.derived-foot { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .field--add .button { justify-self: start; }
 
 .meter { display: flex; align-items: center; gap: 10px; }
@@ -879,7 +911,8 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
 .dialog h2 { margin: 0 0 10px; font-size: 16px; }
 .dialog-text { margin: 0 0 16px; color: var(--muted); line-height: 1.55; }
 .dialog-label { display: block; color: var(--muted); margin-bottom: 14px; }
-.dialog-label--check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.dialog-label--check { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; cursor: pointer; color: var(--text); }
+.dialog-label--check .dialog-hint { flex-basis: 100%; padding-inline-start: 21px; line-height: 1.45; }
 .dialog-input {
   display: block;
   width: 100%;

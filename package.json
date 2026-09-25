@@ -12,7 +12,7 @@
     "build": "node build.mjs",
     "watch": "node build.mjs --watch",
     "typecheck": "tsc --noEmit",
-    "test": "node tools/test-kdbx.mjs && node tools/test-generator.mjs && node tools/test-i18n.mjs",
+    "test": "node tools/test-kdbx.mjs && node tools/test-generator.mjs && node tools/test-derived.mjs && node tools/test-i18n.mjs",
     "test:browser": "node --experimental-websocket tools/test-app.mjs",
     "i18n": "node tools/i18n.mjs"
   },

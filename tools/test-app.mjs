@@ -40,7 +40,10 @@ if (typeof WebSocket === 'undefined') {
   process.exit(1);
 }
 
-const K = await load('kdbx');
+const K = await load('kdbx', 'derived');
+const DERIVED_SPEC = { ...K.REQUIREMENT_DEFAULTS, site: 'github.com', version: 1 };
+const DERIVED = (await K.derivePassword(PASSWORD, DERIVED_SPEC, 'me@example.com')).password;
+const DERIVED_V2 = (await K.derivePassword(PASSWORD, { ...DERIVED_SPEC, version: 2 }, 'me@example.com')).password;
 const { check, done } = checker();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -391,6 +394,43 @@ try {
   check('caret unfolds', (await texts('.tree-item--group .tree-label')).includes('Accounts'), true);
   await shot('5-app');
 
+  // A new entry whose password is derived from the master password, not stored
+  await clickNth('.tree-item--all', 'All entries');
+  await press('n', MOD);
+  await type('GitHub');
+  await evaluate(`document.querySelector('[data-field="username"]').focus()`);
+  await type('me@example.com');
+  await evaluate(`document.querySelector('[data-field="url"]').focus()`);
+  await type('https://www.github.com/login');
+  await clickNth('.segment', 'Derived');
+  check('derived: the site is the website\'s domain', await text('.derived-site'), 'Site: github.com, from the website');
+  check('derived: computed, masked', await until(`document.querySelector('.derived-preview').textContent === '••••••••••'`), true);
+  await click('.derived-preview + .icon-button');
+  check('derived: the password of generator 3', await text('.derived-preview'), DERIVED);
+  await shot('4c-derived');
+  await click('.details .button--primary[type=submit]');
+  check('derived: saved', await text('.details-title'), 'GitHub');
+  check('derived: marked as derived', await text('.field-hint'), 'Derived · github.com · version 1');
+  check('derived: revealed in read mode', await text('.field-value--secret'), DERIVED);
+  check('derived: no warning', await evaluate(`document.querySelector('.field-note').hidden`), true);
+  // Another domain is another password; the next version too; switching to a stored one keeps what is shown.
+  await press('e', MOD);
+  await evaluate(`(() => { const i = document.querySelector('[data-field="url"]'); i.focus(); i.select(); })()`);
+  await type('gitlab.com');
+  check('derived: follows the website', await until(`document.querySelector('.derived-site').textContent === 'Site: gitlab.com, from the website'`), true);
+  check('derived: another password for another site', await until(`!['…', '••••••••••', ${JSON.stringify(DERIVED)}].includes(document.querySelector('.derived-preview').textContent)`), true);
+  await evaluate(`(() => { const i = document.querySelector('[data-field="url"]'); i.focus(); i.select(); })()`);
+  await type('https://www.github.com/login');
+  check('derived: back to the first site', await until(`document.querySelector('.derived-preview').textContent === ${JSON.stringify(DERIVED)}`), true);
+  await clickNth('.derived-inputs button', '+1');
+  check('derived: next version', await until(`document.querySelector('.derived-preview').textContent === ${JSON.stringify(DERIVED_V2)}`), true);
+  await clickNth('.segment', 'Stored');
+  check('derived: turned into a stored password', await until(`document.querySelector('[data-field="password"]')?.value === ${JSON.stringify(DERIVED_V2)}`), true);
+  await press('Escape');
+  await until(`!!document.querySelector('.overlay:not([hidden]) .dialog')`);
+  await click('.overlay .button--danger');
+  check('derived: edit dropped', await text('.field-hint'), 'Derived · github.com · version 1');
+
   // Saving downloads the database; it opens with the same password
   await press('s', MOD);
   await until(`window.__downloads.length > 0`);
@@ -409,6 +449,31 @@ try {
   check('saved: recycle bin', K.recycleBin(reopened)?.entries.map(K.titleOf), ['Проверочный аккаунт']);
   check('saved: new group', reopened.getDefaultGroup().groups.some((g) => g.name === 'Work'), true);
   check('saved: subgroup', reopened.getDefaultGroup().groups.find((g) => g.name === 'General')?.groups.map((g) => g.name), ['Accounts']);
+  const github = all.find((e) => K.field(e, 'Title') === 'GitHub');
+  const githubCheck = (await K.derivePassword(PASSWORD, DERIVED_SPEC, 'me@example.com')).check;
+  check('saved: derived settings instead of a password', K.parseDerived(K.field(github, 'Password'), K.field(github, 'URL')), { site: 'github.com', version: 1, ...K.REQUIREMENT_DEFAULTS, check: githubCheck });
+
+  // A new master password: the derived password is turned into a stored one first
+  await clickNth('#db-name', 'Database');
+  await clickNth('.context-item', 'Change master password');
+  check('re-key: offers to keep derived passwords', await evaluate(`document.querySelector('.dialog input[name=convert]')?.checked`), true);
+  check('re-key: counts them', (await evaluate(`document.querySelector('.dialog input[name=convert]').parentElement.textContent`)).startsWith('Turn 1 derived password into a stored one'), true);
+  await shot('4d-rekey');
+  await evaluate(`document.querySelector('.dialog input[name=password]').focus()`);
+  await type('new master');
+  await evaluate(`document.querySelector('.dialog input[name=repeat]').focus()`);
+  await type('new master');
+  await press('Enter');
+  check('re-key: done', await until(`!document.querySelector('.overlay .dialog')`), true);
+  await clickNth('.entry', 'GitHub');
+  check('re-key: stored now', await evaluate(`document.querySelector('.field-hint')`), null);
+  await press('s', MOD);
+  await until(`document.querySelector('#status-state').textContent === 'Saved'`);
+  const rekeyed = Buffer.from(await evaluate(`window.__blobBase64()`), 'base64');
+  const rekeyedDb = await K.openDatabase(rekeyed.buffer.slice(rekeyed.byteOffset, rekeyed.byteOffset + rekeyed.byteLength), 'new master', null);
+  const kept = [...rekeyedDb.getDefaultGroup().allEntries()].find((e) => K.field(e, 'Title') === 'GitHub');
+  check('re-key: the same password, stored', K.field(kept, 'Password'), DERIVED);
+  check('re-key: derived settings in the history', K.parseDerived(K.field(kept.history.at(-1), 'Password'), K.field(kept, 'URL'))?.site, 'github.com');
 
   // Locking wipes the view; unlocking brings it back
   await press('l', MOD);

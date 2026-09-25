@@ -228,7 +228,11 @@
     "Cancel": "取消",
     "Done": "完成",
     "The name cannot be empty": "名称不能为空",
-    "Delete": "删除"
+    "Delete": "删除",
+    "Turn {count} derived passwords into stored ones": {
+      "other": "将 {count} 个推导密码转为存储密码"
+    },
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "推导密码由主密码计算得出：换了主密码，每个都会变成另一个密码。转为存储后保持不变，但没有文件就无法再恢复。"
   },
   "app": {
     "Password manager": "密码管理器"
@@ -278,5 +282,24 @@
     "Entries": "条目",
     "Entry list width": "条目列表宽度",
     "Entry": "条目"
+  },
+  "derived": {
+    "This password is derived by generator {version}, which this version of the app does not know": "此密码由生成器 {version} 推导，此版本的应用不认识它",
+    "The derived password settings are damaged: {reason}": "推导密码的设置已损坏：{reason}",
+    "The version is a whole number from 1 to {max}": "版本是 1 到 {max} 之间的整数",
+    "The length is from {min} to {max}": "长度为 {min} 到 {max}",
+    "Pick at least one character set": "请至少选择一种字符集",
+    "The database has no master password to derive passwords from": "数据库没有可用于推导密码的主密码",
+    "Derived · {site} · version {version}": "推导 · {site} · 版本 {version}",
+    "Stored": "存储",
+    "Derived": "推导",
+    "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "由主密码、网站、用户名和版本计算得出：没有文件也能恢复",
+    "Needs a master password, and this database opens with a key file alone": "需要主密码，而此数据库仅用密钥文件打开",
+    "Version": "版本",
+    "Next version: a new password for the same site and user name": "下一个版本：同一网站和用户名的新密码",
+    "Nothing but these settings is saved; the password is computed each time.": "只保存这些设置；密码每次都重新计算。",
+    "Enter the website: the password is derived from its domain": "请输入网址：密码由其域名推导",
+    "Site: {site}, from the website": "网站：{site}，取自网址",
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "自保存此密码以来，主密码、网址或用户名已更改，现在它是另一个密码。"
   }
 }

@@ -238,7 +238,13 @@
     "Cancel": "Cancelar",
     "Done": "Listo",
     "The name cannot be empty": "El nombre no puede estar vacío",
-    "Delete": "Eliminar"
+    "Delete": "Eliminar",
+    "Turn {count} derived passwords into stored ones": {
+      "one": "Convertir {count} contraseña derivada en guardada",
+      "many": "Convertir {count} de contraseñas derivadas en guardadas",
+      "other": "Convertir {count} contraseñas derivadas en guardadas"
+    },
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Las contraseñas derivadas se calculan a partir de la contraseña maestra: con una nueva, cada una pasa a ser otra. Guardadas, se quedan como están, pero ya no se pueden recuperar sin el archivo."
   },
   "app": {
     "Password manager": "Gestor de contraseñas"
@@ -288,5 +294,24 @@
     "Entries": "Entradas",
     "Entry list width": "Ancho de la lista de entradas",
     "Entry": "Entrada"
+  },
+  "derived": {
+    "This password is derived by generator {version}, which this version of the app does not know": "Esta contraseña se deriva con el generador {version}, que esta versión de la aplicación no conoce",
+    "The derived password settings are damaged: {reason}": "La configuración de la contraseña derivada está dañada: {reason}",
+    "The version is a whole number from 1 to {max}": "La versión es un número entero de 1 a {max}",
+    "The length is from {min} to {max}": "La longitud va de {min} a {max}",
+    "Pick at least one character set": "Elige al menos un conjunto de caracteres",
+    "The database has no master password to derive passwords from": "La base de datos no tiene una contraseña maestra de la que derivar contraseñas",
+    "Derived · {site} · version {version}": "Derivada · {site} · versión {version}",
+    "Stored": "Guardada",
+    "Derived": "Derivada",
+    "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "Se calcula a partir de la contraseña maestra, el sitio, el nombre de usuario y la versión: se puede recuperar sin el archivo",
+    "Needs a master password, and this database opens with a key file alone": "Necesita una contraseña maestra, y esta base de datos se abre solo con un archivo de clave",
+    "Version": "Versión",
+    "Next version: a new password for the same site and user name": "Siguiente versión: una contraseña nueva para el mismo sitio y usuario",
+    "Nothing but these settings is saved; the password is computed each time.": "Solo se guarda esta configuración; la contraseña se calcula cada vez.",
+    "Enter the website: the password is derived from its domain": "Indica el sitio web: la contraseña se deriva de su dominio",
+    "Site: {site}, from the website": "Sitio: {site}, del sitio web",
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "La contraseña maestra, el sitio web o el nombre de usuario han cambiado desde que se guardó esta contraseña, así que ahora es otra contraseña."
   }
 }

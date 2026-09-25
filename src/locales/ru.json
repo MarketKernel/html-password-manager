@@ -263,7 +263,14 @@
     "Cancel": "Отмена",
     "Done": "Готово",
     "The name cannot be empty": "Название не может быть пустым",
-    "Delete": "Удалить"
+    "Delete": "Удалить",
+    "Turn {count} derived passwords into stored ones": {
+      "one": "Превратить {count} вычисляемый пароль в хранимый",
+      "few": "Превратить {count} вычисляемых пароля в хранимые",
+      "many": "Превратить {count} вычисляемых паролей в хранимые",
+      "other": "Превратить {count} вычисляемого пароля в хранимые"
+    },
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Вычисляемые пароли зависят от мастер-пароля: с новым каждый из них станет другим. Хранимые останутся прежними, но восстановить их без файла будет уже нельзя."
   },
   "settings": {
     "System": "Как в системе",
@@ -293,5 +300,24 @@
     "This database format is not supported: {reason}": "Этот формат базы не поддерживается: {reason}",
     "The file is damaged: {reason}": "Файл повреждён: {reason}",
     "\"{name}\" does not look like a KeePass database (.kdbx)": "«{name}» не похож на базу KeePass (.kdbx)"
+  },
+  "derived": {
+    "This password is derived by generator {version}, which this version of the app does not know": "Этот пароль вычисляется генератором {version}, которого эта версия приложения не знает",
+    "The derived password settings are damaged: {reason}": "Настройки вычисляемого пароля повреждены: {reason}",
+    "The version is a whole number from 1 to {max}": "Версия — целое число от 1 до {max}",
+    "The length is from {min} to {max}": "Длина — от {min} до {max}",
+    "Pick at least one character set": "Выберите хотя бы один набор символов",
+    "The database has no master password to derive passwords from": "У базы нет мастер-пароля, из которого можно вычислять пароли",
+    "Derived · {site} · version {version}": "Вычисляется · {site} · версия {version}",
+    "Stored": "Хранится",
+    "Derived": "Вычисляется",
+    "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "Вычисляется из мастер-пароля, сайта, имени пользователя и версии: его можно восстановить и без файла",
+    "Needs a master password, and this database opens with a key file alone": "Нужен мастер-пароль, а эта база открывается только ключевым файлом",
+    "Version": "Версия",
+    "Next version: a new password for the same site and user name": "Следующая версия: новый пароль для того же сайта и имени",
+    "Nothing but these settings is saved; the password is computed each time.": "В базе хранятся только эти настройки; пароль каждый раз вычисляется заново.",
+    "Enter the website: the password is derived from its domain": "Укажите сайт записи: пароль вычисляется из его домена",
+    "Site: {site}, from the website": "Сайт: {site}, из поля «Сайт»",
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "С тех пор как пароль был сохранён, изменился мастер-пароль, сайт или имя пользователя — теперь это другой пароль."
   }
 }

@@ -233,7 +233,12 @@
     "Cancel": "रद्द करें",
     "Done": "हो गया",
     "The name cannot be empty": "नाम खाली नहीं हो सकता",
-    "Delete": "हटाएँ"
+    "Delete": "हटाएँ",
+    "Turn {count} derived passwords into stored ones": {
+      "one": "{count} व्युत्पन्न पासवर्ड को संग्रहीत में बदलें",
+      "other": "{count} व्युत्पन्न पासवर्डों को संग्रहीत में बदलें"
+    },
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "व्युत्पन्न पासवर्ड मास्टर पासवर्ड से गणना किए जाते हैं: नए मास्टर पासवर्ड के साथ हर एक दूसरा पासवर्ड बन जाता है। संग्रहीत होने पर वे जैसे हैं वैसे रहते हैं, पर फ़ाइल के बिना वापस नहीं पाए जा सकते।"
   },
   "app": {
     "Password manager": "पासवर्ड मैनेजर"
@@ -283,5 +288,24 @@
     "Entries": "प्रविष्टियाँ",
     "Entry list width": "प्रविष्टि सूची की चौड़ाई",
     "Entry": "प्रविष्टि"
+  },
+  "derived": {
+    "This password is derived by generator {version}, which this version of the app does not know": "यह पासवर्ड जनरेटर {version} से निकाला गया है, जिसे ऐप का यह संस्करण नहीं जानता",
+    "The derived password settings are damaged: {reason}": "व्युत्पन्न पासवर्ड की सेटिंग्स खराब हैं: {reason}",
+    "The version is a whole number from 1 to {max}": "संस्करण 1 से {max} तक की पूर्ण संख्या है",
+    "The length is from {min} to {max}": "लंबाई {min} से {max} तक है",
+    "Pick at least one character set": "कम से कम एक अक्षर-समूह चुनें",
+    "The database has no master password to derive passwords from": "डेटाबेस में कोई मास्टर पासवर्ड नहीं है जिससे पासवर्ड निकाले जा सकें",
+    "Derived · {site} · version {version}": "व्युत्पन्न · {site} · संस्करण {version}",
+    "Stored": "संग्रहीत",
+    "Derived": "व्युत्पन्न",
+    "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "मास्टर पासवर्ड, साइट, उपयोगकर्ता नाम और संस्करण से गणना किया जाता है: फ़ाइल के बिना भी वापस पाया जा सकता है",
+    "Needs a master password, and this database opens with a key file alone": "मास्टर पासवर्ड चाहिए, और यह डेटाबेस केवल कुंजी फ़ाइल से खुलता है",
+    "Version": "संस्करण",
+    "Next version: a new password for the same site and user name": "अगला संस्करण: उसी साइट और उपयोगकर्ता नाम के लिए नया पासवर्ड",
+    "Nothing but these settings is saved; the password is computed each time.": "केवल ये सेटिंग्स सहेजी जाती हैं; पासवर्ड हर बार गणना किया जाता है।",
+    "Enter the website: the password is derived from its domain": "वेबसाइट दर्ज करें: पासवर्ड उसके डोमेन से निकाला जाता है",
+    "Site: {site}, from the website": "साइट: {site}, वेबसाइट से",
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "यह पासवर्ड सहेजे जाने के बाद मास्टर पासवर्ड, वेबसाइट या उपयोगकर्ता नाम बदल गया है, इसलिए अब यह दूसरा पासवर्ड है।"
   }
 }

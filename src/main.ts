@@ -6,6 +6,7 @@
 
 import { releaseIcons } from './avatar';
 import { clearClipboard, copyText } from './clipboard';
+import { entryPassword, parseDerived, setMasterPassword } from './derived';
 import { Details } from './details';
 import {
   BlobFile,
@@ -38,6 +39,7 @@ import {
   field,
   inRecycleBin,
   isInside,
+  makeValue,
   openDatabase,
   recycleBin,
   remove,
@@ -255,6 +257,7 @@ async function unlock(): Promise<void> {
     // Let "Unlocking…" paint: the key derivation can hold the thread for a second.
     await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
     const opened = await openDatabase(data, passwordInput.value, keyFile?.data ?? null);
+    setMasterPassword(passwordInput.value);
     clearPassword();
     void rememberFile(file);
     enter(opened);
@@ -308,6 +311,7 @@ async function lock(reason: 'manual' | 'idle' = 'manual'): Promise<void> {
   }
   window.clearTimeout(saveTimer);
   db = null;
+  setMasterPassword(null);
   dirty = false;
   activeUuid = null;
   details.show(null);
@@ -351,6 +355,7 @@ async function newDatabase(): Promise<void> {
   const name = result.values['name'] || t('dialog', 'Passwords');
   try {
     const created = await createDatabase(name, result.values['password'] ?? '', null);
+    setMasterPassword(result.values['password'] ?? '');
     file = new NewFile(`${name.replace(/[\\/:*?"<>|]/g, '_')}.kdbx`);
     keyFile = null;
     enter(created);
@@ -531,7 +536,7 @@ function entryMenu(entry: Entry, anchor: HTMLElement | null): MenuItem[] {
   }
   return [
     { label: t('menu', 'Copy user name'), hint: '⌘B', action: () => void copy(field(entry, 'UserName'), t('entry', 'User name')) },
-    { label: t('menu', 'Copy password'), hint: '⌘C', action: () => void copy(field(entry, 'Password'), t('entry', 'Password')) },
+    { label: t('menu', 'Copy password'), hint: '⌘C', action: () => void copy(entryPassword(entry), t('entry', 'Password')) },
     { label: t('menu', 'Copy website'), hint: '⌘U', action: () => void copy(field(entry, 'URL'), t('entry', 'Website')) },
     { label: t('menu', 'Edit'), hint: '⌘E', separated: true, action: () => details.edit() },
     { label: t('menu', 'Duplicate'), action: () => duplicateEntry(entry) },
@@ -589,8 +594,8 @@ async function emptyTrash(): Promise<void> {
   changed();
 }
 
-async function copy(value: string, what: string): Promise<void> {
-  if (!value) {
+async function copy(value: string | Promise<string>, what: string): Promise<void> {
+  if (value === '') {
     toast(t('toast', '{what}: empty', { what }));
     return;
   }
@@ -701,8 +706,27 @@ async function renameDatabase(): Promise<void> {
   changed();
 }
 
+/** Entries whose password is derived from the master password, the recycle bin included. */
+function derivedEntries(database: Kdbx): Entry[] {
+  const out: Entry[] = [];
+  const walk = (group: Group): void => {
+    for (const entry of group.entries) {
+      try {
+        if (parseDerived(field(entry, 'Password'))) out.push(entry);
+      } catch {
+        /* settings this version cannot use are left alone */
+      }
+    }
+    for (const child of group.groups) walk(child);
+  };
+  walk(database.getDefaultGroup());
+  return out;
+}
+
 async function changeMasterPassword(): Promise<void> {
   if (!db) return;
+  if (details.isEditing && !(await details.commit())) return;
+  const derived = derivedEntries(db);
   const result = await form({
     title: t('dialog', 'Change master password'),
     message: t('dialog', 'The file is re-encrypted with the new key the next time it is saved.'),
@@ -710,6 +734,17 @@ async function changeMasterPassword(): Promise<void> {
       { name: 'password', label: t('dialog', 'New master password'), type: 'password' },
       { name: 'repeat', label: t('dialog', 'Repeat it'), type: 'password' },
       { name: 'key', label: t('dialog', 'Key file (optional)'), type: 'file' },
+      ...(derived.length
+        ? [
+            {
+              name: 'convert',
+              type: 'checkbox' as const,
+              value: 'true',
+              label: tn('dialog', 'Turn {count} derived password into a stored one', 'Turn {count} derived passwords into stored ones', derived.length),
+              hint: t('dialog', 'Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.'),
+            },
+          ]
+        : []),
     ],
     confirm: t('dialog', 'Change'),
     validate: (values, files) => {
@@ -719,11 +754,30 @@ async function changeMasterPassword(): Promise<void> {
     },
   });
   if (!result || !db) return;
+  const database = db;
+  if (result.values['convert'] === 'true') {
+    try {
+      // With the old master password, before it is replaced: every password stays what it was.
+      // One at a time: each is an Argon2 run over 64 MiB.
+      const passwords: string[] = [];
+      for (const entry of derived) passwords.push(await entryPassword(entry));
+      derived.forEach((entry, i) => {
+        entry.pushHistory();
+        entry.fields.set('Password', makeValue(passwords[i] ?? '', true));
+        entry.times.update();
+      });
+    } catch (error) {
+      toast(describeError(error), 'error');
+      return;
+    }
+  }
   const key = result.files['key'];
   const keyData = key ? await key.arrayBuffer() : null;
-  await changeCredentials(db, result.values['password'] ?? '', keyData);
+  await changeCredentials(database, result.values['password'] ?? '', keyData);
+  setMasterPassword(result.values['password'] ?? '');
   keyFile = key && keyData ? { name: key.name, data: keyData } : null;
   changed();
+  details.refresh();
   toast(t('toast', 'Master key changed'));
 }
 
@@ -1099,7 +1153,7 @@ document.addEventListener('keydown', (event) => {
     const selected = window.getSelection()?.toString();
     if (!inField && !selected && entry && !details.isEditing && ['c', 'b', 'u'].includes(key)) {
       event.preventDefault();
-      if (key === 'c') void copy(field(entry, 'Password'), t('entry', 'Password'));
+      if (key === 'c') void copy(entryPassword(entry), t('entry', 'Password'));
       if (key === 'b') void copy(field(entry, 'UserName'), t('entry', 'User name'));
       if (key === 'u') void copy(field(entry, 'URL'), t('entry', 'Website'));
     }

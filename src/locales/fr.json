@@ -238,7 +238,13 @@
     "Cancel": "Annuler",
     "Done": "Terminé",
     "The name cannot be empty": "Le nom ne peut pas être vide",
-    "Delete": "Supprimer"
+    "Delete": "Supprimer",
+    "Turn {count} derived passwords into stored ones": {
+      "one": "Convertir {count} mot de passe dérivé en mot de passe enregistré",
+      "many": "Convertir {count} de mots de passe dérivés en mots de passe enregistrés",
+      "other": "Convertir {count} mots de passe dérivés en mots de passe enregistrés"
+    },
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Les mots de passe dérivés sont calculés à partir du mot de passe principal : avec un nouveau, chacun devient un autre mot de passe. Enregistrés, ils restent tels quels, mais ne peuvent plus être retrouvés sans le fichier."
   },
   "app": {
     "Password manager": "Gestionnaire de mots de passe"
@@ -288,5 +294,24 @@
     "Entries": "Entrées",
     "Entry list width": "Largeur de la liste des entrées",
     "Entry": "Entrée"
+  },
+  "derived": {
+    "This password is derived by generator {version}, which this version of the app does not know": "Ce mot de passe est dérivé par le générateur {version}, que cette version de l’application ne connaît pas",
+    "The derived password settings are damaged: {reason}": "Les réglages du mot de passe dérivé sont endommagés : {reason}",
+    "The version is a whole number from 1 to {max}": "La version est un nombre entier de 1 à {max}",
+    "The length is from {min} to {max}": "La longueur va de {min} à {max}",
+    "Pick at least one character set": "Choisissez au moins un jeu de caractères",
+    "The database has no master password to derive passwords from": "La base n’a pas de mot de passe principal dont dériver les mots de passe",
+    "Derived · {site} · version {version}": "Dérivé · {site} · version {version}",
+    "Stored": "Enregistré",
+    "Derived": "Dérivé",
+    "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "Calculé à partir du mot de passe principal, du site, du nom d’utilisateur et de la version : il se retrouve sans le fichier",
+    "Needs a master password, and this database opens with a key file alone": "Il faut un mot de passe principal, et cette base s’ouvre avec un fichier clé seul",
+    "Version": "Version",
+    "Next version: a new password for the same site and user name": "Version suivante : un nouveau mot de passe pour le même site et le même utilisateur",
+    "Nothing but these settings is saved; the password is computed each time.": "Seuls ces réglages sont enregistrés ; le mot de passe est recalculé à chaque fois.",
+    "Enter the website: the password is derived from its domain": "Indiquez le site web : le mot de passe est dérivé de son domaine",
+    "Site: {site}, from the website": "Site : {site}, d’après le site web",
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "Le mot de passe principal, le site web ou le nom d’utilisateur a changé depuis l’enregistrement de ce mot de passe : c’est maintenant un autre mot de passe."
   }
 }

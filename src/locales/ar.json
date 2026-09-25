@@ -253,7 +253,16 @@
     "Cancel": "إلغاء",
     "Done": "تم",
     "The name cannot be empty": "لا يمكن أن يكون الاسم فارغًا",
-    "Delete": "حذف"
+    "Delete": "حذف",
+    "Turn {count} derived passwords into stored ones": {
+      "zero": "تحويل {count} كلمة مرور مشتقة إلى مخزّنة",
+      "one": "تحويل كلمة مرور مشتقة واحدة إلى مخزّنة",
+      "two": "تحويل كلمتي مرور مشتقتين إلى مخزّنتين",
+      "few": "تحويل {count} كلمات مرور مشتقة إلى مخزّنة",
+      "many": "تحويل {count} كلمة مرور مشتقة إلى مخزّنة",
+      "other": "تحويل {count} كلمة مرور مشتقة إلى مخزّنة"
+    },
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "كلمات المرور المشتقة تُحسب من كلمة المرور الرئيسية: مع كلمة جديدة تصبح كل منها كلمة مرور مختلفة. إذا خُزّنت تبقى كما هي، لكن لا يمكن استعادتها بعد ذلك دون الملف."
   },
   "app": {
     "Password manager": "مدير كلمات المرور"
@@ -303,5 +312,24 @@
     "Entries": "المدخلات",
     "Entry list width": "عرض قائمة المدخلات",
     "Entry": "المدخل"
+  },
+  "derived": {
+    "This password is derived by generator {version}, which this version of the app does not know": "كلمة المرور هذه مشتقة بالمولّد {version}، ولا يعرفه هذا الإصدار من التطبيق",
+    "The derived password settings are damaged: {reason}": "إعدادات كلمة المرور المشتقة تالفة: {reason}",
+    "The version is a whole number from 1 to {max}": "الإصدار عدد صحيح من 1 إلى {max}",
+    "The length is from {min} to {max}": "الطول من {min} إلى {max}",
+    "Pick at least one character set": "اختر مجموعة أحرف واحدة على الأقل",
+    "The database has no master password to derive passwords from": "ليس لقاعدة البيانات كلمة مرور رئيسية تُشتق منها كلمات المرور",
+    "Derived · {site} · version {version}": "مشتقة · {site} · الإصدار {version}",
+    "Stored": "مخزّنة",
+    "Derived": "مشتقة",
+    "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "تُحسب من كلمة المرور الرئيسية والموقع واسم المستخدم والإصدار: يمكن استعادتها دون الملف",
+    "Needs a master password, and this database opens with a key file alone": "تحتاج إلى كلمة مرور رئيسية، وقاعدة البيانات هذه تُفتح بملف مفتاح فقط",
+    "Version": "الإصدار",
+    "Next version: a new password for the same site and user name": "الإصدار التالي: كلمة مرور جديدة للموقع واسم المستخدم نفسيهما",
+    "Nothing but these settings is saved; the password is computed each time.": "لا يُحفظ سوى هذه الإعدادات؛ وتُحسب كلمة المرور في كل مرة.",
+    "Enter the website: the password is derived from its domain": "أدخل الموقع الإلكتروني: كلمة المرور تُشتق من نطاقه",
+    "Site: {site}, from the website": "الموقع: {site}، من الموقع الإلكتروني",
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "تغيّرت كلمة المرور الرئيسية أو الموقع الإلكتروني أو اسم المستخدم منذ حفظ كلمة المرور هذه، فهي الآن كلمة مرور مختلفة."
   }
 }

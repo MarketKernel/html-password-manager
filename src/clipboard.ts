@@ -9,8 +9,9 @@ import { t } from './i18n';
 let clearTimer = 0;
 let pending = false;
 
-export async function copyText(value: string, clearAfterSeconds: number): Promise<void> {
-  await write(value);
+/** A promise for a value still being computed is handed to the clipboard at once, while the click still counts. */
+export async function copyText(value: string | Promise<string>, clearAfterSeconds: number): Promise<void> {
+  await (typeof value === 'string' ? write(value) : writeLater(value));
   window.clearTimeout(clearTimer);
   pending = clearAfterSeconds > 0;
   if (pending) clearTimer = window.setTimeout(() => void clearClipboard(), clearAfterSeconds * 1000);
@@ -22,6 +23,24 @@ export async function clearClipboard(): Promise<void> {
   if (!pending) return;
   pending = false;
   await write('').catch(() => undefined);
+}
+
+/**
+ * Safari and Firefox let a page write the clipboard only right after a click,
+ * which a derived password (Argon2) outlasts. A ClipboardItem accepts the
+ * value as a promise, so the write starts inside the click.
+ */
+async function writeLater(value: Promise<string>): Promise<void> {
+  if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+    const blob = value.then((text) => new Blob([text], { type: 'text/plain' }));
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blob })]);
+      return;
+    } catch {
+      /* the value failed, or the browser refused: find out which below */
+    }
+  }
+  await write(await value);
 }
 
 async function write(value: string): Promise<void> {
