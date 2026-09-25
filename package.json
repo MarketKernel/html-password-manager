@@ -1,0 +1,24 @@
+{
+  "name": "html-password-manager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A KeePass (.kdbx) password manager — one standalone HTML file",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node tools/test-kdbx.mjs && node tools/test-generator.mjs",
+    "test:browser": "node --experimental-websocket tools/test-app.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "hash-wasm": "^4.12.0",
+    "kdbxweb": "^2.1.1",
+    "typescript": "^5.9.3"
+  }
+}
