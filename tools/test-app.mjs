@@ -392,6 +392,27 @@ try {
   await evaluate(`${generalCaret}.setAttribute('data-caret', '')`);
   await click('[data-caret]');
   check('caret unfolds', (await texts('.tree-item--group .tree-label')).includes('Accounts'), true);
+
+  // A deleted group waits in the recycle bin, folded until asked
+  await click('#new-group');
+  await type('Old');
+  await press('Enter');
+  await evaluate(`document.querySelectorAll('[data-pick]').forEach((n) => n.removeAttribute('data-pick')); [...document.querySelectorAll('.tree-item--group')].find((n) => n.textContent.includes('Old')).setAttribute('data-pick', '')`);
+  await rightClick('[data-pick]');
+  await clickNth('.context-item', 'Delete group');
+  await until(`!!document.querySelector('.overlay:not([hidden]) .dialog')`);
+  await click('.overlay .button--primary, .overlay .button--danger');
+  await until(`![...document.querySelectorAll('.overlay:not([hidden]) .dialog')].length`);
+  const binCaret = `document.querySelector('.tree-item--trash .tree-caret')`;
+  check('bin: folded by default', (await texts('.tree-item--group .tree-label')).includes('Old'), false);
+  check('bin: caret shows closed', await evaluate(`${binCaret}.textContent`), '▸');
+  await evaluate(`${binCaret}.setAttribute('data-caret', '')`);
+  await click('[data-caret]');
+  check('bin: caret unfolds', (await texts('.tree-item--group .tree-label')).includes('Old'), true);
+  check('bin: remembered', await evaluate(`JSON.parse(localStorage.getItem('html-password-manager')).binOpen`), true);
+  await evaluate(`${binCaret}.setAttribute('data-caret', '')`);
+  await click('[data-caret]');
+  check('bin: caret folds', (await texts('.tree-item--group .tree-label')).includes('Old'), false);
   await shot('5-app');
 
   // A new entry whose password is derived from the master password, not stored

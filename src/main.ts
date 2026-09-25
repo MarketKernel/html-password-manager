@@ -157,11 +157,13 @@ const sidebar = new Sidebar(el('groups'), {
   },
   onCollapse: () => {
     settings.collapsed = sidebar.getCollapsed();
+    settings.binOpen = sidebar.isBinOpen();
     saveSettings(settings);
   },
   canEdit: () => db !== null,
 });
 sidebar.setCollapsed(settings.collapsed);
+sidebar.setBinOpen(settings.binOpen);
 
 const list = new EntryList(el('entries'), el('entries-empty'), {
   onSelect: (entry) => void selectEntry(entry),

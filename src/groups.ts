@@ -43,6 +43,8 @@ export class Sidebar {
   private db: Kdbx | null = null;
   private selection: Selection = { kind: 'all' };
   private collapsed = new Set<string>();
+  /** The recycle bin starts folded: deleted groups are rarely what one looks for. */
+  private binOpen = false;
 
   constructor(
     private readonly root: HTMLElement,
@@ -81,9 +83,30 @@ export class Sidebar {
     return Array.from(this.collapsed);
   }
 
+  setBinOpen(open: boolean): void {
+    this.binOpen = open;
+  }
+
+  isBinOpen(): boolean {
+    return this.binOpen;
+  }
+
   private expandTo(uuid: string): void {
     const group = this.db?.getGroup(uuid);
-    for (let node = group?.parentGroup; node; node = node.parentGroup) this.collapsed.delete(uuidOf(node));
+    const bin = this.db ? recycleBin(this.db) : null;
+    for (let node = group?.parentGroup; node; node = node.parentGroup) {
+      if (node === bin) this.binOpen = true;
+      else this.collapsed.delete(uuidOf(node));
+    }
+  }
+
+  /** `key` is a group UUID, or 'trash' for the recycle bin. */
+  private toggle(key: string): void {
+    if (key === 'trash') this.binOpen = !this.binOpen;
+    else if (this.collapsed.has(key)) this.collapsed.delete(key);
+    else this.collapsed.add(key);
+    this.host.onCollapse();
+    this.render();
   }
 
   render(): void {
@@ -129,6 +152,7 @@ export class Sidebar {
     if (bin) {
       out.append(h('div', { class: 'sidebar-spacer' }));
       const count = entriesBelow(db, bin).length + countGroups(bin);
+      const caret = h('span', { class: 'tree-caret', 'data-toggle': 'trash', text: bin.groups.length ? this.caretText(this.binOpen) : '' });
       out.append(
         this.row({
           kind: 'trash',
@@ -136,11 +160,12 @@ export class Sidebar {
           count,
           mark: icon(ICONS.trash),
           active: this.selection.kind === 'trash',
+          caret,
           drop: true,
         }),
       );
       // Deleted groups keep their shape inside the bin, so they can be restored whole.
-      if (bin.groups.length) out.append(this.groupList(bin.groups, 1, null));
+      if (bin.groups.length && this.binOpen) out.append(this.groupList(bin.groups, 1, null));
     }
     this.root.replaceChildren(out);
   }
@@ -153,7 +178,7 @@ export class Sidebar {
       const children = group.groups.filter((child) => child !== bin);
       const open = depth === 0 || !this.collapsed.has(uuid);
       const item = h('li', { class: 'tree-node' });
-      const caret = h('span', { class: 'tree-caret', 'data-toggle': uuid, text: children.length ? (open ? '▾' : isRightToLeft() ? '◂' : '▸') : '' });
+      const caret = h('span', { class: 'tree-caret', 'data-toggle': uuid, text: children.length ? this.caretText(open) : '' });
       const row = this.row({
         kind: 'group',
         uuid,
@@ -171,6 +196,10 @@ export class Sidebar {
       list.append(item);
     }
     return list;
+  }
+
+  private caretText(open: boolean): string {
+    return open ? '▾' : isRightToLeft() ? '◂' : '▸';
   }
 
   private row(options: {
@@ -223,11 +252,7 @@ export class Sidebar {
     const target = event.target as HTMLElement | null;
     const toggle = target?.closest<HTMLElement>('[data-toggle]');
     if (toggle && toggle.textContent) {
-      const uuid = toggle.dataset['toggle'] ?? '';
-      if (this.collapsed.has(uuid)) this.collapsed.delete(uuid);
-      else this.collapsed.add(uuid);
-      this.host.onCollapse();
-      this.render();
+      this.toggle(toggle.dataset['toggle'] ?? '');
       return;
     }
     const row = target?.closest<HTMLElement>('.tree-item');
@@ -236,13 +261,10 @@ export class Sidebar {
   };
 
   private readonly onDoubleClick = (event: MouseEvent): void => {
-    const row = (event.target as HTMLElement | null)?.closest<HTMLElement>('.tree-item--group');
-    const uuid = row?.dataset['uuid'];
-    if (!uuid || row?.querySelector('.tree-caret')?.textContent === '') return;
-    if (this.collapsed.has(uuid)) this.collapsed.delete(uuid);
-    else this.collapsed.add(uuid);
-    this.host.onCollapse();
-    this.render();
+    const row = (event.target as HTMLElement | null)?.closest<HTMLElement>('.tree-item--group, .tree-item--trash');
+    const key = row?.dataset['kind'] === 'trash' ? 'trash' : row?.dataset['uuid'];
+    if (!key || row?.querySelector('.tree-caret')?.textContent === '') return;
+    this.toggle(key);
   };
 
   private readonly onContextMenu = (event: MouseEvent): void => {

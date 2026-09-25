@@ -27,6 +27,8 @@ export interface Settings {
   generator: GeneratorOptions;
   /** Collapsed groups, by UUID. */
   collapsed: string[];
+  /** The recycle bin's deleted groups are shown; folded unless asked. */
+  binOpen: boolean;
 }
 
 const KEY = 'html-password-manager';
@@ -50,6 +52,7 @@ const DEFAULTS: Settings = {
   autosave: true,
   generator: { ...GENERATOR_DEFAULTS },
   collapsed: [],
+  binOpen: false,
 };
 
 export function loadSettings(): Settings {
@@ -72,6 +75,7 @@ export function loadSettings(): Settings {
         : DEFAULTS.clipboardSeconds,
       generator,
       collapsed: Array.isArray(stored.collapsed) ? stored.collapsed : [],
+      binOpen: stored.binOpen === true,
     };
   } catch {
     return structuredClone(DEFAULTS);
