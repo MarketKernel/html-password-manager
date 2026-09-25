@@ -2,6 +2,7 @@
 
 import { entryAvatar } from './avatar';
 import { DRAG_ENTRY } from './groups';
+import { t } from './i18n';
 import { field, groupPath, titleOf, uuidOf, type Entry, type Kdbx } from './kdbx';
 import { hostOf } from './search';
 import { h } from './ui';
@@ -89,7 +90,7 @@ export class EntryList {
       }
       if (entry.times.expires && entry.times.expiryTime && entry.times.expiryTime.getTime() < Date.now()) {
         row.classList.add('entry--expired');
-        row.title = 'Expired';
+        row.title = t('list', 'Expired');
       }
       if (uuid === this.active) row.classList.add('entry--active');
       row.dataset['uuid'] = uuid;

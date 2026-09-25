@@ -5,6 +5,7 @@
  */
 
 import { groupIcon } from './avatar';
+import { isRightToLeft, t } from './i18n';
 import { allTags, entriesBelow, inRecycleBin, recycleBin, uuidOf, type Group, type Kdbx } from './kdbx';
 import { h, icon, ICONS, menu, type MenuItem } from './ui';
 
@@ -98,19 +99,19 @@ export class Sidebar {
     out.append(
       this.row({
         kind: 'all',
-        label: 'All entries',
+        label: t('sidebar', 'All entries'),
         count: entriesBelow(db, top).length,
         mark: icon(ICONS.list),
         active: this.selection.kind === 'all',
       }),
     );
 
-    out.append(h('div', { class: 'sidebar-heading', text: 'Groups' }));
+    out.append(h('div', { class: 'sidebar-heading', text: t('sidebar', 'Groups') }));
     out.append(this.groupList([top], 0, bin));
 
     const tags = allTags(db);
     if (tags.size > 0) {
-      out.append(h('div', { class: 'sidebar-heading', text: 'Tags' }));
+      out.append(h('div', { class: 'sidebar-heading', text: t('sidebar', 'Tags') }));
       for (const [tag, count] of tags) {
         out.append(
           this.row({
@@ -131,7 +132,7 @@ export class Sidebar {
       out.append(
         this.row({
           kind: 'trash',
-          label: 'Recycle bin',
+          label: t('sidebar', 'Recycle bin'),
           count,
           mark: icon(ICONS.trash),
           active: this.selection.kind === 'trash',
@@ -152,11 +153,11 @@ export class Sidebar {
       const children = group.groups.filter((child) => child !== bin);
       const open = depth === 0 || !this.collapsed.has(uuid);
       const item = h('li', { class: 'tree-node' });
-      const caret = h('span', { class: 'tree-caret', 'data-toggle': uuid, text: children.length ? (open ? '▾' : '▸') : '' });
+      const caret = h('span', { class: 'tree-caret', 'data-toggle': uuid, text: children.length ? (open ? '▾' : isRightToLeft() ? '◂' : '▸') : '' });
       const row = this.row({
         kind: 'group',
         uuid,
-        label: group.name || '(unnamed)',
+        label: group.name || t('sidebar', '(unnamed)'),
         count: this.db ? entriesBelow(this.db, group).length : 0,
         mark: groupIcon(this.db as Kdbx, group),
         active: this.selection.kind === 'group' && this.selection.uuid === uuid,
@@ -192,7 +193,7 @@ export class Sidebar {
     if (options.tag) row.dataset['tag'] = options.tag;
     if (options.drop) row.dataset['drop'] = '';
     if (options.drag && this.host.canEdit()) row.draggable = true;
-    row.style.paddingLeft = `${6 + (options.depth ?? 0) * 14}px`;
+    row.style.paddingInlineStart = `${6 + (options.depth ?? 0) * 14}px`;
     options.mark.classList.add('tree-icon');
     row.append(
       options.caret ?? h('span', { class: 'tree-caret' }),
@@ -250,24 +251,24 @@ export class Sidebar {
     const row = (event.target as HTMLElement | null)?.closest<HTMLElement>('.tree-item');
     event.preventDefault();
     if (row?.dataset['kind'] === 'trash') {
-      menu(event.clientX, event.clientY, [{ label: 'Empty recycle bin', danger: true, action: () => this.host.onEmptyTrash() }]);
+      menu(event.clientX, event.clientY, [{ label: t('menu', 'Empty recycle bin'), danger: true, action: () => this.host.onEmptyTrash() }]);
       return;
     }
     const group = row?.dataset['uuid'] ? db.getGroup(row.dataset['uuid']) : db.getDefaultGroup();
     if (!group) return;
     if (inRecycleBin(db, group)) {
       menu(event.clientX, event.clientY, [
-        { label: 'Restore group', action: () => this.host.onRestore(group) },
-        { label: 'Delete permanently', danger: true, action: () => this.host.onDelete(group) },
+        { label: t('menu', 'Restore group'), action: () => this.host.onRestore(group) },
+        { label: t('menu', 'Delete permanently'), danger: true, action: () => this.host.onDelete(group) },
       ]);
       return;
     }
     const items: MenuItem[] = [
-      { label: 'New entry here', action: () => this.host.onNewEntry(group) },
-      { label: 'New group inside', action: () => this.host.onNewGroup(group) },
-      { label: 'Rename', action: () => this.host.onRename(group), separated: true },
+      { label: t('menu', 'New entry here'), action: () => this.host.onNewEntry(group) },
+      { label: t('menu', 'New group inside'), action: () => this.host.onNewGroup(group) },
+      { label: t('menu', 'Rename'), action: () => this.host.onRename(group), separated: true },
     ];
-    if (group.parentGroup) items.push({ label: 'Delete group', danger: true, action: () => this.host.onDelete(group) });
+    if (group.parentGroup) items.push({ label: t('menu', 'Delete group'), danger: true, action: () => this.host.onDelete(group) });
     menu(event.clientX, event.clientY, items);
   };
 

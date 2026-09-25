@@ -9,6 +9,7 @@
 
 import * as kdbxweb from 'kdbxweb';
 import { argon2d, argon2id } from 'hash-wasm';
+import { t } from './i18n';
 
 export type Kdbx = kdbxweb.Kdbx;
 export type Entry = kdbxweb.KdbxEntry;
@@ -69,7 +70,8 @@ export async function createDatabase(name: string, password: string, keyFile: Ar
   }
   const root = db.getDefaultGroup();
   root.name = name;
-  for (const [title, icon] of [['General', 48], ['Email', 19], ['Internet', 1], ['Banking', 37]] as const) {
+  const groups = [[t('database', 'General'), 48], [t('database', 'Email'), 19], [t('database', 'Internet'), 1], [t('database', 'Banking'), 37]] as const;
+  for (const [title, icon] of groups) {
     db.createGroup(root, title).icon = icon;
   }
   // Kdbx.create makes the recycle bin first; KeePass keeps it at the bottom.
@@ -88,14 +90,14 @@ export function describeError(error: unknown): string {
   if (error instanceof kdbxweb.KdbxError) {
     switch (error.code) {
       case kdbxweb.Consts.ErrorCodes.InvalidKey:
-        return 'Wrong password or key file';
+        return t('errors', 'Wrong password or key file');
       case kdbxweb.Consts.ErrorCodes.BadSignature:
-        return 'This is not a KeePass database';
+        return t('errors', 'This is not a KeePass database');
       case kdbxweb.Consts.ErrorCodes.InvalidVersion:
       case kdbxweb.Consts.ErrorCodes.Unsupported:
-        return `This database format is not supported: ${error.message}`;
+        return t('errors', 'This database format is not supported: {reason}', { reason: error.message });
       case kdbxweb.Consts.ErrorCodes.FileCorrupt:
-        return `The file is damaged: ${error.message}`;
+        return t('errors', 'The file is damaged: {reason}', { reason: error.message });
       default:
         return error.message;
     }
@@ -148,7 +150,7 @@ export function makeValue(value: string, protect: boolean): FieldValue {
 }
 
 export function titleOf(entry: Entry): string {
-  return field(entry, 'Title').trim() || '(untitled)';
+  return field(entry, 'Title').trim() || t('entry', '(untitled)');
 }
 
 export function uuidOf(object: Entry | Group): string {
@@ -276,7 +278,7 @@ export function cloneEntry(db: Kdbx, entry: Entry): Entry {
   copy.uuid = uuid;
   copy.history = [];
   copy.times = kdbxweb.KdbxTimes.create();
-  copy.fields.set('Title', makeValue(`${field(entry, 'Title')} (copy)`, isProtected(entry, 'Title')));
+  copy.fields.set('Title', makeValue(t('entry', '{title} (copy)', { title: field(entry, 'Title') }), isProtected(entry, 'Title')));
   return copy;
 }
 

@@ -74,8 +74,11 @@ copy of the database.
 - **Password generator**: length, character sets, look-alike characters, entropy estimate.
   Strength meter for typed passwords.
 - **Database**: rename, change the master password and key file, save a copy.
-- **Theme**: system, light, dark. **Zoom**: 50–200 %. Theme, zoom, panel widths, sorting,
-  generator options and collapsed groups are remembered.
+- **Languages**: English, 中文, हिन्दी, Español, Français, العربية, বাংলা, Português, Русский,
+  اردو — the ten most spoken. Chosen in Settings, or taken from the browser; Arabic and Urdu
+  lay the window out right to left.
+- **Theme**: system, light, dark. **Zoom**: 50–200 %. Language, theme, zoom, panel widths,
+  sorting, generator options and collapsed groups are remembered.
 
 ## Keyboard shortcuts
 
@@ -94,6 +97,27 @@ copy of the database.
 | Group panel | `⌘\` |
 | Zoom | `⌘+` · `⌘−` · `⌘0` |
 
+## Translations
+
+The English text stays in the code: `t('menu', 'Delete')`, `tn('status', '{count} entry',
+'{count} entries', n)`, and `data-i18n="context"` / `data-i18n-attr="context"` in the
+template. The first argument is the context — the part of the interface a string belongs
+to, so the same English word can be translated differently in two places. A dictionary,
+`src/locales/<code>.json`, maps context → English text → translation:
+
+```json
+{
+  "menu": { "Delete": "Удалить" },
+  "status": { "{count} entries": { "one": "{count} запись", "few": "{count} записи", "many": "{count} записей", "other": "{count} записи" } }
+}
+```
+
+A string the dictionary lacks is shown in English. A text with a number has one form per
+plural category of the language (`Intl.PluralRules`), keyed by the English plural form.
+`npm run i18n` lists, per language, the strings not translated yet and the ones no longer
+used; `npm test` checks that every translation keeps the English placeholders and has all
+plural forms.
+
 ## Build
 
 ```sh
@@ -102,14 +126,15 @@ npm install
 npm run build      # -> build/password-manager.html
 npm run watch      # rebuild on changes in src/
 npm run typecheck  # tsc --noEmit
-npm test           # 94 checks: opening, editing and saving .kdbx files, the generator, TOTP
-npm run test:browser  # 103 checks of the built page in headless Chrome
+npm test           # opening, editing and saving .kdbx files, the generator, TOTP, the dictionaries
+npm run test:browser  # the built page in headless Chrome
+npm run i18n       # strings each dictionary lacks or no longer needs
 ```
 
 `build.mjs` bundles `src/main.ts` with esbuild into an IIFE and substitutes it, along with
 the styles and the icon (a data URI), into `src/template.html`. kdbxweb's fallbacks for
 Node (`crypto`, `@xmldom/xmldom`) are replaced with empty stubs — a browser has `crypto.subtle`
-and `DOMParser`. The result is `build/password-manager.html`, around 270 KB.
+and `DOMParser`. The result is `build/password-manager.html`, around 400 KB, a quarter of it the dictionaries.
 
 `tools/fixtures/Database.kdbx` is a sample database for the tests; its password is `Тестовый пароль`.
 
@@ -130,9 +155,11 @@ src/genpanel.ts     the generator popover
 src/otp.ts          TOTP (RFC 6238) and the ways secrets are stored
 src/clipboard.ts    copying with a timed wipe
 src/avatar.ts       entry icons: custom icons from the database or a coloured letter
-src/settings.ts     localStorage: theme, zoom, panels, lock and clipboard timers
+src/settings.ts     localStorage: language, theme, zoom, panels, lock and clipboard timers
+src/i18n.ts         t()/tn(), the language list, translating the page's markup
+src/locales/        one dictionary per language
 src/ui.ts           dialogs, context menu, popovers, toasts, icons
-tools/              tests: .kdbx round trips, generator and TOTP, the page in headless Chrome
+tools/              tests: .kdbx round trips, generator and TOTP, dictionaries, the page in headless Chrome
 vendor/icon.svg     the icon
 docs/               working notes (not under git)
 build/              the build output

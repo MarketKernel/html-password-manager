@@ -1,5 +1,7 @@
 /** Small dialogs, a context menu, popovers and toasts — enough to avoid native prompts. */
 
+import { t } from './i18n';
+
 let overlay: HTMLDivElement | null = null;
 
 function shell(): HTMLDivElement {
@@ -140,7 +142,7 @@ export function bindLayoutBadge(input: HTMLInputElement, badge: HTMLElement): ()
     const layout = layoutOf(input.value);
     badge.hidden = !layout;
     badge.textContent = layout ?? '';
-    badge.title = layout === 'РУС' ? 'Typing in Cyrillic' : 'Typing in Latin';
+    badge.title = layout === 'РУС' ? t('password', 'Typing in Cyrillic') : t('password', 'Typing in Latin');
   };
   input.addEventListener('input', update);
   update();
@@ -152,11 +154,11 @@ function secretField(input: HTMLInputElement): HTMLElement {
   const layer = maskInput(input);
   const badge = h('span', { class: 'layout-badge', 'aria-live': 'polite' });
   bindLayoutBadge(input, badge);
-  const reveal = h('button', { type: 'button', class: 'icon-button icon-button--small', title: 'Show password' }, icon(ICONS.eye));
+  const reveal = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('password', 'Show password') }, icon(ICONS.eye));
   reveal.addEventListener('click', () => {
     const shown = !isRevealed(input);
     setRevealed(input, shown);
-    reveal.title = shown ? 'Hide password' : 'Show password';
+    reveal.title = shown ? t('password', 'Hide password') : t('password', 'Show password');
     reveal.replaceChildren(icon(shown ? ICONS.eyeOff : ICONS.eye));
     input.focus();
   });
@@ -221,7 +223,7 @@ export function form(options: FormOptions): Promise<FormResult | null> {
     h(
       'div',
       { class: 'dialog-row' },
-      h('button', { type: 'button', class: 'button button--ghost', 'data-cancel': '', text: 'Cancel' }),
+      h('button', { type: 'button', class: 'button button--ghost', 'data-cancel': '', text: t('dialog', 'Cancel') }),
       h('button', { type: 'submit', class: `button ${options.danger ? 'button--danger' : 'button--primary'}`, text: options.confirm }),
     ),
   );
@@ -279,13 +281,13 @@ export async function ask(title: string, label: string, value = ''): Promise<str
   const result = await form({
     title,
     fields: [{ name: 'value', label, value }],
-    confirm: 'Done',
-    validate: (values) => (values['value'] ? null : 'The name cannot be empty'),
+    confirm: t('dialog', 'Done'),
+    validate: (values) => (values['value'] ? null : t('dialog', 'The name cannot be empty')),
   });
   return result ? (result.values['value'] ?? '') : null;
 }
 
-export async function confirmAsk(title: string, message: string, confirm = 'Delete', danger = true): Promise<boolean> {
+export async function confirmAsk(title: string, message: string, confirm = t('dialog', 'Delete'), danger = true): Promise<boolean> {
   return (await form({ title, message, confirm, danger })) !== null;
 }
 

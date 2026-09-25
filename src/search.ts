@@ -1,16 +1,22 @@
 /** Filtering and sorting the entry list. */
 
+import { t } from './i18n';
 import { customFields, field, isProtected, type Entry } from './kdbx';
 
 export type SortKey = 'title' | 'username' | 'url' | 'modified' | 'created';
 
-export const SORT_LABELS: Record<SortKey, string> = {
-  title: 'Title',
-  username: 'User name',
-  url: 'Website',
-  modified: 'Last modified',
-  created: 'Created',
-};
+export const SORT_KEYS: readonly SortKey[] = ['title', 'username', 'url', 'modified', 'created'];
+
+export function sortLabel(key: SortKey): string {
+  const labels: Record<SortKey, string> = {
+    title: t('list', 'Title'),
+    username: t('list', 'User name'),
+    url: t('list', 'Website'),
+    modified: t('list', 'Last modified'),
+    created: t('list', 'Created'),
+  };
+  return labels[key];
+}
 
 /**
  * Every word of the query must turn up somewhere in the entry: the title, user

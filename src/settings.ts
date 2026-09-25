@@ -1,11 +1,14 @@
-/** Theme, zoom, panel and security preferences, remembered in localStorage between sessions. */
+/** Language, theme, zoom, panel and security preferences, remembered in localStorage between sessions. */
 
 import { GENERATOR_DEFAULTS, LENGTH_MAX, LENGTH_MIN, type GeneratorOptions } from './generator';
+import { detectLanguage, isLanguage, type Language } from './i18n';
 import type { SortKey } from './search';
 
 export type Theme = 'system' | 'light' | 'dark';
 
 export interface Settings {
+  /** 'auto' follows the browser's languages. */
+  language: Language | 'auto';
   theme: Theme;
   /** Percent; the list and the entry scale, the chrome does not. */
   zoom: number;
@@ -35,6 +38,7 @@ export const LOCK_CHOICES = [0, 1, 5, 10, 15, 30, 60];
 export const CLIPBOARD_CHOICES = [0, 10, 20, 30, 60, 120];
 
 const DEFAULTS: Settings = {
+  language: 'auto',
   theme: 'system',
   zoom: 100,
   sidebar: 250,
@@ -58,6 +62,7 @@ export function loadSettings(): Settings {
     return {
       ...DEFAULTS,
       ...stored,
+      language: isLanguage(stored.language) ? stored.language : 'auto',
       zoom: clampZoom(Number(stored.zoom ?? DEFAULTS.zoom)),
       sidebar: clampWidth(stored.sidebar, DEFAULTS.sidebar, 160, 480),
       list: clampWidth(stored.list, DEFAULTS.list, 220, 640),
@@ -89,6 +94,11 @@ function clampWidth(value: unknown, fallback: number, min: number, max: number):
 export function clampZoom(zoom: number): number {
   if (!Number.isFinite(zoom)) return DEFAULTS.zoom;
   return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(zoom / 5) * 5));
+}
+
+/** The language the interface is shown in. */
+export function resolveLanguage(choice: Settings['language']): Language {
+  return choice === 'auto' ? detectLanguage() : choice;
 }
 
 export function applyTheme(theme: Theme): void {

@@ -11,6 +11,8 @@
  * never the contents or a password — so the next visit just asks to unlock.
  */
 
+import { t } from './i18n';
+
 export interface DbFile {
   readonly name: string;
   /** False → saving offers a download instead of writing to disk. */
@@ -50,10 +52,10 @@ declare global {
   }
 }
 
-const KDBX_TYPE: PickerType = {
-  description: 'KeePass database',
+const kdbxType = (): PickerType => ({
+  description: t('gate', 'KeePass database'),
   accept: { 'application/octet-stream': ['.kdbx'] },
-};
+});
 
 export const canWriteInPlace = typeof window !== 'undefined' && typeof window.showOpenFilePicker === 'function';
 
@@ -71,7 +73,7 @@ export class HandleFile implements DbFile {
   }
 
   async write(data: ArrayBuffer): Promise<void> {
-    if (!this.handle.createWritable) throw new Error('This browser cannot write files');
+    if (!this.handle.createWritable) throw new Error(t('errors', 'This browser cannot write files'));
     // The browser writes to a temporary file and swaps it in on close, so a
     // failure halfway leaves the old database intact.
     const stream = await this.handle.createWritable();
@@ -84,7 +86,7 @@ export class HandleFile implements DbFile {
     if (!this.handle.queryPermission || !this.handle.requestPermission) return;
     if ((await this.handle.queryPermission({ mode: 'read' })) === 'granted') return;
     if ((await this.handle.requestPermission({ mode: 'read' })) !== 'granted') {
-      throw new Error('The browser was not allowed to read the file');
+      throw new Error(t('errors', 'The browser was not allowed to read the file'));
     }
   }
 
@@ -116,7 +118,7 @@ export class BlobFile implements DbFile {
   }
 
   async write(): Promise<void> {
-    throw new Error('The file is open read-only');
+    throw new Error(t('errors', 'The file is open read-only'));
   }
 }
 
@@ -128,11 +130,11 @@ export class NewFile implements DbFile {
   constructor(readonly name: string) {}
 
   async read(): Promise<ArrayBuffer> {
-    throw new Error('The database has not been saved yet');
+    throw new Error(t('errors', 'The database has not been saved yet'));
   }
 
   async write(): Promise<void> {
-    throw new Error('The database has not been saved yet');
+    throw new Error(t('errors', 'The database has not been saved yet'));
   }
 }
 
@@ -140,7 +142,7 @@ export class NewFile implements DbFile {
 export async function pickFile(): Promise<HandleFile | null> {
   if (!window.showOpenFilePicker) return null;
   try {
-    const [handle] = await window.showOpenFilePicker({ types: [KDBX_TYPE], id: 'kdbx' });
+    const [handle] = await window.showOpenFilePicker({ types: [kdbxType()], id: 'kdbx' });
     return handle ? new HandleFile(handle) : null;
   } catch (error) {
     if (isAbort(error)) return null;
@@ -152,7 +154,7 @@ export async function pickFile(): Promise<HandleFile | null> {
 export async function pickSaveTarget(suggestedName: string): Promise<HandleFile | null> {
   if (!window.showSaveFilePicker) return null;
   try {
-    const handle = await window.showSaveFilePicker({ suggestedName, types: [KDBX_TYPE], id: 'kdbx' });
+    const handle = await window.showSaveFilePicker({ suggestedName, types: [kdbxType()], id: 'kdbx' });
     const file = new HandleFile(handle);
     file.writable = true;
     return file;

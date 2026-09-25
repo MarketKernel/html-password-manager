@@ -173,7 +173,7 @@ try {
     source: `
       delete window.showOpenFilePicker;
       delete window.showSaveFilePicker;
-      localStorage.setItem('html-password-manager', JSON.stringify({ theme: ${JSON.stringify(process.env.THEME ?? 'light')}, autosave: false }));
+      localStorage.setItem('html-password-manager', JSON.stringify({ language: 'en', theme: ${JSON.stringify(process.env.THEME ?? 'light')}, autosave: false }));
       const orig = URL.createObjectURL;
       window.__downloads = [];
       URL.createObjectURL = (blob) => { window.__lastBlob = blob; return orig(blob); };
@@ -418,6 +418,30 @@ try {
   await press('Enter');
   check('unlocked again', await until(`!document.querySelector('#app').hidden`), true);
 
+  // Switching the language redraws everything at once, and is remembered
+  const pickLanguage = async (code) => {
+    if (!(await visible('.settings'))) await click('#settings');
+    await evaluate(`(() => { const s = document.querySelector('.settings-select'); s.value = ${JSON.stringify(code)}; s.dispatchEvent(new Event('change')); })()`);
+    await sleep(60);
+  };
+  await clickNth('.entry', 'Sample Entry #2');
+  await pickLanguage('ru');
+  check('ru: lang attribute', await evaluate(`document.documentElement.lang`), 'ru');
+  check('ru: settings panel redrawn', await text('.settings-title'), 'Настройки');
+  check('ru: markup translated', [await text('.toolbar-label'), await evaluate(`document.querySelector('#lock').title`), await evaluate(`document.querySelector('#search').placeholder`)], ['Новая запись', 'Заблокировать (⌘L)', 'Поиск (⌘F)']);
+  check('ru: sidebar', await text('.tree-item--all .tree-label'), 'Все записи');
+  check('ru: list title', await text('#list-title'), 'Все записи');
+  check('ru: entry fields', await fieldValue('Имя пользователя'), 'Michael321');
+  check('ru: plural in the status bar', /^3 записи · /.test(await text('#status-format')), true);
+  check('ru: remembered', await evaluate(`JSON.parse(localStorage.getItem('html-password-manager')).language`), 'ru');
+  await pickLanguage('ar');
+  check('ar: right to left', await evaluate(`document.documentElement.dir`), 'rtl');
+  check('ar: sidebar on the right', await evaluate(`document.querySelector('.sidebar').getBoundingClientRect().left > document.querySelector('.workspace').getBoundingClientRect().left`), true);
+  await shot('8-arabic');
+  await pickLanguage('en');
+  check('en again', [await evaluate(`document.documentElement.dir`), await text('.settings-title'), await text('.toolbar-label'), await text('#list-title')], ['ltr', 'Settings', 'New entry', 'All entries']);
+  await press('Escape');
+
   if (SHOTS) {
     await evaluate(`document.documentElement.dataset.theme = 'dark'`);
     await clickNth('.entry', 'Sample Entry #2');
@@ -437,7 +461,7 @@ try {
   await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: readOnlyScript });
   await send('Page.addScriptToEvaluateOnNewDocument', {
     source: `
-      localStorage.setItem('html-password-manager', JSON.stringify({ theme: 'light', autosave: true }));
+      localStorage.setItem('html-password-manager', JSON.stringify({ language: 'en', theme: 'light', autosave: true }));
       const opfs = () => navigator.storage.getDirectory();
       window.showOpenFilePicker = async () => [await (await opfs()).getFileHandle('Database.kdbx')];
       window.showSaveFilePicker = async ({ suggestedName }) => (await opfs()).getFileHandle(suggestedName, { create: true });

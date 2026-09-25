@@ -154,7 +154,7 @@ button, input, textarea, select {
   content: '';
   position: absolute;
   top: 7px;
-  right: 7px;
+  inset-inline-end: 7px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -210,6 +210,9 @@ button, input, textarea, select {
   pointer-events: none;
 }
 
+/* A secret is always laid out left to right, even in a right-to-left interface:
+   the dots are drawn from the input's left edge. */
+.secret-field, .unlock-field { direction: ltr; }
 .secret-field { position: relative; display: flex; align-items: center; flex: 1; min-width: 0; }
 .secret-field > input { flex: 1; min-width: 0; padding-right: 52px; }
 .secret-field > .layout-badge { right: 8px; }
@@ -259,7 +262,7 @@ button, input, textarea, select {
   border-radius: 9px;
   padding: 10px 14px;
   line-height: 1.5;
-  text-align: left;
+  text-align: start;
   margin: 0 0 18px;
 }
 .gate-buttons { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
@@ -268,7 +271,7 @@ button, input, textarea, select {
 .gate-caps { color: var(--warn); margin: 10px 0 0; font-size: 13px; }
 
 .recent {
-  text-align: left;
+  text-align: start;
   border: 1px solid var(--edge);
   border-radius: 11px;
   padding: 6px;
@@ -289,7 +292,7 @@ button, input, textarea, select {
   min-width: 0;
   border: 0;
   background: none;
-  text-align: left;
+  text-align: start;
   padding: 8px;
   cursor: pointer;
   font-weight: 550;
@@ -382,13 +385,14 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
   flex-direction: column;
   min-width: 0;
   background: var(--panel);
-  border-right: 1px solid var(--edge);
+  border-inline-end: 1px solid var(--edge);
 }
 .sidebar-top {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 10px 8px 6px 10px;
+  padding: 10px 8px 6px;
+  padding-inline-start: 10px;
   min-height: 57px;
 }
 .vault {
@@ -404,7 +408,7 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
   font-weight: 650;
   font-size: 15px;
   cursor: pointer;
-  text-align: left;
+  text-align: start;
 }
 .vault:hover { background: var(--panel-2); }
 .vault svg { width: 18px; height: 18px; flex: none; color: var(--accent); }
@@ -472,9 +476,9 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
   min-height: 57px;
 }
 .toolbar-group { display: flex; align-items: center; gap: 3px; }
-.toolbar-group--right { margin-left: auto; }
-.toolbar-new { margin-left: 4px; }
-.toolbar-new span { font-size: 17px; line-height: 1; margin-right: 2px; }
+.toolbar-group--right { margin-inline-start: auto; }
+.toolbar-new { margin-inline-start: 4px; }
+.toolbar-plus { font-size: 17px; line-height: 1; margin-inline-end: 2px; }
 
 .search {
   position: relative;
@@ -484,13 +488,14 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
   display: flex;
   align-items: center;
 }
-.search svg { position: absolute; left: 11px; width: 17px; height: 17px; color: var(--faint); pointer-events: none; }
+.search svg { position: absolute; inset-inline-start: 11px; width: 17px; height: 17px; color: var(--faint); pointer-events: none; }
 .search input {
   width: 100%;
   border: 1px solid var(--edge);
   background: var(--panel);
   border-radius: 9px;
-  padding: 8px 10px 8px 35px;
+  padding-block: 8px;
+  padding-inline: 35px 10px;
   outline: none;
 }
 .search input:focus { border-color: var(--accent); background: var(--bg); }
@@ -522,7 +527,7 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  border-right: 1px solid var(--edge);
+  border-inline-end: 1px solid var(--edge);
   font-size: calc(14px * var(--zoom));
 }
 .list-head {
@@ -675,7 +680,8 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
   display: flex;
   align-items: center;
   gap: 0.6em;
-  padding: 0.35em 0.4em 0.35em 0.7em;
+  padding-block: 0.35em;
+  padding-inline: 0.7em 0.4em;
   border: 1px solid var(--edge);
   border-radius: 9px;
 }
@@ -702,7 +708,8 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  padding: 8px 8px 8px 14px;
+  padding: 8px;
+  padding-inline-start: 14px;
   margin-bottom: 1.2em;
   border-radius: 10px;
   background: var(--accent-bg);
@@ -744,7 +751,8 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
 .meter-bar::after {
   content: '';
   position: absolute;
-  inset: 0 auto 0 0;
+  inset-block: 0;
+  inset-inline-start: 0;
   width: 0;
   border-radius: 3px;
   transition: width 0.2s, background 0.2s;
@@ -788,7 +796,7 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
 }
 .gen-label { color: var(--muted); width: 52px; }
 .gen-slider { flex: 1; accent-color: var(--accent); }
-.gen-length-value { width: 28px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.gen-length-value { width: 28px; text-align: end; font-variant-numeric: tabular-nums; font-weight: 600; }
 .gen-checks { display: flex; flex-wrap: wrap; gap: 6px; }
 .gen-check {
   display: inline-flex;
@@ -796,7 +804,8 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
   gap: 5px;
   border: 1px solid var(--edge);
   border-radius: 8px;
-  padding: 4px 9px 4px 7px;
+  padding-block: 4px;
+  padding-inline: 7px 9px;
   cursor: pointer;
   font-family: var(--mono);
   font-size: 13px;
@@ -906,7 +915,7 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
   justify-content: space-between;
   gap: 16px;
   width: 100%;
-  text-align: left;
+  text-align: start;
   border: 0;
   background: transparent;
   border-radius: 7px;
@@ -953,11 +962,14 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
   .app { grid-template-columns: 0 0 minmax(0, 1fr); }
   .sidebar, #sidebar-resizer, #list-resizer, #toggle-sidebar { display: none; }
   .panes { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 40%) minmax(0, 1fr); }
-  .list-pane { border-right: 0; border-bottom: 1px solid var(--edge); }
+  .list-pane { border-inline-end: 0; border-bottom: 1px solid var(--edge); }
   .details-scroller { padding: 18px 16px 40px; }
   .field { grid-template-columns: minmax(0, 1fr) auto; }
   .field .field-label { grid-column: 1 / -1; }
   .field--edit, .field--custom, .field--add { grid-template-columns: minmax(0, 1fr); }
   .toolbar-new { font-size: 0; padding: 6px 12px; }
-  .toolbar-new span { font-size: 18px; margin: 0; }
+  .toolbar-plus { font-size: 18px; margin: 0; }
 }
+
+/* Right to left: arrows that point "forward" turn round. */
+[dir='rtl'] .arrow { display: inline-block; transform: scaleX(-1); }

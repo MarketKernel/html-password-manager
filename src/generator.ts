@@ -6,6 +6,8 @@
  * would favour the start of the alphabet).
  */
 
+import { t } from './i18n';
+
 export interface GeneratorOptions {
   length: number;
   upper: boolean;
@@ -90,7 +92,9 @@ export interface Strength {
   label: string;
 }
 
-const LABELS = ['Empty', 'Weak', 'Fair', 'Good', 'Strong'] as const;
+function strengthLabel(level: Strength['level']): string {
+  return [t('generator', 'Empty'), t('generator', 'Weak'), t('generator', 'Fair'), t('generator', 'Good'), t('generator', 'Strong')][level] ?? '';
+}
 
 /**
  * A rough estimate for a password a person typed: the alphabet size its
@@ -99,7 +103,7 @@ const LABELS = ['Empty', 'Weak', 'Fair', 'Good', 'Strong'] as const;
  */
 export function strength(password: string): Strength {
   const chars = Array.from(password);
-  if (chars.length === 0) return { bits: 0, level: 0, label: LABELS[0] };
+  if (chars.length === 0) return { bits: 0, level: 0, label: strengthLabel(0) };
   let pool = 0;
   if (/[a-z]/.test(password)) pool += 26;
   if (/[A-Z]/.test(password)) pool += 26;
@@ -117,5 +121,5 @@ export function strength(password: string): Strength {
   }
   const bits = Math.round(effective * Math.log2(Math.max(pool, 2)));
   const level = bits < 28 ? 1 : bits < 50 ? 2 : bits < 80 ? 3 : 4;
-  return { bits, level, label: LABELS[level] };
+  return { bits, level, label: strengthLabel(level) };
 }

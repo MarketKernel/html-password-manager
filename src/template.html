@@ -16,43 +16,43 @@
 <section id="gate" class="gate">
   <div class="gate-inner">
     <img class="gate-logo" src="__ICON__" alt="">
-    <p class="eyebrow">KeePass · one file · offline</p>
+    <p class="eyebrow" data-i18n="gate">KeePass · one file · offline</p>
 
     <div id="gate-pick">
-      <h1>Open a password<br><em>database</em></h1>
-      <p class="gate-copy">
-        Pick a KeePass <code>.kdbx</code> file. Nothing is sent anywhere: the file is
+      <h1><span data-i18n="gate">Open a password</span><br><em data-i18n="gate">database</em></h1>
+      <p class="gate-copy" data-i18n="gate">
+        Pick a KeePass <code data-slot="file">.kdbx</code> file. Nothing is sent anywhere: the file is
         decrypted here, in this page, and saved straight back to your disk.
       </p>
       <p id="browser-note" class="gate-note" hidden></p>
       <div id="recent" class="recent" hidden></div>
       <div class="gate-buttons">
-        <button id="open-file" class="button button--primary" type="button">Open file <span>&rarr;</span></button>
-        <button id="new-db" class="button" type="button">New database</button>
+        <button id="open-file" class="button button--primary" type="button"><span data-i18n="gate">Open file</span> <span class="arrow">&rarr;</span></button>
+        <button id="new-db" class="button" type="button" data-i18n="gate">New database</button>
       </div>
-      <p class="gate-hint">or drag a <code>.kdbx</code> file here</p>
+      <p class="gate-hint" data-i18n="gate">or drag a <code data-slot="file">.kdbx</code> file here</p>
     </div>
 
     <form id="unlock" class="unlock" autocomplete="off" hidden>
-      <h1 id="unlock-name" class="unlock-name">Database</h1>
-      <button id="unlock-change" class="link-button" type="button">Choose another file</button>
+      <h1 id="unlock-name" class="unlock-name"></h1>
+      <button id="unlock-change" class="link-button" type="button" data-i18n="gate">Choose another file</button>
       <label class="unlock-field">
-        <span class="visually-hidden">Master password</span>
+        <span class="visually-hidden" data-i18n="gate">Master password</span>
         <!-- Not type=password: macOS forces a Latin layout there. main.ts masks it instead. -->
-        <input id="password" class="unlock-input" type="text" placeholder="Master password"
+        <input id="password" class="unlock-input" type="text" placeholder="Master password" data-i18n-attr="gate"
                autocomplete="off" spellcheck="false">
         <span id="layout" class="layout-badge" aria-live="polite" hidden></span>
-        <button id="password-reveal" class="icon-button icon-button--small" type="button" title="Show password">
+        <button id="password-reveal" class="icon-button icon-button--small" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
       </label>
       <div class="unlock-key">
-        <button id="key-file" class="link-button" type="button">+ Key file</button>
+        <button id="key-file" class="link-button" type="button" data-i18n="gate">+ Key file</button>
         <span id="key-name" class="key-name" hidden></span>
-        <button id="key-clear" class="link-button" type="button" hidden>remove</button>
+        <button id="key-clear" class="link-button" type="button" data-i18n="gate" hidden>remove</button>
       </div>
-      <button id="unlock-button" class="button button--primary unlock-submit" type="submit">Unlock <span>&rarr;</span></button>
-      <p id="caps" class="gate-caps" hidden>Caps Lock is on</p>
+      <button id="unlock-button" class="button button--primary unlock-submit" type="submit"><span data-i18n="gate">Unlock</span> <span class="arrow">&rarr;</span></button>
+      <p id="caps" class="gate-caps" data-i18n="gate" hidden>Caps Lock is on</p>
     </form>
 
     <input id="file-picker" type="file" accept=".kdbx" hidden>
@@ -64,77 +64,77 @@
 <div id="app" class="app" hidden>
   <aside class="sidebar">
     <div class="sidebar-top">
-      <button id="db-name" class="vault" type="button" title="Database">
+      <button id="db-name" class="vault" type="button" title="Database" data-i18n-attr="toolbar">
         <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
         <span id="db-label">Database</span>
       </button>
       <div class="sidebar-actions">
-        <button id="new-group" class="icon-button" type="button" title="New group">
+        <button id="new-group" class="icon-button" type="button" title="New group" data-i18n-attr="toolbar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v6M9 14h6"/></svg>
         </button>
       </div>
     </div>
-    <nav id="groups" class="tree" aria-label="Groups"></nav>
+    <nav id="groups" class="tree" aria-label="Groups" data-i18n-attr="toolbar"></nav>
   </aside>
 
   <div id="sidebar-resizer" class="resizer" role="separator" aria-orientation="vertical"
-       aria-label="Group panel width" tabindex="0"></div>
+       aria-label="Group panel width" data-i18n-attr="toolbar" tabindex="0"></div>
 
   <main class="workspace">
     <header id="toolbar" class="toolbar">
       <div class="toolbar-group">
-        <button id="toggle-sidebar" class="icon-button" type="button" title="Group panel (⌘\)">
+        <button id="toggle-sidebar" class="icon-button" type="button" title="Group panel (⌘\)" data-i18n-attr="toolbar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
         </button>
-        <button id="new-entry" class="button button--primary button--small toolbar-new" type="button" title="New entry (⌘N)">
-          <span aria-hidden="true">+</span> New entry
+        <button id="new-entry" class="button button--primary button--small toolbar-new" type="button" title="New entry (⌘N)" data-i18n-attr="toolbar">
+          <span class="toolbar-plus" aria-hidden="true">+</span> <span class="toolbar-label" data-i18n="toolbar">New entry</span>
         </button>
       </div>
       <div class="search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="search" type="search" placeholder="Search (⌘F)" aria-label="Search entries" autocomplete="off" spellcheck="false">
+        <input id="search" type="search" placeholder="Search (⌘F)" aria-label="Search entries" data-i18n-attr="toolbar" autocomplete="off" spellcheck="false">
       </div>
       <div class="toolbar-group toolbar-group--right">
-        <button id="save" class="icon-button" type="button" title="Save (⌘S)">
+        <button id="save" class="icon-button" type="button" title="Save (⌘S)" data-i18n-attr="toolbar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l4 4v12H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 4v5h7M8 20v-6h8v6"/></svg>
         </button>
-        <button id="generator" class="icon-button" type="button" title="Password generator (⌘G)">
+        <button id="generator" class="icon-button" type="button" title="Password generator (⌘G)" data-i18n-attr="toolbar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2"/><circle cx="15" cy="15" r="1.2"/><circle cx="15" cy="9" r="1.2"/><circle cx="9" cy="15" r="1.2"/></svg>
         </button>
-        <div class="zoom" role="group" aria-label="Zoom">
-          <button id="zoom-out" class="icon-button" type="button" title="Zoom out (⌘−)">−</button>
-          <button id="zoom-reset" class="zoom-value" type="button" title="Reset zoom (⌘0)">100%</button>
-          <button id="zoom-in" class="icon-button" type="button" title="Zoom in (⌘+)">+</button>
+        <div class="zoom" role="group" aria-label="Zoom" data-i18n-attr="toolbar">
+          <button id="zoom-out" class="icon-button" type="button" title="Zoom out (⌘−)" data-i18n-attr="toolbar">−</button>
+          <button id="zoom-reset" class="zoom-value" type="button" title="Reset zoom (⌘0)" data-i18n-attr="toolbar">100%</button>
+          <button id="zoom-in" class="icon-button" type="button" title="Zoom in (⌘+)" data-i18n-attr="toolbar">+</button>
         </div>
-        <button id="theme" class="icon-button" type="button" title="Theme">
+        <button id="theme" class="icon-button" type="button" title="Theme" data-i18n-attr="toolbar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg>
         </button>
-        <button id="settings" class="icon-button" type="button" title="Settings">
+        <button id="settings" class="icon-button" type="button" title="Settings" data-i18n-attr="toolbar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
         </button>
-        <button id="lock" class="icon-button" type="button" title="Lock (⌘L)">
+        <button id="lock" class="icon-button" type="button" title="Lock (⌘L)" data-i18n-attr="toolbar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
         </button>
       </div>
     </header>
 
     <div class="panes">
-      <section class="list-pane" aria-label="Entries">
+      <section class="list-pane" aria-label="Entries" data-i18n-attr="toolbar">
         <div class="list-head">
           <span id="list-title" class="list-title">All entries</span>
-          <button id="sort" class="link-button list-sort" type="button" title="Sort">Title ▾</button>
+          <button id="sort" class="link-button list-sort" type="button" title="Sort" data-i18n-attr="list">Title ▾</button>
         </div>
-        <div id="entries" class="entries" role="listbox" tabindex="0" aria-label="Entries"></div>
+        <div id="entries" class="entries" role="listbox" tabindex="0" aria-label="Entries" data-i18n-attr="toolbar"></div>
         <p id="entries-empty" class="entries-empty" hidden>No entries</p>
       </section>
 
       <div id="list-resizer" class="resizer" role="separator" aria-orientation="vertical"
-           aria-label="Entry list width" tabindex="0"></div>
+           aria-label="Entry list width" data-i18n-attr="toolbar" tabindex="0"></div>
 
-      <section class="details-pane" aria-label="Entry">
+      <section class="details-pane" aria-label="Entry" data-i18n-attr="toolbar">
         <div id="details" class="details-scroller" hidden></div>
         <div id="details-placeholder" class="placeholder">
-          <p>Pick an entry on the left, or create a new one.</p>
+          <p data-i18n="list">Pick an entry on the left, or create a new one.</p>
         </div>
       </section>
     </div>

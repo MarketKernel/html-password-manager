@@ -1,7 +1,7 @@
 /**
  * Wiring: the unlock gate, the group tree, the entry list and the entry
- * itself, saving, locking, and the chrome around them — theme, zoom, panel
- * widths, the generator and keyboard shortcuts.
+ * itself, saving, locking, and the chrome around them — language, theme,
+ * zoom, panel widths, the generator and keyboard shortcuts.
  */
 
 import { releaseIcons } from './avatar';
@@ -23,6 +23,7 @@ import {
 } from './files';
 import { openGenerator } from './genpanel';
 import { Sidebar, type Selection } from './groups';
+import { isRightToLeft, LANGUAGES, setLanguage, t, tn, translatePage, type Language } from './i18n';
 import {
   canMoveGroup,
   changeCredentials,
@@ -49,7 +50,7 @@ import {
   type Kdbx,
 } from './kdbx';
 import { EntryList } from './list';
-import { matches, sortEntries, SORT_LABELS, type SortKey } from './search';
+import { matches, sortEntries, SORT_KEYS, sortLabel } from './search';
 import {
   applyPanels,
   applyTheme,
@@ -58,8 +59,10 @@ import {
   CLIPBOARD_CHOICES,
   loadSettings,
   LOCK_CHOICES,
+  resolveLanguage,
   saveSettings,
   ZOOM_STEP,
+  type Settings,
   type Theme,
 } from './settings';
 import {
@@ -128,7 +131,7 @@ const sidebar = new Sidebar(el('groups'), {
     if (!db) return;
     restore(db, group);
     changed();
-    toast(`"${group.name}" restored`);
+    toast(t('toast', '"{name}" restored', { name: group.name ?? '' }));
   },
   onEmptyTrash: () => void emptyTrash(),
   onMoveEntry: (uuid, target) => {
@@ -138,7 +141,7 @@ const sidebar = new Sidebar(el('groups'), {
     else if (entry.parentGroup !== target) {
       db.move(entry, target);
       changed();
-      toast(`Moved to "${target.name}"`);
+      toast(t('toast', 'Moved to "{name}"', { name: target.name ?? '' }));
     }
   },
   onMoveGroup: (uuid, target) => {
@@ -179,9 +182,9 @@ const details = new Details(el('details'), el('details-placeholder'), {
     activeUuid = null;
     refresh();
   },
-  generator: (anchor, onUse) => generatorAt(anchor, 'Use', onUse),
+  generator: (anchor, onUse) => generatorAt(anchor, t('generator', 'Use'), onUse),
   editingChanged: (editing) => document.body.classList.toggle('editing', editing),
-  confirmDiscard: () => confirmAsk('Discard changes?', 'The edits to this entry will be lost.', 'Discard'),
+  confirmDiscard: () => confirmAsk(t('dialog', 'Discard changes?'), t('dialog', 'The edits to this entry will be lost.'), t('dialog', 'Discard')),
 });
 
 /* ------------------------------------------------------------------ *
@@ -194,10 +197,10 @@ function showGate(mode: 'pick' | 'unlock'): void {
   gatePick.hidden = mode !== 'pick';
   unlockForm.hidden = mode !== 'unlock';
   gateError.textContent = '';
-  document.title = 'Password manager';
+  document.title = t('app', 'Password manager');
   if (mode === 'pick') void renderRecent();
   else {
-    el('unlock-name').textContent = file?.name.replace(/\.kdbx$/i, '') ?? 'Database';
+    el('unlock-name').textContent = file?.name.replace(/\.kdbx$/i, '') ?? t('gate', 'Database');
     renderKeyFile();
     clearPassword();
     passwordInput.focus();
@@ -208,11 +211,11 @@ async function renderRecent(): Promise<void> {
   const box = el('recent');
   const recent = await recentFiles();
   box.hidden = recent.length === 0;
-  box.replaceChildren(h('div', { class: 'recent-title', text: 'Recent' }));
+  box.replaceChildren(h('div', { class: 'recent-title', text: t('gate', 'Recent') }));
   for (const item of recent) {
-    const open = h('button', { type: 'button', class: 'recent-open', title: `Open ${item.name}` }, h('span', { class: 'recent-name', text: item.name }));
+    const open = h('button', { type: 'button', class: 'recent-open', title: t('gate', 'Open {name}', { name: item.name }) }, h('span', { class: 'recent-name', text: item.name }));
     open.addEventListener('click', () => chooseFile(new HandleFile(item.handle)));
-    const forget = h('button', { type: 'button', class: 'recent-forget', title: 'Remove from the list', text: '×' });
+    const forget = h('button', { type: 'button', class: 'recent-forget', title: t('gate', 'Remove from the list'), text: '×' });
     forget.addEventListener('click', async () => {
       await forgetFile(item.name);
       void renderRecent();
@@ -223,7 +226,7 @@ async function renderRecent(): Promise<void> {
 
 function chooseFile(next: DbFile): void {
   if (!/\.kdbx$/i.test(next.name)) {
-    gateError.textContent = `"${next.name}" does not look like a KeePass database (.kdbx)`;
+    gateError.textContent = t('errors', '"{name}" does not look like a KeePass database (.kdbx)', { name: next.name });
     return;
   }
   file = next;
@@ -244,7 +247,7 @@ async function unlock(): Promise<void> {
   gateError.textContent = '';
   unlockButton.disabled = true;
   const label = unlockButton.innerHTML;
-  unlockButton.textContent = 'Unlocking…';
+  unlockButton.textContent = t('gate', 'Unlocking…');
   try {
     // Permissions need the click that got us here, so they come before any slow work.
     if (file instanceof HandleFile && !(await file.ensureWritable())) await file.ensureReadable();
@@ -299,7 +302,7 @@ async function lock(reason: 'manual' | 'idle' = 'manual'): Promise<void> {
     } else if (reason === 'idle') {
       // Locking now would throw the changes away; the status bar keeps nagging instead.
       return;
-    } else if (!(await confirmAsk('Lock with unsaved changes?', 'The changes made since the last save will be lost.', 'Lock anyway'))) {
+    } else if (!(await confirmAsk(t('dialog', 'Lock with unsaved changes?'), t('dialog', 'The changes made since the last save will be lost.'), t('dialog', 'Lock anyway')))) {
       return;
     }
   }
@@ -330,29 +333,29 @@ async function closeDatabase(): Promise<void> {
 
 async function newDatabase(): Promise<void> {
   const result = await form({
-    title: 'New database',
+    title: t('dialog', 'New database'),
     fields: [
-      { name: 'name', label: 'Name', value: 'Passwords' },
-      { name: 'password', label: 'Master password', type: 'password' },
-      { name: 'repeat', label: 'Repeat the password', type: 'password' },
+      { name: 'name', label: t('dialog', 'Name'), value: t('dialog', 'Passwords') },
+      { name: 'password', label: t('dialog', 'Master password'), type: 'password' },
+      { name: 'repeat', label: t('dialog', 'Repeat the password'), type: 'password' },
     ],
-    confirm: 'Create',
+    confirm: t('dialog', 'Create'),
     validate: (values) => {
-      if (!values['name']) return 'Give the database a name';
-      if (!values['password']) return 'A master password is required';
-      if (values['password'] !== values['repeat']) return 'The passwords do not match';
+      if (!values['name']) return t('dialog', 'Give the database a name');
+      if (!values['password']) return t('dialog', 'A master password is required');
+      if (values['password'] !== values['repeat']) return t('dialog', 'The passwords do not match');
       return null;
     },
   });
   if (!result) return;
-  const name = result.values['name'] ?? 'Passwords';
+  const name = result.values['name'] || t('dialog', 'Passwords');
   try {
     const created = await createDatabase(name, result.values['password'] ?? '', null);
     file = new NewFile(`${name.replace(/[\\/:*?"<>|]/g, '_')}.kdbx`);
     keyFile = null;
     enter(created);
     changed();
-    toast('Created. Press ⌘S to save it to a file');
+    toast(t('toast', 'Created. Press ⌘S to save it to a file'));
   } catch (error) {
     toast(describeError(error), 'error');
   }
@@ -390,25 +393,25 @@ function visibleEntries(): { entries: Entry[]; title: string; showPath: boolean;
   const query = searchInput.value.trim();
   if (query) {
     const found = entriesBelow(db, root).filter((entry) => matches(entry, query));
-    return { entries: sortEntries(found, settings.sort), title: 'Search results', showPath: true, empty: 'Nothing found' };
+    return { entries: sortEntries(found, settings.sort), title: t('list', 'Search results'), showPath: true, empty: t('list', 'Nothing found') };
   }
   switch (selection.kind) {
     case 'group': {
       const group = currentGroup() ?? root;
       const entries = entriesBelow(db, group);
-      return { entries: sortEntries(entries, settings.sort), title: group.name || 'Group', showPath: group.groups.length > 0, empty: 'No entries in this group' };
+      return { entries: sortEntries(entries, settings.sort), title: group.name || t('list', 'Group'), showPath: group.groups.length > 0, empty: t('list', 'No entries in this group') };
     }
     case 'tag': {
       const tag = selection.tag;
       const entries = entriesBelow(db, root).filter((entry) => entry.tags.includes(tag));
-      return { entries: sortEntries(entries, settings.sort), title: `#${tag}`, showPath: true, empty: 'No entries with this tag' };
+      return { entries: sortEntries(entries, settings.sort), title: `#${tag}`, showPath: true, empty: t('list', 'No entries with this tag') };
     }
     case 'trash': {
       const bin = recycleBin(db);
-      return { entries: sortEntries(bin ? entriesBelow(db, bin) : [], settings.sort), title: 'Recycle bin', showPath: false, empty: 'The recycle bin is empty' };
+      return { entries: sortEntries(bin ? entriesBelow(db, bin) : [], settings.sort), title: t('sidebar', 'Recycle bin'), showPath: false, empty: t('list', 'The recycle bin is empty') };
     }
     default:
-      return { entries: sortEntries(entriesBelow(db, root), settings.sort), title: 'All entries', showPath: true, empty: 'No entries yet' };
+      return { entries: sortEntries(entriesBelow(db, root), settings.sort), title: t('sidebar', 'All entries'), showPath: true, empty: t('list', 'No entries yet') };
   }
 }
 
@@ -417,7 +420,7 @@ function refresh(): void {
   list.setEntries(db, view.entries, view.showPath, view.empty);
   list.setActive(activeUuid);
   el('list-title').textContent = view.title;
-  el('sort').textContent = `${SORT_LABELS[settings.sort]} ▾`;
+  el('sort').textContent = `${sortLabel(settings.sort)} ▾`;
   if (details.current && db && !findEntry(uuidOf(details.current))) details.show(null);
   else details.refresh();
 }
@@ -466,21 +469,22 @@ async function newEntry(group?: Group): Promise<void> {
 async function removeEntry(entry: Entry): Promise<void> {
   if (!db) return;
   const trashed = inRecycleBin(db, entry);
-  if ((trashed || !db.meta.recycleBinEnabled) && !(await confirmAsk('Delete permanently?', `"${titleOf(entry)}" will be removed from the database for good.`))) return;
+  if ((trashed || !db.meta.recycleBinEnabled) && !(await confirmAsk(t('dialog', 'Delete permanently?'), t('dialog', '"{name}" will be removed from the database for good.', { name: titleOf(entry) })))) return;
   const next = list.neighbour(1) === entry ? list.neighbour(-1) : list.neighbour(1);
   const result = remove(db, entry);
   if (details.current === entry) details.show(null);
   activeUuid = next && next !== entry ? uuidOf(next) : null;
   changed();
   if (activeUuid) void selectEntry(findEntry(activeUuid));
-  toast(result === 'trashed' ? `"${titleOf(entry)}" moved to the recycle bin` : `"${titleOf(entry)}" deleted`);
+  const name = titleOf(entry);
+  toast(result === 'trashed' ? t('toast', '"{name}" moved to the recycle bin', { name }) : t('toast', '"{name}" deleted', { name }));
 }
 
 function restoreEntry(entry: Entry): void {
   if (!db) return;
   restore(db, entry);
   changed();
-  toast(`"${titleOf(entry)}" restored`);
+  toast(t('toast', '"{name}" restored', { name: titleOf(entry) }));
 }
 
 function duplicateEntry(entry: Entry): void {
@@ -506,13 +510,13 @@ function groupChoices(): { group: Group; depth: number }[] {
 
 function moveItems(entry: Entry): MenuItem[] {
   return groupChoices().map(({ group, depth }) => ({
-    label: `${'   '.repeat(depth)}${group.name || '(unnamed)'}`,
+    label: `${'   '.repeat(depth)}${group.name || t('sidebar', '(unnamed)')}`,
     checked: entry.parentGroup === group,
     action: () => {
       if (!db || entry.parentGroup === group) return;
       db.move(entry, group);
       changed();
-      toast(`Moved to "${group.name}"`);
+      toast(t('toast', 'Moved to "{name}"', { name: group.name ?? '' }));
     },
   }));
 }
@@ -521,24 +525,24 @@ function entryMenu(entry: Entry, anchor: HTMLElement | null): MenuItem[] {
   if (!db) return [];
   if (inRecycleBin(db, entry)) {
     return [
-      { label: 'Restore', action: () => restoreEntry(entry) },
-      { label: 'Delete permanently', danger: true, action: () => void removeEntry(entry) },
+      { label: t('menu', 'Restore'), action: () => restoreEntry(entry) },
+      { label: t('menu', 'Delete permanently'), danger: true, action: () => void removeEntry(entry) },
     ];
   }
   return [
-    { label: 'Copy user name', hint: '⌘B', action: () => void copy(field(entry, 'UserName'), 'User name') },
-    { label: 'Copy password', hint: '⌘C', action: () => void copy(field(entry, 'Password'), 'Password') },
-    { label: 'Copy website', hint: '⌘U', action: () => void copy(field(entry, 'URL'), 'Website') },
-    { label: 'Edit', hint: '⌘E', separated: true, action: () => details.edit() },
-    { label: 'Duplicate', action: () => duplicateEntry(entry) },
+    { label: t('menu', 'Copy user name'), hint: '⌘B', action: () => void copy(field(entry, 'UserName'), t('entry', 'User name')) },
+    { label: t('menu', 'Copy password'), hint: '⌘C', action: () => void copy(field(entry, 'Password'), t('entry', 'Password')) },
+    { label: t('menu', 'Copy website'), hint: '⌘U', action: () => void copy(field(entry, 'URL'), t('entry', 'Website')) },
+    { label: t('menu', 'Edit'), hint: '⌘E', separated: true, action: () => details.edit() },
+    { label: t('menu', 'Duplicate'), action: () => duplicateEntry(entry) },
     {
-      label: 'Move to group…',
+      label: t('menu', 'Move to group…'),
       action: () => {
         const row = anchor ?? el('entries').querySelector<HTMLElement>('.entry--active');
         if (row) menuAt(row, moveItems(entry));
       },
     },
-    { label: 'Delete', danger: true, separated: true, hint: '⌫', action: () => void removeEntry(entry) },
+    { label: t('menu', 'Delete'), danger: true, separated: true, hint: '⌫', action: () => void removeEntry(entry) },
   ];
 }
 
@@ -546,7 +550,7 @@ async function newGroup(parent?: Group): Promise<void> {
   if (!db) return;
   const target = parent ?? currentGroup() ?? db.getDefaultGroup();
   if (inRecycleBin(db, target)) return;
-  const name = await ask('New group', 'Name');
+  const name = await ask(t('dialog', 'New group'), t('dialog', 'Name'));
   if (!name || !db) return;
   const group = createGroup(db, target, name);
   changed();
@@ -554,7 +558,7 @@ async function newGroup(parent?: Group): Promise<void> {
 }
 
 async function renameGroup(group: Group): Promise<void> {
-  const name = await ask('Rename group', 'Name', group.name ?? '');
+  const name = await ask(t('dialog', 'Rename group'), t('dialog', 'Name'), group.name ?? '');
   if (!name || name === group.name) return;
   group.name = name;
   group.times.update();
@@ -565,10 +569,11 @@ async function deleteGroup(group: Group): Promise<void> {
   if (!db || !group.parentGroup) return;
   const permanent = inRecycleBin(db, group) || !db.meta.recycleBinEnabled;
   const count = entriesBelow(db, group).length;
+  const name = group.name ?? '';
   const message = permanent
-    ? `"${group.name}" and its ${count} entr${count === 1 ? 'y' : 'ies'} will be removed for good.`
-    : `"${group.name}" and its ${count} entr${count === 1 ? 'y' : 'ies'} will move to the recycle bin.`;
-  if (!(await confirmAsk(permanent ? 'Delete group permanently?' : 'Delete group?', message))) return;
+    ? tn('dialog', '"{name}" and its {count} entry will be removed for good.', '"{name}" and its {count} entries will be removed for good.', count, { name })
+    : tn('dialog', '"{name}" and its {count} entry will move to the recycle bin.', '"{name}" and its {count} entries will move to the recycle bin.', count, { name });
+  if (!(await confirmAsk(permanent ? t('dialog', 'Delete group permanently?') : t('dialog', 'Delete group?'), message))) return;
   remove(db, group);
   if (selection.kind === 'group' && (selection.uuid === uuidOf(group) || !db.getGroup(selection.uuid))) {
     selection = { kind: 'all' };
@@ -579,19 +584,23 @@ async function deleteGroup(group: Group): Promise<void> {
 
 async function emptyTrash(): Promise<void> {
   if (!db || !recycleBin(db)) return;
-  if (!(await confirmAsk('Empty the recycle bin?', 'Everything in it will be removed from the database for good.', 'Empty'))) return;
+  if (!(await confirmAsk(t('dialog', 'Empty the recycle bin?'), t('dialog', 'Everything in it will be removed from the database for good.'), t('dialog', 'Empty')))) return;
   emptyRecycleBin(db);
   changed();
 }
 
 async function copy(value: string, what: string): Promise<void> {
   if (!value) {
-    toast(`${what}: empty`);
+    toast(t('toast', '{what}: empty', { what }));
     return;
   }
   try {
     await copyText(value, settings.clipboardSeconds);
-    toast(settings.clipboardSeconds ? `${what} copied · cleared in ${settings.clipboardSeconds} s` : `${what} copied`);
+    toast(
+      settings.clipboardSeconds
+        ? t('toast', '{what} copied · cleared in {seconds} s', { what, seconds: settings.clipboardSeconds })
+        : t('toast', '{what} copied', { what }),
+    );
   } catch (error) {
     toast(describeError(error), 'error');
   }
@@ -632,18 +641,18 @@ async function save(): Promise<void> {
     download(data, target.name);
     if (revision === started) dirty = false;
     updateStatus();
-    toast(`${target.name} downloaded`);
+    toast(t('toast', '{name} downloaded', { name: target.name }));
     return;
   }
 
-  statusState.textContent = 'Saving…';
+  statusState.textContent = t('status', 'Saving…');
   saving = (async () => {
     try {
       const data = await saveDatabase(database);
       await target.write(data);
       if (revision === started && db === database) dirty = false;
     } catch (error) {
-      toast(`Not saved: ${describeError(error)}`, 'error');
+      toast(t('toast', 'Not saved: {reason}', { reason: describeError(error) }), 'error');
     } finally {
       saving = null;
       updateStatus();
@@ -656,11 +665,11 @@ async function saveCopy(): Promise<void> {
   if (!db || !file) return;
   if (details.isEditing && !(await details.commit())) return;
   const data = await saveDatabase(db);
-  const name = file.name.replace(/(\.kdbx)?$/i, ' (copy).kdbx');
+  const name = `${t('entry', '{title} (copy)', { title: file.name.replace(/\.kdbx$/i, '') })}.kdbx`;
   const picked = canWriteInPlace ? await pickSaveTarget(name) : null;
   if (picked) {
     await picked.write(data);
-    toast(`Saved a copy as ${picked.name}`);
+    toast(t('toast', 'Saved a copy as {name}', { name: picked.name }));
   } else if (!canWriteInPlace) {
     download(data, name);
   }
@@ -668,13 +677,15 @@ async function saveCopy(): Promise<void> {
 
 function updateStatus(): void {
   if (!db || !file) return;
-  statusFile.textContent = file.writable ? file.name : `${file.name} · ${file instanceof NewFile ? 'not saved yet' : 'read-only, saving downloads a copy'}`;
-  statusState.textContent = dirty ? 'Unsaved changes' : 'Saved';
+  statusFile.textContent = file.writable
+    ? file.name
+    : `${file.name} · ${file instanceof NewFile ? t('status', 'not saved yet') : t('status', 'read-only, saving downloads a copy')}`;
+  statusState.textContent = dirty ? t('status', 'Unsaved changes') : t('status', 'Saved');
   statusState.classList.toggle('status-state--dirty', dirty);
   const count = entriesBelow(db, db.getDefaultGroup()).length;
-  statusFormat.textContent = `${count} entr${count === 1 ? 'y' : 'ies'} · ${describeFormat(db)}`;
+  statusFormat.textContent = `${tn('status', '{count} entry', '{count} entries', count)} · ${describeFormat(db)}`;
   el('db-label').textContent = db.meta.name || db.getDefaultGroup().name || file.name;
-  document.title = `${dirty ? '• ' : ''}${db.meta.name || file.name} — Password manager`;
+  document.title = `${dirty ? '• ' : ''}${db.meta.name || file.name} — ${t('app', 'Password manager')}`;
   el('save').classList.toggle('icon-button--dirty', dirty);
 }
 
@@ -684,7 +695,7 @@ function updateStatus(): void {
 
 async function renameDatabase(): Promise<void> {
   if (!db) return;
-  const name = await ask('Rename database', 'Name', db.meta.name || db.getDefaultGroup().name || '');
+  const name = await ask(t('dialog', 'Rename database'), t('dialog', 'Name'), db.meta.name || db.getDefaultGroup().name || '');
   if (!name || !db) return;
   db.meta.name = name;
   changed();
@@ -693,17 +704,17 @@ async function renameDatabase(): Promise<void> {
 async function changeMasterPassword(): Promise<void> {
   if (!db) return;
   const result = await form({
-    title: 'Change master password',
-    message: 'The file is re-encrypted with the new key the next time it is saved.',
+    title: t('dialog', 'Change master password'),
+    message: t('dialog', 'The file is re-encrypted with the new key the next time it is saved.'),
     fields: [
-      { name: 'password', label: 'New master password', type: 'password' },
-      { name: 'repeat', label: 'Repeat it', type: 'password' },
-      { name: 'key', label: 'Key file (optional)', type: 'file' },
+      { name: 'password', label: t('dialog', 'New master password'), type: 'password' },
+      { name: 'repeat', label: t('dialog', 'Repeat it'), type: 'password' },
+      { name: 'key', label: t('dialog', 'Key file (optional)'), type: 'file' },
     ],
-    confirm: 'Change',
+    confirm: t('dialog', 'Change'),
     validate: (values, files) => {
-      if (!values['password'] && !files['key']) return 'Set a password, a key file, or both';
-      if (values['password'] !== values['repeat']) return 'The passwords do not match';
+      if (!values['password'] && !files['key']) return t('dialog', 'Set a password, a key file, or both');
+      if (values['password'] !== values['repeat']) return t('dialog', 'The passwords do not match');
       return null;
     },
   });
@@ -713,17 +724,17 @@ async function changeMasterPassword(): Promise<void> {
   await changeCredentials(db, result.values['password'] ?? '', keyData);
   keyFile = key && keyData ? { name: key.name, data: keyData } : null;
   changed();
-  toast('Master key changed');
+  toast(t('toast', 'Master key changed'));
 }
 
 function databaseMenu(anchor: HTMLElement): void {
   menuAt(anchor, [
-    { label: 'Save', hint: '⌘S', action: () => void save() },
-    { label: 'Save a copy…', action: () => void saveCopy() },
-    { label: 'Rename database…', separated: true, action: () => void renameDatabase() },
-    { label: 'Change master password…', action: () => void changeMasterPassword() },
-    { label: 'Lock', hint: '⌘L', separated: true, action: () => void lock() },
-    { label: 'Close database', action: () => void closeDatabase() },
+    { label: t('menu', 'Save'), hint: '⌘S', action: () => void save() },
+    { label: t('menu', 'Save a copy…'), action: () => void saveCopy() },
+    { label: t('menu', 'Rename database…'), separated: true, action: () => void renameDatabase() },
+    { label: t('menu', 'Change master password…'), action: () => void changeMasterPassword() },
+    { label: t('menu', 'Lock'), hint: '⌘L', separated: true, action: () => void lock() },
+    { label: t('menu', 'Close database'), action: () => void closeDatabase() },
   ]);
 }
 
@@ -750,32 +761,71 @@ function openSettings(anchor: HTMLElement): void {
     if (settings.autosave && dirty) scheduleAutosave();
   });
   const row = (label: string, control: HTMLElement): HTMLElement => h('label', { class: 'settings-row' }, h('span', { text: label }), control);
+  const languages: [Settings['language'], string][] = [['auto', t('settings', 'System')], ...(Object.entries(LANGUAGES) as [Language, string][])];
+  const themes: Theme[] = ['system', 'light', 'dark'];
   const panel = h(
     'div',
     { class: 'settings' },
-    h('h3', { class: 'settings-title', text: 'Settings' }),
+    h('h3', { class: 'settings-title', text: t('settings', 'Settings') }),
     row(
-      'Theme',
-      selectBox<Theme>(settings.theme, [['system', 'System'], ['light', 'Light'], ['dark', 'Dark']], (theme) => setTheme(theme)),
+      t('settings', 'Language'),
+      selectBox(settings.language, languages, (choice) => {
+        setLanguageChoice(choice);
+        openSettings(anchor);
+      }),
     ),
     row(
-      'Lock when idle',
-      selectBox(settings.lockMinutes, LOCK_CHOICES.map((m) => [m, m === 0 ? 'Never' : m === 60 ? 'After 1 hour' : `After ${m} min`] as [number, string]), (minutes) => {
+      t('settings', 'Theme'),
+      selectBox<Theme>(settings.theme, themes.map((theme) => [theme, themeLabel(theme)]), (theme) => setTheme(theme)),
+    ),
+    row(
+      t('settings', 'Lock when idle'),
+      selectBox(settings.lockMinutes, LOCK_CHOICES.map((m) => [m, m === 0 ? t('settings', 'Never') : m === 60 ? t('settings', 'After 1 hour') : t('settings', 'After {count} min', { count: m })] as [number, string]), (minutes) => {
         settings.lockMinutes = minutes;
         saveSettings(settings);
       }),
     ),
     row(
-      'Clear clipboard',
-      selectBox(settings.clipboardSeconds, CLIPBOARD_CHOICES.map((s) => [s, s === 0 ? 'Never' : `After ${s} s`] as [number, string]), (seconds) => {
+      t('settings', 'Clear clipboard'),
+      selectBox(settings.clipboardSeconds, CLIPBOARD_CHOICES.map((s) => [s, s === 0 ? t('settings', 'Never') : t('settings', 'After {count} s', { count: s })] as [number, string]), (seconds) => {
         settings.clipboardSeconds = seconds;
         saveSettings(settings);
       }),
     ),
-    h('label', { class: 'settings-row settings-row--check' }, autosave, h('span', { text: 'Save automatically after each change' })),
-    h('p', { class: 'settings-note', text: canWriteInPlace ? 'Autosave works when the file was opened with write access.' : 'This browser cannot write files in place, so saving downloads a copy.' }),
+    h('label', { class: 'settings-row settings-row--check' }, autosave, h('span', { text: t('settings', 'Save automatically after each change') })),
+    h('p', {
+      class: 'settings-note',
+      text: canWriteInPlace
+        ? t('settings', 'Autosave works when the file was opened with write access.')
+        : t('settings', 'This browser cannot write files in place, so saving downloads a copy.'),
+    }),
   );
   popover(anchor, panel);
+}
+
+function themeLabel(theme: Theme): string {
+  return { system: t('settings', 'System'), light: t('settings', 'Light'), dark: t('settings', 'Dark') }[theme];
+}
+
+/** Shows the interface in another language: the markup is translated again and every view redrawn. */
+function setLanguageChoice(choice: Settings['language']): void {
+  settings.language = choice;
+  saveSettings(settings);
+  applyLanguage();
+  sidebar.render();
+  refresh();
+  details.redraw();
+  updateStatus();
+}
+
+function applyLanguage(): void {
+  setLanguage(resolveLanguage(settings.language));
+  translatePage();
+  const note = el('browser-note');
+  note.hidden = canWriteInPlace;
+  note.textContent = canWriteInPlace
+    ? ''
+    : t('gate', 'This browser opens the file read-only: Save downloads an updated copy of the database. Chrome, Edge and Arc save changes straight back into the file.');
 }
 
 function setTheme(theme: Theme): void {
@@ -807,8 +857,8 @@ function setZoom(zoom: number): void {
 function sortMenu(anchor: HTMLElement): void {
   menuAt(
     anchor,
-    (Object.keys(SORT_LABELS) as SortKey[]).map((key) => ({
-      label: SORT_LABELS[key],
+    SORT_KEYS.map((key) => ({
+      label: sortLabel(key),
       checked: settings.sort === key,
       action: () => {
         settings.sort = key;
@@ -858,12 +908,12 @@ const updateLayout = bindLayoutBadge(passwordInput, el('layout'));
 function clearPassword(): void {
   passwordInput.value = '';
   setRevealed(passwordInput, false);
-  el('password-reveal').title = 'Show password';
+  el('password-reveal').title = t('password', 'Show password');
   updateLayout();
 }
 el('password-reveal').addEventListener('click', () => {
   setRevealed(passwordInput, !isRevealed(passwordInput));
-  el('password-reveal').title = isRevealed(passwordInput) ? 'Hide password' : 'Show password';
+  el('password-reveal').title = isRevealed(passwordInput) ? t('password', 'Hide password') : t('password', 'Show password');
   passwordInput.focus();
 });
 for (const type of ['keydown', 'keyup'] as const) {
@@ -909,14 +959,16 @@ el('new-group').addEventListener('click', () => void newGroup());
 el('new-entry').addEventListener('click', () => void newEntry());
 el('save').addEventListener('click', () => void save());
 el('lock').addEventListener('click', () => void lock());
-el('generator').addEventListener('click', (event) => generatorAt(event.currentTarget as HTMLElement, 'Copy', (password) => void copy(password, 'Password')));
+el('generator').addEventListener('click', (event) =>
+  generatorAt(event.currentTarget as HTMLElement, t('generator', 'Copy'), (password) => void copy(password, t('entry', 'Password'))),
+);
 el('settings').addEventListener('click', (event) => openSettings(event.currentTarget as HTMLElement));
 el('sort').addEventListener('click', (event) => sortMenu(event.currentTarget as HTMLElement));
 el('theme').addEventListener('click', () => {
   const order: Theme[] = ['system', 'light', 'dark'];
   const next = order[(order.indexOf(settings.theme) + 1) % order.length] ?? 'system';
   setTheme(next);
-  toast(`Theme: ${next}`);
+  toast(t('toast', 'Theme: {theme}', { theme: themeLabel(next) }));
 });
 el('zoom-in').addEventListener('click', () => setZoom(settings.zoom + ZOOM_STEP));
 el('zoom-out').addEventListener('click', () => setZoom(settings.zoom - ZOOM_STEP));
@@ -953,7 +1005,8 @@ function resizer(id: string, key: 'sidebar' | 'list', min: number, max: number, 
     event.preventDefault();
     handle.setPointerCapture(event.pointerId);
     const move = (moved: PointerEvent): void => {
-      settings[key] = Math.round(Math.min(max, Math.max(min, moved.clientX - origin())));
+      const width = isRightToLeft() ? origin() - moved.clientX : moved.clientX - origin();
+      settings[key] = Math.round(Math.min(max, Math.max(min, width)));
       applyPanels(settings);
     };
     const up = (): void => {
@@ -967,13 +1020,19 @@ function resizer(id: string, key: 'sidebar' | 'list', min: number, max: number, 
   handle.addEventListener('keydown', (event) => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();
-    settings[key] = Math.min(max, Math.max(min, settings[key] + (event.key === 'ArrowLeft' ? -16 : 16)));
+    const wider = (event.key === 'ArrowRight') !== isRightToLeft();
+    settings[key] = Math.min(max, Math.max(min, settings[key] + (wider ? 16 : -16)));
     applyPanels(settings);
     saveSettings(settings);
   });
 }
-resizer('sidebar-resizer', 'sidebar', 160, 480, () => 0);
-resizer('list-resizer', 'list', 220, 640, () => el('entries').getBoundingClientRect().left);
+/** Where a panel starts: its left edge, or its right one in a right-to-left layout. */
+const edge = (node: HTMLElement): number => {
+  const box = node.getBoundingClientRect();
+  return isRightToLeft() ? box.right : box.left;
+};
+resizer('sidebar-resizer', 'sidebar', 160, 480, () => edge(document.body));
+resizer('list-resizer', 'list', 220, 640, () => edge(el('entries')));
 
 /** True when the keystroke belongs to a text field, not to the app. */
 function typing(target: EventTarget | null): boolean {
@@ -1040,9 +1099,9 @@ document.addEventListener('keydown', (event) => {
     const selected = window.getSelection()?.toString();
     if (!inField && !selected && entry && !details.isEditing && ['c', 'b', 'u'].includes(key)) {
       event.preventDefault();
-      if (key === 'c') void copy(field(entry, 'Password'), 'Password');
-      if (key === 'b') void copy(field(entry, 'UserName'), 'User name');
-      if (key === 'u') void copy(field(entry, 'URL'), 'Website');
+      if (key === 'c') void copy(field(entry, 'Password'), t('entry', 'Password'));
+      if (key === 'b') void copy(field(entry, 'UserName'), t('entry', 'User name'));
+      if (key === 'u') void copy(field(entry, 'URL'), t('entry', 'Website'));
     }
     return;
   }
@@ -1095,15 +1154,9 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
  * Start
  * ------------------------------------------------------------------ */
 
+applyLanguage();
 applyTheme(settings.theme);
 applyZoom(settings.zoom);
 applyPanels(settings);
 el('zoom-reset').textContent = `${settings.zoom}%`;
-if (!canWriteInPlace) {
-  const note = el('browser-note');
-  note.hidden = false;
-  note.textContent =
-    'This browser opens the file read-only: Save downloads an updated copy of the database. ' +
-    'Chrome, Edge and Arc save changes straight back into the file.';
-}
 showGate('pick');

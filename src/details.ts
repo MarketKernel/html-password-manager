@@ -10,6 +10,7 @@
 import { entryAvatar } from './avatar';
 import { download } from './files';
 import { strength } from './generator';
+import { dateFormat, t, tn } from './i18n';
 import {
   addAttachment,
   binaryBytes,
@@ -68,8 +69,8 @@ interface Draft {
   added: { name: string; data: ArrayBuffer }[];
 }
 
-const dateTime = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
-const dateOnly = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
+const dateTime = (): Intl.DateTimeFormat => dateFormat({ dateStyle: 'medium', timeStyle: 'short' });
+const dateOnly = (): Intl.DateTimeFormat => dateFormat({ dateStyle: 'medium' });
 const MASK = '••••••••••';
 
 export class Details {
@@ -114,6 +115,11 @@ export class Details {
   /** Re-renders the same entry after an outside change (a move, a save). */
   refresh(): void {
     if (!this.editing) this.render();
+  }
+
+  /** Re-renders even a draft, which is kept: after the language changed. */
+  redraw(): void {
+    this.render();
   }
 
   edit(isNew = false): void {
@@ -219,11 +225,11 @@ export class Details {
     const actions = h('div', { class: 'details-actions' });
     if (!version) {
       if (trashed) {
-        actions.append(button('Restore', () => this.host.restore(entry), 'button--small'));
+        actions.append(button(t('entry', 'Restore'), () => this.host.restore(entry), 'button--small'));
       } else {
-        actions.append(button('Edit', () => this.edit(), 'button--small', 'Edit (⌘E)'));
+        actions.append(button(t('entry', 'Edit'), () => this.edit(), 'button--small', t('entry', 'Edit (⌘E)')));
       }
-      const more = h('button', { type: 'button', class: 'icon-button', title: 'More', 'aria-haspopup': 'true' }, icon(ICONS.more));
+      const more = h('button', { type: 'button', class: 'icon-button', title: t('entry', 'More'), 'aria-haspopup': 'true' }, icon(ICONS.more));
       more.addEventListener('click', () => menuAt(more, this.moreItems(entry, trashed, more)));
       actions.append(more);
     }
@@ -238,7 +244,7 @@ export class Details {
           'div',
           { class: 'details-heading' },
           h('h2', { class: 'details-title', text: titleOf(shown) }),
-          h('div', { class: 'details-path', text: (trashed ? ['Recycle bin'] : path).join(' › ') || (db.getDefaultGroup().name ?? '') }),
+          h('div', { class: 'details-path', text: (trashed ? [t('sidebar', 'Recycle bin')] : path).join(' › ') || (db.getDefaultGroup().name ?? '') }),
         ),
         actions,
       ),
@@ -247,8 +253,8 @@ export class Details {
     if (version && this.historyIndex !== null) out.append(this.historyBar(entry, this.historyIndex));
 
     const rows = h('div', { class: 'fields' });
-    this.addRow(rows, shown, 'UserName', 'User name');
-    this.addRow(rows, shown, 'Password', 'Password');
+    this.addRow(rows, shown, 'UserName', t('entry', 'User name'));
+    this.addRow(rows, shown, 'Password', t('entry', 'Password'));
     const url = field(shown, 'URL');
     if (url) rows.append(this.urlRow(url));
     const otp = otpFromFields((name) => (shown.fields.has(name) ? field(shown, name) : undefined));
@@ -259,33 +265,36 @@ export class Details {
     }
     const notes = field(shown, 'Notes');
     if (notes) {
-      rows.append(fieldRow('Notes', h('div', { class: 'field-value field-value--notes', text: notes }), [this.copyButton(notes, 'Notes')]));
+      rows.append(fieldRow(t('entry', 'Notes'), h('div', { class: 'field-value field-value--notes', text: notes }), [this.copyButton(notes, t('entry', 'Notes'))]));
     }
     if (shown.tags.length) {
       const chips = h('div', { class: 'field-value tags' });
       for (const tag of shown.tags) chips.append(h('span', { class: 'tag', text: tag }));
-      rows.append(fieldRow('Tags', chips, []));
+      rows.append(fieldRow(t('entry', 'Tags'), chips, []));
     }
     if (shown.times.expires && shown.times.expiryTime) {
       const expired = shown.times.expiryTime.getTime() < Date.now();
       rows.append(
         fieldRow(
-          'Expires',
-          h('div', { class: `field-value${expired ? ' field-value--expired' : ''}`, text: `${dateOnly.format(shown.times.expiryTime)}${expired ? ' — expired' : ''}` }),
+          t('entry', 'Expires'),
+          h('div', {
+            class: `field-value${expired ? ' field-value--expired' : ''}`,
+            text: expired ? t('entry', '{date} — expired', { date: dateOnly().format(shown.times.expiryTime) }) : dateOnly().format(shown.times.expiryTime),
+          }),
           [],
         ),
       );
     }
-    if (rows.childElementCount === 0) rows.append(h('p', { class: 'details-empty', text: 'This entry has no fields yet.' }));
+    if (rows.childElementCount === 0) rows.append(h('p', { class: 'details-empty', text: t('entry', 'This entry has no fields yet.') }));
     out.append(rows);
 
     if (shown.binaries.size) out.append(this.attachments(shown, false));
 
     const meta = h('footer', { class: 'details-meta' });
-    if (shown.times.creationTime) meta.append(h('span', { text: `Created ${dateTime.format(shown.times.creationTime)}` }));
-    if (shown.times.lastModTime) meta.append(h('span', { text: `Modified ${dateTime.format(shown.times.lastModTime)}` }));
+    if (shown.times.creationTime) meta.append(h('span', { text: t('entry', 'Created {date}', { date: dateTime().format(shown.times.creationTime) }) }));
+    if (shown.times.lastModTime) meta.append(h('span', { text: t('entry', 'Modified {date}', { date: dateTime().format(shown.times.lastModTime) }) }));
     if (!version && entry.history.length) {
-      const history = h('button', { type: 'button', class: 'link-button' }, icon(ICONS.history), `${entry.history.length} earlier version${entry.history.length === 1 ? '' : 's'}`);
+      const history = h('button', { type: 'button', class: 'link-button' }, icon(ICONS.history), tn('entry', '{count} earlier version', '{count} earlier versions', entry.history.length));
       history.addEventListener('click', () => this.showHistory(entry.history.length - 1));
       meta.append(history);
     }
@@ -296,34 +305,34 @@ export class Details {
   private moreItems(entry: Entry, trashed: boolean, anchor: HTMLElement): MenuItem[] {
     if (trashed) {
       return [
-        { label: 'Restore', action: () => this.host.restore(entry) },
-        { label: 'Delete permanently', danger: true, action: () => this.host.remove(entry) },
+        { label: t('menu', 'Restore'), action: () => this.host.restore(entry) },
+        { label: t('menu', 'Delete permanently'), danger: true, action: () => this.host.remove(entry) },
       ];
     }
     return [
-      { label: 'Copy user name', hint: '⌘B', action: () => this.host.copy(field(entry, 'UserName'), 'User name') },
-      { label: 'Copy password', hint: '⌘C', action: () => this.host.copy(field(entry, 'Password'), 'Password') },
-      { label: 'Copy website', hint: '⌘U', action: () => this.host.copy(field(entry, 'URL'), 'Website') },
-      { label: 'Duplicate', separated: true, action: () => this.host.duplicate(entry) },
-      { label: 'Move to group…', action: () => this.host.moveMenu(entry, anchor) },
-      { label: 'Delete', danger: true, separated: true, hint: '⌫', action: () => this.host.remove(entry) },
+      { label: t('menu', 'Copy user name'), hint: '⌘B', action: () => this.host.copy(field(entry, 'UserName'), t('entry', 'User name')) },
+      { label: t('menu', 'Copy password'), hint: '⌘C', action: () => this.host.copy(field(entry, 'Password'), t('entry', 'Password')) },
+      { label: t('menu', 'Copy website'), hint: '⌘U', action: () => this.host.copy(field(entry, 'URL'), t('entry', 'Website')) },
+      { label: t('menu', 'Duplicate'), separated: true, action: () => this.host.duplicate(entry) },
+      { label: t('menu', 'Move to group…'), action: () => this.host.moveMenu(entry, anchor) },
+      { label: t('menu', 'Delete'), danger: true, separated: true, hint: '⌫', action: () => this.host.remove(entry) },
     ];
   }
 
   private historyBar(entry: Entry, index: number): HTMLElement {
     const version = entry.history[index];
-    const when = version?.times.lastModTime ? dateTime.format(version.times.lastModTime) : 'unknown date';
-    const older = button('‹ Older', () => this.showHistory(index - 1), 'button--small button--ghost');
-    const newer = button('Newer ›', () => this.showHistory(index + 1), 'button--small button--ghost');
+    const when = version?.times.lastModTime ? dateTime().format(version.times.lastModTime) : t('entry', 'unknown date');
+    const older = button(t('entry', '‹ Older'), () => this.showHistory(index - 1), 'button--small button--ghost');
+    const newer = button(t('entry', 'Newer ›'), () => this.showHistory(index + 1), 'button--small button--ghost');
     older.disabled = index === 0;
     newer.disabled = index >= entry.history.length - 1;
-    const restore = button('Restore this version', () => this.restoreVersion(entry, index), 'button--small');
-    const close = h('button', { type: 'button', class: 'icon-button', title: 'Back to the current version' }, icon(ICONS.close));
+    const restore = button(t('entry', 'Restore this version'), () => this.restoreVersion(entry, index), 'button--small');
+    const close = h('button', { type: 'button', class: 'icon-button', title: t('entry', 'Back to the current version') }, icon(ICONS.close));
     close.addEventListener('click', () => this.showHistory(null));
     return h(
       'div',
       { class: 'history-bar' },
-      h('span', { class: 'history-text', text: `Version of ${when} · ${index + 1} of ${entry.history.length}` }),
+      h('span', { class: 'history-text', text: t('entry', 'Version of {date} · {index} of {count}', { date: when, index: index + 1, count: entry.history.length }) }),
       older,
       newer,
       restore,
@@ -361,7 +370,7 @@ export class Details {
     }
     const shown = this.revealed.has(name);
     const text = h('div', { class: `field-value field-value--secret${shown ? ' field-value--shown' : ''}`, text: shown ? value : MASK });
-    const reveal = h('button', { type: 'button', class: 'icon-button icon-button--small', title: shown ? 'Hide' : 'Show' }, icon(shown ? ICONS.eyeOff : ICONS.eye));
+    const reveal = h('button', { type: 'button', class: 'icon-button icon-button--small', title: shown ? t('entry', 'Hide') : t('entry', 'Show') }, icon(shown ? ICONS.eyeOff : ICONS.eye));
     reveal.addEventListener('click', () => {
       if (this.revealed.has(name)) this.revealed.delete(name);
       else this.revealed.add(name);
@@ -375,12 +384,12 @@ export class Details {
     const value = href
       ? h('a', { class: 'field-value field-link', href, target: '_blank', rel: 'noopener noreferrer', text: url })
       : h('div', { class: 'field-value', text: url });
-    const actions: HTMLElement[] = [this.copyButton(url, 'Website')];
+    const actions: HTMLElement[] = [this.copyButton(url, t('entry', 'Website'))];
     if (href) {
-      const open = h('a', { class: 'icon-button icon-button--small', href, target: '_blank', rel: 'noopener noreferrer', title: 'Open' }, icon(ICONS.open));
+      const open = h('a', { class: 'icon-button icon-button--small', href, target: '_blank', rel: 'noopener noreferrer', title: t('entry', 'Open') }, icon(ICONS.open));
       actions.unshift(open);
     }
-    return fieldRow('Website', value, actions);
+    return fieldRow(t('entry', 'Website'), value, actions);
   }
 
   private otpRow(otp: OtpParams): HTMLElement {
@@ -390,20 +399,20 @@ export class Details {
     const tick = async (): Promise<void> => {
       const left = secondsLeft(otp);
       ring.style.setProperty('--left', String(left / otp.period));
-      ring.title = `${left} s left`;
+      ring.title = t('entry', '{seconds} s left', { seconds: left });
       ring.classList.toggle('otp-ring--late', left <= 5);
       current = await totp(otp);
       code.textContent = formatCode(current);
     };
     void tick();
     this.otpTimer = window.setInterval(() => void tick(), 1000);
-    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: 'Copy' }, icon(ICONS.copy));
-    copy.addEventListener('click', () => this.host.copy(current, 'One-time code'));
-    return fieldRow('One-time code', h('div', { class: 'field-value otp' }, code, ring), [copy]);
+    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Copy') }, icon(ICONS.copy));
+    copy.addEventListener('click', () => this.host.copy(current, t('entry', 'One-time code')));
+    return fieldRow(t('entry', 'One-time code'), h('div', { class: 'field-value otp' }, code, ring), [copy]);
   }
 
   private copyButton(value: string, label: string): HTMLElement {
-    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: `Copy ${label.toLowerCase()}` }, icon(ICONS.copy));
+    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Copy {what}', { what: label.toLowerCase() }) }, icon(ICONS.copy));
     copy.addEventListener('click', () => this.host.copy(value, label));
     return copy;
   }
@@ -417,7 +426,7 @@ export class Details {
       const bytes = binaryBytes(value as Binary);
       const chip = h('div', { class: 'attachment' }, icon(ICONS.clip), h('span', { class: 'attachment-name', text: name }), h('span', { class: 'attachment-size', text: formatSize(bytes.byteLength) }));
       if (editable && draft) {
-        const remove = h('button', { type: 'button', class: 'icon-button icon-button--small', title: 'Remove' }, icon(ICONS.close));
+        const remove = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Remove') }, icon(ICONS.close));
         remove.addEventListener('click', () => {
           draft.binaries = draft.binaries.filter(([other]) => other !== name);
           draft.added = draft.added.filter((item) => item.name !== name);
@@ -425,13 +434,13 @@ export class Details {
         });
         chip.append(remove);
       } else {
-        const save = h('button', { type: 'button', class: 'icon-button icon-button--small', title: 'Download' }, icon(ICONS.download));
+        const save = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Download') }, icon(ICONS.download));
         save.addEventListener('click', () => download(bytes, name));
         chip.append(save);
       }
       list.append(chip);
     }
-    return h('section', { class: 'details-section' }, h('h3', { class: 'section-title', text: 'Attachments' }), list);
+    return h('section', { class: 'details-section' }, h('h3', { class: 'section-title', text: t('entry', 'Attachments') }), list);
   }
 
   /* ---------------------------------------------------------------- *
@@ -445,7 +454,7 @@ export class Details {
       void this.commit();
     });
 
-    const title = input(draft.title, 'Title', (value) => (draft.title = value), 'title');
+    const title = input(draft.title, t('entry', 'Title'), (value) => (draft.title = value), 'title');
     title.classList.add('details-title-input');
     out.append(
       h(
@@ -456,18 +465,18 @@ export class Details {
         h(
           'div',
           { class: 'details-actions' },
-          button('Cancel', () => void this.cancel(), 'button--small button--ghost', 'Cancel (Esc)'),
-          h('button', { type: 'submit', class: 'button button--primary button--small', title: 'Save (⌘Enter)', text: 'Save' }),
+          button(t('entry', 'Cancel'), () => void this.cancel(), 'button--small button--ghost', t('entry', 'Cancel (Esc)')),
+          h('button', { type: 'submit', class: 'button button--primary button--small', title: t('entry', 'Save (⌘Enter)'), text: t('entry', 'Save') }),
         ),
       ),
     );
 
     const rows = h('div', { class: 'fields' });
-    rows.append(editRow('User name', input(draft.username, 'User name', (value) => (draft.username = value), 'username')));
+    rows.append(editRow(t('entry', 'User name'), input(draft.username, t('entry', 'User name'), (value) => (draft.username = value), 'username')));
     rows.append(this.passwordEditor(draft));
-    rows.append(editRow('Website', input(draft.url, 'https://', (value) => (draft.url = value), 'url')));
+    rows.append(editRow(t('entry', 'Website'), input(draft.url, 'https://', (value) => (draft.url = value), 'url')));
 
-    const notes = h('textarea', { class: 'field-input field-input--notes', rows: '4', placeholder: 'Notes', 'data-field': 'notes', spellcheck: 'false' });
+    const notes = h('textarea', { class: 'field-input field-input--notes', rows: '4', placeholder: t('entry', 'Notes'), 'data-field': 'notes', spellcheck: 'false' });
     notes.value = draft.notes;
     const grow = (): void => {
       notes.style.height = 'auto';
@@ -478,10 +487,10 @@ export class Details {
       grow();
     });
     requestAnimationFrame(grow);
-    rows.append(editRow('Notes', notes));
+    rows.append(editRow(t('entry', 'Notes'), notes));
 
     for (const item of draft.fields) rows.append(this.customEditor(draft, item));
-    const add = button('+ Add field', () => {
+    const add = button(t('entry', '+ Add field'), () => {
       draft.fields.push({ name: '', value: '', protect: false });
       this.render();
       const names = this.root.querySelectorAll<HTMLInputElement>('.custom-name');
@@ -489,9 +498,9 @@ export class Details {
     }, 'button--small button--ghost');
     rows.append(h('div', { class: 'field field--add' }, h('span', { class: 'field-label' }), add));
 
-    rows.append(editRow('Tags', input(draft.tags, 'Comma-separated', (value) => (draft.tags = value), 'tags')));
+    rows.append(editRow(t('entry', 'Tags'), input(draft.tags, t('entry', 'Comma-separated'), (value) => (draft.tags = value), 'tags')));
 
-    const expires = h('input', { type: 'checkbox', 'aria-label': 'Expires' });
+    const expires = h('input', { type: 'checkbox', 'aria-label': t('entry', 'Expires') });
     expires.checked = draft.expires;
     const expiry = h('input', { type: 'date', class: 'field-input field-input--date' });
     expiry.value = draft.expiry;
@@ -505,7 +514,7 @@ export class Details {
       }
     });
     expiry.addEventListener('input', () => (draft.expiry = expiry.value));
-    rows.append(editRow('Expires', h('div', { class: 'field-inline' }, expires, expiry)));
+    rows.append(editRow(t('entry', 'Expires'), h('div', { class: 'field-inline' }, expires, expiry)));
     out.append(rows);
 
     const attachments = this.attachments(entry, true, draft);
@@ -518,7 +527,7 @@ export class Details {
       }
       this.render();
     });
-    const attach = button('+ Attach file', () => picker.click(), 'button--small button--ghost');
+    const attach = button(t('entry', '+ Attach file'), () => picker.click(), 'button--small button--ghost');
     attachments.append(picker, attach);
     out.append(attachments);
 
@@ -534,7 +543,7 @@ export class Details {
 
   private passwordEditor(draft: Draft): HTMLElement {
     const shown = this.revealed.has('Password');
-    const pass = input(draft.password, 'Password', (value) => {
+    const pass = input(draft.password, t('entry', 'Password'), (value) => {
       draft.password = value;
       paint();
     }, 'password');
@@ -548,17 +557,17 @@ export class Details {
       const result = strength(draft.password);
       meter.dataset['level'] = String(result.level);
       const label = meter.querySelector('.meter-label');
-      if (label) label.textContent = draft.password ? `${result.label} · ${result.bits} bits` : '';
+      if (label) label.textContent = draft.password ? `${result.label} · ${tn('generator', '{count} bit', '{count} bits', result.bits)}` : '';
     };
     paint();
-    const reveal = h('button', { type: 'button', class: 'icon-button icon-button--small', title: shown ? 'Hide' : 'Show' }, icon(shown ? ICONS.eyeOff : ICONS.eye));
+    const reveal = h('button', { type: 'button', class: 'icon-button icon-button--small', title: shown ? t('entry', 'Hide') : t('entry', 'Show') }, icon(shown ? ICONS.eyeOff : ICONS.eye));
     reveal.addEventListener('click', () => {
       if (this.revealed.has('Password')) this.revealed.delete('Password');
       else this.revealed.add('Password');
       setRevealed(pass, this.revealed.has('Password'));
       reveal.replaceChildren(icon(this.revealed.has('Password') ? ICONS.eyeOff : ICONS.eye));
     });
-    const dice = h('button', { type: 'button', class: 'icon-button icon-button--small', title: 'Generate (⌘G)', 'data-generate': '' }, icon(ICONS.dice));
+    const dice = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Generate (⌘G)'), 'data-generate': '' }, icon(ICONS.dice));
     dice.addEventListener('click', () =>
       this.host.generator(dice, (value) => {
         draft.password = value;
@@ -571,20 +580,20 @@ export class Details {
         paint();
       }),
     );
-    return editRow('Password', h('div', { class: 'field-stack' }, h('div', { class: 'field-inline' }, h('span', { class: 'secret-field' }, pass, layer, badge), reveal, dice), meter));
+    return editRow(t('entry', 'Password'), h('div', { class: 'field-stack' }, h('div', { class: 'field-inline' }, h('span', { class: 'secret-field' }, pass, layer, badge), reveal, dice), meter));
   }
 
   private customEditor(draft: Draft, item: DraftField): HTMLElement {
-    const name = h('input', { class: 'field-input custom-name', placeholder: 'Name', value: item.name, spellcheck: 'false' });
+    const name = h('input', { class: 'field-input custom-name', placeholder: t('entry', 'Name'), value: item.name, spellcheck: 'false' });
     name.addEventListener('input', () => (item.name = name.value));
-    const value = input(item.value, 'Value', (text) => (item.value = text));
+    const value = input(item.value, t('entry', 'Value'), (text) => (item.value = text));
     if (item.protect) value.classList.add('field-input--secret');
-    const lock = h('button', { type: 'button', class: 'icon-button icon-button--small', title: item.protect ? 'Protected — click to store as plain text' : 'Plain text — click to protect', 'aria-pressed': String(item.protect) }, icon(item.protect ? ICONS.lock : ICONS.unlock));
+    const lock = h('button', { type: 'button', class: 'icon-button icon-button--small', title: item.protect ? t('entry', 'Protected — click to store as plain text') : t('entry', 'Plain text — click to protect'), 'aria-pressed': String(item.protect) }, icon(item.protect ? ICONS.lock : ICONS.unlock));
     lock.addEventListener('click', () => {
       item.protect = !item.protect;
       this.render();
     });
-    const remove = h('button', { type: 'button', class: 'icon-button icon-button--small', title: 'Remove field' }, icon(ICONS.trash));
+    const remove = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Remove field') }, icon(ICONS.trash));
     remove.addEventListener('click', () => {
       draft.fields = draft.fields.filter((other) => other !== item);
       this.render();
@@ -631,12 +640,12 @@ function validate(draft: Draft): string | null {
   const seen = new Set<string>();
   for (const item of draft.fields) {
     const name = item.name.trim();
-    if (!name) return 'Every custom field needs a name';
-    if (isStandard(name)) return `"${name}" is a standard field name`;
-    if (seen.has(name)) return `Two fields are called "${name}"`;
+    if (!name) return t('entry', 'Every custom field needs a name');
+    if (isStandard(name)) return t('entry', '"{name}" is a standard field name', { name });
+    if (seen.has(name)) return t('entry', 'Two fields are called "{name}"', { name });
     seen.add(name);
   }
-  if (draft.expires && !/^\d{4}-\d{2}-\d{2}$/.test(draft.expiry)) return 'Pick an expiry date';
+  if (draft.expires && !/^\d{4}-\d{2}-\d{2}$/.test(draft.expiry)) return t('entry', 'Pick an expiry date');
   return null;
 }
 

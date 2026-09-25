@@ -4,6 +4,8 @@
  * prompt, so the wipe is unconditional — as in KeePass.
  */
 
+import { t } from './i18n';
+
 let clearTimer = 0;
 let pending = false;
 
@@ -40,5 +42,5 @@ async function write(value: string): Promise<void> {
   area.select();
   const ok = document.execCommand('copy');
   area.remove();
-  if (!ok) throw new Error('The browser refused to copy');
+  if (!ok) throw new Error(t('errors', 'The browser refused to copy'));
 }
