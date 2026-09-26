@@ -4,15 +4,7 @@ A password manager for KeePass databases (`.kdbx`) — in the spirit of KeeWeb, 
 contained in one standalone HTML file. No network is used: the database is decrypted inside
 the page and saved straight back to disk.
 
-```
-┌──────────────────────────────────────────────────────────┐
-│ Toolbar: new entry · search · save · generator · lock    │
-├────────────┬──────────────────┬──────────────────────────┤
-│ Groups,    │ Entries          │ Entry                    │
-│ tags,      │                  │ (read / edit)            │
-│ recycle bin│                  │                          │
-└────────────┴──────────────────┴──────────────────────────┘
-```
+![html-password-manager: groups, entries and an entry with a derived password](docs/password-manager.jpg)
 
 ## How to use
 
