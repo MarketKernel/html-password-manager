@@ -43,7 +43,7 @@ import {
   type Kdbx,
   type kdbxweb,
 } from './kdbx';
-import { formatCode, OTP_FIELDS, otpFromFields, secondsLeft, totp, type OtpParams } from './otp';
+import { formatCode, OTP_FIELDS, otpFromFields, otpUrl, parseOtpValue, secondsLeft, totp, type OtpParams } from './otp';
 import { safeHref } from './search';
 import { bindLayoutBadge, h, icon, ICONS, maskInput, menuAt, setRevealed, syncMask, type MenuItem } from './ui';
 
@@ -468,22 +468,44 @@ export class Details {
   }
 
   private otpRow(otp: OtpParams): HTMLElement {
+    const { value, copy } = this.otpCode(() => otp);
+    return fieldRow(t('entry', 'One-time code'), value, [copy]);
+  }
+
+  /** The live code with its countdown; `params` is asked on every tick, so an editor can change it. */
+  private otpCode(params: () => OtpParams | null): { value: HTMLElement; copy: HTMLButtonElement; tick: () => void } {
     const code = h('span', { class: 'otp-code', text: '··· ···' });
     const ring = h('span', { class: 'otp-ring' });
+    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Copy') }, icon(ICONS.copy));
     let current = '';
-    const tick = async (): Promise<void> => {
+    let turn = 0;
+    const tick = (): void => {
+      const otp = params();
+      const mine = (turn += 1);
+      copy.disabled = !otp;
+      if (!otp) {
+        current = '';
+        code.textContent = '··· ···';
+        ring.style.setProperty('--left', '0');
+        ring.removeAttribute('title');
+        return;
+      }
       const left = secondsLeft(otp);
       ring.style.setProperty('--left', String(left / otp.period));
       ring.title = t('entry', '{seconds} s left', { seconds: left });
       ring.classList.toggle('otp-ring--late', left <= 5);
-      current = await totp(otp);
-      code.textContent = formatCode(current);
+      void totp(otp).then((next) => {
+        if (mine !== turn) return;
+        current = next;
+        code.textContent = formatCode(next);
+      });
     };
-    void tick();
-    this.otpTimer = window.setInterval(() => void tick(), 1000);
-    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Copy') }, icon(ICONS.copy));
-    copy.addEventListener('click', () => this.host.copy(current, t('entry', 'One-time code')));
-    return fieldRow(t('entry', 'One-time code'), h('div', { class: 'field-value otp' }, code, ring), [copy]);
+    tick();
+    this.otpTimer = window.setInterval(tick, 1000);
+    copy.addEventListener('click', () => {
+      if (current) this.host.copy(current, t('entry', 'One-time code'));
+    });
+    return { value: h('div', { class: 'field-value otp' }, code, ring), copy, tick };
   }
 
   private copyButton(value: string, label: string): HTMLElement {
@@ -559,6 +581,8 @@ export class Details {
       this.accountChanged?.();
     }, 'url');
     rows.append(editRow(t('entry', 'Website'), website));
+    const otp = draft.fields.find((item) => item.name === 'otp');
+    if (otp) rows.append(this.otpEditor(draft, otp));
 
     const notes = h('textarea', { class: 'field-input field-input--notes', rows: '4', placeholder: t('entry', 'Notes'), 'data-field': 'notes', spellcheck: 'false' });
     notes.value = draft.notes;
@@ -573,14 +597,25 @@ export class Details {
     requestAnimationFrame(grow);
     rows.append(editRow(t('entry', 'Notes'), notes));
 
-    for (const item of draft.fields) rows.append(this.customEditor(draft, item));
+    for (const item of draft.fields) if (item !== otp) rows.append(this.customEditor(draft, item));
     const add = button(t('entry', '+ Add field'), () => {
       draft.fields.push({ name: '', value: '', protect: false });
       this.render();
       const names = this.root.querySelectorAll<HTMLInputElement>('.custom-name');
       names[names.length - 1]?.focus();
     }, 'button--small button--ghost');
-    rows.append(h('div', { class: 'field field--add' }, h('span', { class: 'field-label' }), add));
+    const adders = h('div', { class: 'field-adders' }, add);
+    // An entry already set up in another convention (KeePass's TimeOtp-*, TrayTOTP) keeps it: those fields are edited as they are.
+    if (!draft.fields.some((item) => OTP_FIELDS.includes(item.name.trim()))) {
+      adders.append(
+        button(t('entry', '+ One-time code'), () => {
+          draft.fields.push({ name: 'otp', value: '', protect: true });
+          this.render();
+          this.root.querySelector<HTMLInputElement>('[data-field="otp"]')?.focus();
+        }, 'button--small button--ghost', t('entry', 'Add a key for two-factor codes (TOTP)')),
+      );
+    }
+    rows.append(h('div', { class: 'field field--add' }, h('span', { class: 'field-label' }), adders));
 
     rows.append(editRow(t('entry', 'Tags'), input(draft.tags, t('entry', 'Comma-separated'), (value) => (draft.tags = value), 'tags')));
 
@@ -818,6 +853,57 @@ export class Details {
     return h('div', { class: 'field field--custom' }, name, h('div', { class: 'field-inline' }, value, lock, remove));
   }
 
+  /** The `otp` field: the setup key a site gives for two-factor codes, with the code it makes to confirm it. */
+  private otpEditor(draft: Draft, item: DraftField): HTMLElement {
+    const key = input(item.value, t('entry', 'Setup key or otpauth:// link'), (text) => {
+      item.value = text;
+      check();
+      tick();
+    }, 'otp');
+    // The key makes codes for good, so it is masked like the password; the code it makes is not.
+    const layer = maskInput(key);
+    setRevealed(key, this.revealed.has('otp'));
+    key.classList.add('field-input--secret');
+    const reveal = h('button', { type: 'button', class: 'icon-button icon-button--small' });
+    const paintReveal = (): void => {
+      const shown = this.revealed.has('otp');
+      reveal.title = shown ? t('entry', 'Hide') : t('entry', 'Show');
+      reveal.replaceChildren(icon(shown ? ICONS.eyeOff : ICONS.eye));
+    };
+    paintReveal();
+    reveal.addEventListener('click', () => {
+      if (this.revealed.has('otp')) this.revealed.delete('otp');
+      else this.revealed.add('otp');
+      setRevealed(key, this.revealed.has('otp'));
+      paintReveal();
+    });
+    const remove = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Remove one-time code') }, icon(ICONS.trash));
+    remove.addEventListener('click', () => {
+      draft.fields = draft.fields.filter((other) => other !== item);
+      this.render();
+    });
+    const note = h('div', { class: 'field-note', hidden: '' });
+    const check = (): void => {
+      note.hidden = !item.value.trim() || Boolean(parseOtpValue(item.value));
+      note.textContent = t('entry', 'Not a key: it has the letters A–Z and the digits 2–7, or is an otpauth://totp/ link');
+    };
+    check();
+    const { value, copy, tick } = this.otpCode(() => parseOtpValue(item.value));
+    return h(
+      'div',
+      { class: 'field field--edit' },
+      h('span', { class: 'field-label', text: t('entry', 'One-time code') }),
+      h(
+        'div',
+        { class: 'field-stack' },
+        h('div', { class: 'field-inline' }, h('span', { class: 'secret-field' }, key, layer), reveal, remove),
+        note,
+        h('div', { class: 'field-inline' }, value, copy),
+        h('span', { class: 'field-hint', text: t('entry', 'The key the site shows next to the QR code, for entering it by hand. Enter the code above on the site to finish.') }),
+      ),
+    );
+  }
+
   /** Called by ⌘G while editing: fills the password field from the generator. */
   generate(): void {
     this.root.querySelector<HTMLButtonElement>('[data-generate]')?.click();
@@ -868,6 +954,7 @@ function validate(draft: Draft): string | null {
     if (isStandard(name)) return t('entry', '"{name}" is a standard field name', { name });
     if (seen.has(name)) return t('entry', 'Two fields are called "{name}"', { name });
     seen.add(name);
+    if (name === 'otp' && item.value.trim() && !parseOtpValue(item.value)) return t('entry', 'The one-time code key is not valid');
   }
   if (draft.expires && !/^\d{4}-\d{2}-\d{2}$/.test(draft.expiry)) return t('entry', 'Pick an expiry date');
   return draft.derived ? specProblem(draft.derived) : null;
@@ -887,7 +974,11 @@ async function applyDraft(db: Kdbx, entry: Entry, draft: Draft): Promise<void> {
     const [value, protect] = standard[name];
     fields.set(name, makeValue(value, protect));
   }
-  for (const item of draft.fields) fields.set(item.name.trim(), makeValue(item.value, item.protect));
+  for (const item of draft.fields) {
+    const name = item.name.trim();
+    if (name !== 'otp') fields.set(name, makeValue(item.value, item.protect));
+    else if (item.value.trim()) fields.set(name, makeValue(otpUrl(item.value, draft.title, draft.username), item.protect));
+  }
   entry.fields = fields;
 
   entry.tags = [...new Set(draft.tags.split(/[,;]/).map((tag) => tag.trim()).filter(Boolean))];

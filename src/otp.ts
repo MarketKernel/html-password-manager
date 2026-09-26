@@ -86,14 +86,31 @@ function hexDecode(input: string): Uint8Array | null {
   return new Uint8Array(clean.match(/../g)?.map((pair) => Number.parseInt(pair, 16)) ?? []);
 }
 
+/** The value of an `otp` field: an `otpauth://totp/…` URL or a bare base32 secret. */
+export function parseOtpValue(value: string): OtpParams | null {
+  const otp = value.trim();
+  if (/^otpauth:/i.test(otp)) return parseOtpUrl(otp);
+  const secret = base32Decode(otp);
+  return secret && secret.length ? { secret, digits: 6, period: 30, algorithm: 'SHA-1' } : null;
+}
+
+/**
+ * A bare secret as the `otpauth://` URL KeePassXC expects in the `otp` field
+ * (it does not read a bare one there); a URL is kept as it is.
+ */
+export function otpUrl(value: string, issuer: string, account: string): string {
+  const otp = value.trim();
+  if (/^otpauth:/i.test(otp)) return otp;
+  const secret = otp.replace(/[\s=-]/g, '').toUpperCase();
+  const label = [issuer.trim(), account.trim()].filter(Boolean).map(encodeURIComponent).join(':');
+  const query = issuer.trim() ? `&issuer=${encodeURIComponent(issuer.trim())}` : '';
+  return `otpauth://totp/${label}?secret=${secret}&period=30&digits=6${query}`;
+}
+
 /** Reads whatever OTP convention the entry follows; null when it has none. */
 export function otpFromFields(get: (name: string) => string | undefined): OtpParams | null {
   const otp = get('otp')?.trim();
-  if (otp) {
-    if (/^otpauth:/i.test(otp)) return parseOtpUrl(otp);
-    const secret = base32Decode(otp);
-    return secret && secret.length ? { secret, digits: 6, period: 30, algorithm: 'SHA-1' } : null;
-  }
+  if (otp) return parseOtpValue(otp);
 
   const b32 = get('TimeOtp-Secret-Base32');
   const hex = get('TimeOtp-Secret-Hex');

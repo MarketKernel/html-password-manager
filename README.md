@@ -57,7 +57,10 @@ copy of the database.
   protected), tags, expiry date, attachments. Sorting by title, user name, website, dates.
 - **One-time codes** (TOTP): from an `otp` field (`otpauth://` URL or a bare secret, as
   KeePassXC and KeeWeb store it), from KeePass's `TimeOtp-*` fields, or from TrayTOTP's
-  `TOTP Seed`. SHA-1, SHA-256, SHA-512; the code refreshes with a countdown.
+  `TOTP Seed`. SHA-1, SHA-256, SHA-512; the code refreshes with a countdown. **+ One-time code**
+  in the editor takes the setup key a site shows next to its QR code (or an `otpauth://` link)
+  and shows the code at once, to confirm it on the site; a bare key is saved as an `otpauth://`
+  link, the form KeePassXC reads.
 - **Editing** works on a draft: Save stores the previous state in the entry's history first,
   as KeePass does; Cancel drops the draft. Earlier versions can be browsed and restored.
 - **Recycle bin**: deleting moves to the bin; from there — restore or delete for good.

@@ -70,6 +70,11 @@ check('KeePass fields', (({ digits, period, algorithm }) => [digits, period, alg
 check('TrayTOTP fields', (({ digits, period }) => [digits, period])(fromMap({ 'TOTP Seed': 'GEZDGNBVGY3TQOJQ', 'TOTP Settings': '60;7' })), [7, 60]);
 check('no otp', fromMap({ Title: 'x' }), null);
 check('hotp is not totp', fromMap({ otp: 'otpauth://hotp/x?secret=GEZDGNBV' }), null);
+check('otp value: invalid', G.parseOtpValue('not a key!'), null);
+check('otp url from a bare secret', G.otpUrl(' jbsw y3dp ehpk 3pxp ', 'My Bank', 'me@x.org'), 'otpauth://totp/My%20Bank:me%40x.org?secret=JBSWY3DPEHPK3PXP&period=30&digits=6&issuer=My%20Bank');
+check('otp url without a title', G.otpUrl('JBSWY3DPEHPK3PXP', '', ''), 'otpauth://totp/?secret=JBSWY3DPEHPK3PXP&period=30&digits=6');
+check('otp url kept as it is', G.otpUrl(url, 'Other', 'you'), url);
+check('otp url reads back', fromMap({ otp: G.otpUrl('JBSWY3DPEHPK3PXP', 'Bank', 'me') })?.secret, G.base32Decode('JBSWY3DPEHPK3PXP'));
 check('seconds left', G.secondsLeft({ period: 30 }, 1000 * 61), 29);
 check('format code', G.formatCode('123456'), '123 456');
 

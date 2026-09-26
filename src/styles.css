@@ -770,6 +770,7 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
 .derived-version { width: 8.5em; }
 .derived-foot { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .field--add .button { justify-self: start; }
+.field-adders { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .meter { display: flex; align-items: center; gap: 10px; }
 .meter-bar {
