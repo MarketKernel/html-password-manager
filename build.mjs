@@ -102,6 +102,7 @@ async function buildPages(html) {
     '<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">',
     '<meta name="theme-color" content="#17181c" media="(prefers-color-scheme: dark)">',
     '<meta name="apple-mobile-web-app-capable" content="yes">',
+    '<meta name="apple-mobile-web-app-status-bar-style" content="default">',
     "<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>",
   ].join('\n');
   const page = allowPwa(html).replace('</head>', () => `${head}\n</head>`);

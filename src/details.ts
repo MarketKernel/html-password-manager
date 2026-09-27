@@ -164,6 +164,11 @@ export class Details {
     return this.editing && this.draft !== null && (this.isNew || snapshot(this.draft) !== this.pristine);
   }
 
+  /** A new entry nothing has been typed into yet. */
+  get untouched(): boolean {
+    return this.editing && this.isNew && this.draft !== null && snapshot(this.draft) === this.pristine;
+  }
+
   /** Applies the draft. False when it has a problem to fix first. */
   async commit(): Promise<boolean> {
     const db = this.host.db();

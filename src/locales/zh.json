@@ -78,7 +78,8 @@
     "All entries": "所有条目",
     "Groups": "群组",
     "Tags": "标签",
-    "(unnamed)": "（未命名）"
+    "(unnamed)": "（未命名）",
+    "More": "更多"
   },
   "menu": {
     "Restore": "恢复",
@@ -101,7 +102,10 @@
     "Rename database…": "重命名数据库…",
     "Change master password…": "更改主密码…",
     "Lock": "锁定",
-    "Close database": "关闭数据库"
+    "Close database": "关闭数据库",
+    "Password generator": "密码生成器",
+    "Theme: {theme}": "主题：{theme}",
+    "Settings": "设置"
   },
   "generator": {
     "{count} bits": {
@@ -176,7 +180,9 @@
     "+ Key file": "+ 密钥文件",
     "remove": "移除",
     "Unlock": "解锁",
-    "Caps Lock is on": "Caps Lock 已开启"
+    "Caps Lock is on": "Caps Lock 已开启",
+    "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "在此设备上文件以只读方式打开：保存时会把数据库的更新副本交给共享菜单，在其中选择“存储到‘文件’”即可覆盖原文件。",
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "在此设备上文件以只读方式打开：保存时会下载数据库的更新副本。"
   },
   "status": {
     "{count} entries": {
@@ -186,7 +192,8 @@
     "not saved yet": "尚未保存",
     "read-only, saving downloads a copy": "只读，保存时将下载副本",
     "Unsaved changes": "有未保存的更改",
-    "Saved": "已保存"
+    "Saved": "已保存",
+    "read-only, saving shares a copy": "只读，保存时将共享副本"
   },
   "database": {
     "General": "常规",
@@ -224,7 +231,8 @@
     "Not saved: {reason}": "未保存：{reason}",
     "Saved a copy as {name}": "已另存副本为 {name}",
     "Master key changed": "主密钥已更改",
-    "Theme: {theme}": "主题：{theme}"
+    "Theme: {theme}": "主题：{theme}",
+    "{name} shared": "已共享 {name}"
   },
   "dialog": {
     "Discard changes?": "放弃更改？",
@@ -272,7 +280,8 @@
     "Turn {count} derived passwords into stored ones": {
       "other": "将 {count} 个推导密码转为存储密码"
     },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "推导密码由主密码计算得出：换了主密码，每个都会变成另一个密码。转为存储后保持不变，但没有文件就无法再恢复。"
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "推导密码由主密码计算得出：换了主密码，每个都会变成另一个密码。转为存储后保持不变，但没有文件就无法再恢复。",
+    "Close": "关闭"
   },
   "app": {
     "Password manager": "密码管理器"
@@ -294,7 +303,8 @@
     "Light": "浅色",
     "Dark": "深色",
     "Show legacy password algorithms": "显示旧版密码算法",
-    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "生成器还会提供推导 v2 和 v1——两个旧程序的计算器，用来找回用它们生成的密码。"
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "生成器还会提供推导 v2 和 v1——两个旧程序的计算器，用来找回用它们生成的密码。",
+    "This browser cannot write files in place, so saving shares a copy.": "此浏览器无法直接写入文件，因此保存时会共享副本。"
   },
   "password": {
     "Show password": "显示密码",
@@ -323,7 +333,9 @@
     "Lock (⌘L)": "锁定 (⌘L)",
     "Entries": "条目",
     "Entry list width": "条目列表宽度",
-    "Entry": "条目"
+    "Entry": "条目",
+    "Back": "返回",
+    "More": "更多"
   },
   "derived": {
     "This password is derived by generator {version}, which this version of the app does not know": "此密码由生成器 {version} 推导，此版本的应用不认识它",

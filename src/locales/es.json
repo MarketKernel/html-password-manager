@@ -80,7 +80,8 @@
     "All entries": "Todas las entradas",
     "Groups": "Grupos",
     "Tags": "Etiquetas",
-    "(unnamed)": "(sin nombre)"
+    "(unnamed)": "(sin nombre)",
+    "More": "Más"
   },
   "menu": {
     "Restore": "Restaurar",
@@ -103,7 +104,10 @@
     "Rename database…": "Cambiar nombre de la base de datos…",
     "Change master password…": "Cambiar contraseña maestra…",
     "Lock": "Bloquear",
-    "Close database": "Cerrar base de datos"
+    "Close database": "Cerrar base de datos",
+    "Password generator": "Generador de contraseñas",
+    "Theme: {theme}": "Tema: {theme}",
+    "Settings": "Ajustes"
   },
   "generator": {
     "{count} bits": {
@@ -180,7 +184,9 @@
     "+ Key file": "+ Archivo de clave",
     "remove": "quitar",
     "Unlock": "Desbloquear",
-    "Caps Lock is on": "Caps Lock está activado"
+    "Caps Lock is on": "Caps Lock está activado",
+    "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "En este dispositivo el archivo se abre en modo de solo lectura: Guardar pasa una copia actualizada al menú Compartir, donde «Guardar en Archivos» puede ponerla en lugar del original.",
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "En este dispositivo el archivo se abre en modo de solo lectura: Guardar descarga una copia actualizada de la base de datos."
   },
   "status": {
     "{count} entries": {
@@ -192,7 +198,8 @@
     "not saved yet": "aún no guardada",
     "read-only, saving downloads a copy": "solo lectura, al guardar se descarga una copia",
     "Unsaved changes": "Cambios sin guardar",
-    "Saved": "Guardado"
+    "Saved": "Guardado",
+    "read-only, saving shares a copy": "solo lectura, al guardar se comparte una copia"
   },
   "database": {
     "General": "General",
@@ -230,7 +237,8 @@
     "Not saved: {reason}": "No se guardó: {reason}",
     "Saved a copy as {name}": "Copia guardada como {name}",
     "Master key changed": "Clave maestra cambiada",
-    "Theme: {theme}": "Tema: {theme}"
+    "Theme: {theme}": "Tema: {theme}",
+    "{name} shared": "Compartido: {name}"
   },
   "dialog": {
     "Discard changes?": "¿Descartar los cambios?",
@@ -284,7 +292,8 @@
       "many": "Convertir {count} de contraseñas derivadas en guardadas",
       "other": "Convertir {count} contraseñas derivadas en guardadas"
     },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Las contraseñas derivadas se calculan a partir de la contraseña maestra: con una nueva, cada una pasa a ser otra. Guardadas, se quedan como están, pero ya no se pueden recuperar sin el archivo."
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Las contraseñas derivadas se calculan a partir de la contraseña maestra: con una nueva, cada una pasa a ser otra. Guardadas, se quedan como están, pero ya no se pueden recuperar sin el archivo.",
+    "Close": "Cerrar"
   },
   "app": {
     "Password manager": "Gestor de contraseñas"
@@ -306,7 +315,8 @@
     "Light": "Claro",
     "Dark": "Oscuro",
     "Show legacy password algorithms": "Mostrar los algoritmos de contraseñas antiguos",
-    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "El generador ofrece además las derivadas v2 y v1, las calculadoras de dos programas antiguos, para recuperar las contraseñas hechas con ellos."
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "El generador ofrece además las derivadas v2 y v1, las calculadoras de dos programas antiguos, para recuperar las contraseñas hechas con ellos.",
+    "This browser cannot write files in place, so saving shares a copy.": "Este navegador no puede sobrescribir archivos, así que al guardar se comparte una copia."
   },
   "password": {
     "Show password": "Mostrar contraseña",
@@ -335,7 +345,9 @@
     "Lock (⌘L)": "Bloquear (⌘L)",
     "Entries": "Entradas",
     "Entry list width": "Ancho de la lista de entradas",
-    "Entry": "Entrada"
+    "Entry": "Entrada",
+    "Back": "Atrás",
+    "More": "Más"
   },
   "derived": {
     "This password is derived by generator {version}, which this version of the app does not know": "Esta contraseña se deriva con el generador {version}, que esta versión de la aplicación no conoce",

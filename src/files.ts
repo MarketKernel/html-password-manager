@@ -12,6 +12,7 @@
  */
 
 import { t } from './i18n';
+import { isTouch } from './screens';
 
 export interface DbFile {
   readonly name: string;
@@ -185,6 +186,43 @@ export function download(data: ArrayBuffer | Uint8Array, name: string, type = 'a
   link.click();
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
+const shareable = (data: ArrayBuffer | Uint8Array, name: string): File => new File([data as BlobPart], name, { type: 'application/octet-stream' });
+
+/**
+ * Save hands the database to the system's share sheet instead of downloading
+ * it: a phone that can take a file that way — on iOS, where "Save to Files"
+ * lives, which can put it over the original. Chrome on Android takes only
+ * pictures, sound, video and text, so there a download it stays; a computer
+ * that could share would still rather download.
+ */
+export function sharesFiles(): boolean {
+  try {
+    return (
+      isTouch() &&
+      typeof navigator.share === 'function' &&
+      typeof navigator.canShare === 'function' &&
+      navigator.canShare({ files: [shareable(new Uint8Array(0), 'Database.kdbx')] })
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** 'cancelled' when the share sheet was closed without taking the file. */
+export async function shareOrDownload(data: ArrayBuffer | Uint8Array, name: string): Promise<'shared' | 'downloaded' | 'cancelled'> {
+  if (sharesFiles()) {
+    try {
+      await navigator.share({ files: [shareable(data, name)], title: name });
+      return 'shared';
+    } catch (error) {
+      if (isAbort(error)) return 'cancelled';
+      // NotAllowedError: the tap that asked is too long ago, after a slow key derivation.
+    }
+  }
+  download(data, name);
+  return 'downloaded';
 }
 
 function isAbort(error: unknown): boolean {

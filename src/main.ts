@@ -11,7 +11,6 @@ import { Details } from './details';
 import {
   BlobFile,
   canWriteInPlace,
-  download,
   fileFromDrop,
   forgetFile,
   HandleFile,
@@ -20,6 +19,8 @@ import {
   pickSaveTarget,
   recentFiles,
   rememberFile,
+  shareOrDownload,
+  sharesFiles,
   type DbFile,
 } from './files';
 import { openGenerator, type GeneratorEntry } from './genpanel';
@@ -53,6 +54,7 @@ import {
 } from './kdbx';
 import { forgetLegacySecrets } from './legacy';
 import { EntryList } from './list';
+import { back, bindScreens, closeDrawer, hideDetails, isDrawerOpen, isNarrow, isTouch, showDetails, toggleDrawer } from './screens';
 import { matches, sortEntries, SORT_KEYS, sortLabel } from './search';
 import {
   applyPanels,
@@ -156,6 +158,7 @@ const sidebar = new Sidebar(el('groups'), {
       changed();
     }
   },
+  onMoveGroupMenu: (group, anchor) => menuAt(anchor, moveGroupItems(group)),
   onCollapse: () => {
     settings.collapsed = sidebar.getCollapsed();
     settings.binOpen = sidebar.isBinOpen();
@@ -167,7 +170,7 @@ sidebar.setCollapsed(settings.collapsed);
 sidebar.setBinOpen(settings.binOpen);
 
 const list = new EntryList(el('entries'), el('entries-empty'), {
-  onSelect: (entry) => void selectEntry(entry),
+  onSelect: (entry, open) => void openEntry(entry, open),
   onContextMenu: (entry, x, y) => menu(x, y, entryMenu(entry, null)),
   canEdit: () => db !== null,
 });
@@ -190,6 +193,12 @@ const details = new Details(el('details'), el('details-placeholder'), {
   generator: (anchor, onUse, entry) => generatorAt(anchor, t('generator', 'Use'), onUse, entry),
   editingChanged: (editing) => document.body.classList.toggle('editing', editing),
   confirmDiscard: () => confirmAsk(t('dialog', 'Discard changes?'), t('dialog', 'The edits to this entry will be lost.'), t('dialog', 'Discard')),
+});
+
+bindScreens({
+  // Back from an entry keeps an edit, as picking another entry does; a new entry left empty is dropped.
+  leaveDetails: () => (details.untouched ? details.cancel() : details.commit()),
+  hasEntry: () => db !== null && details.current !== null,
 });
 
 /* ------------------------------------------------------------------ *
@@ -319,12 +328,14 @@ async function lock(reason: 'manual' | 'idle' = 'manual'): Promise<void> {
   dirty = false;
   activeUuid = null;
   details.show(null);
+  hideDetails();
+  closeDrawer();
   sidebar.setDatabase(null);
   list.setEntries(null, [], false, '');
   releaseIcons();
   void clearClipboard();
   document.querySelector('.popover')?.dispatchEvent(new Event('dismiss'));
-  document.querySelector('.context-menu')?.remove();
+  document.querySelector('.context-menu')?.dispatchEvent(new Event('dismiss'));
   if (file instanceof NewFile) {
     file = null;
     showGate('pick');
@@ -380,8 +391,16 @@ async function select(next: Selection): Promise<void> {
   if (searchInput.value) searchInput.value = '';
   sidebar.setSelection(next);
   refresh();
-  const first = list.items[0] ?? null;
+  closeDrawer();
+  // On a phone the first entry would take the whole screen: a group opens as a list.
+  const first = isNarrow() ? null : (list.items[0] ?? null);
   if (!list.items.some((entry) => uuidOf(entry) === activeUuid)) void selectEntry(first);
+}
+
+/** A tap or a click on a row; on a phone an opened entry takes the screen. */
+async function openEntry(entry: Entry, open: boolean): Promise<void> {
+  await selectEntry(entry);
+  if (open && details.current === entry) showDetails();
 }
 
 async function selectEntry(entry: Entry | null): Promise<void> {
@@ -432,6 +451,7 @@ function refresh(): void {
   el('sort').textContent = `${sortLabel(settings.sort)} ▾`;
   if (details.current && db && !findEntry(uuidOf(details.current))) details.show(null);
   else details.refresh();
+  if (!details.current) hideDetails();
 }
 
 function findEntry(uuid: string): Entry | null {
@@ -473,13 +493,15 @@ async function newEntry(group?: Group): Promise<void> {
   refresh();
   details.show(entry);
   details.edit(true);
+  showDetails();
 }
 
 async function removeEntry(entry: Entry): Promise<void> {
   if (!db) return;
   const trashed = inRecycleBin(db, entry);
   if ((trashed || !db.meta.recycleBinEnabled) && !(await confirmAsk(t('dialog', 'Delete permanently?'), t('dialog', '"{name}" will be removed from the database for good.', { name: titleOf(entry) })))) return;
-  const next = list.neighbour(1) === entry ? list.neighbour(-1) : list.neighbour(1);
+  // On a phone the list comes back instead of the next entry.
+  const next = isNarrow() ? null : list.neighbour(1) === entry ? list.neighbour(-1) : list.neighbour(1);
   const result = remove(db, entry);
   if (details.current === entry) details.show(null);
   activeUuid = next && next !== entry ? uuidOf(next) : null;
@@ -530,6 +552,22 @@ function moveItems(entry: Entry): MenuItem[] {
   }));
 }
 
+/** Where a group can go: anywhere but into itself; its parent is ticked. */
+function moveGroupItems(group: Group): MenuItem[] {
+  return groupChoices()
+    .filter(({ group: target }) => target === group.parentGroup || canMoveGroup(group, target))
+    .map(({ group: target, depth }) => ({
+      label: `${'   '.repeat(depth)}${target.name || t('sidebar', '(unnamed)')}`,
+      checked: group.parentGroup === target,
+      action: () => {
+        if (!db || !canMoveGroup(group, target)) return;
+        db.move(group, target);
+        changed();
+        toast(t('toast', 'Moved to "{name}"', { name: target.name ?? '' }));
+      },
+    }));
+}
+
 function entryMenu(entry: Entry, anchor: HTMLElement | null): MenuItem[] {
   if (!db) return [];
   if (inRecycleBin(db, entry)) {
@@ -542,7 +580,7 @@ function entryMenu(entry: Entry, anchor: HTMLElement | null): MenuItem[] {
     { label: t('menu', 'Copy user name'), hint: '⌘B', action: () => void copy(field(entry, 'UserName'), t('entry', 'User name')) },
     { label: t('menu', 'Copy password'), hint: '⌘C', action: () => void copy(entryPassword(entry), t('entry', 'Password')) },
     { label: t('menu', 'Copy website'), hint: '⌘U', action: () => void copy(field(entry, 'URL'), t('entry', 'Website')) },
-    { label: t('menu', 'Edit'), hint: '⌘E', separated: true, action: () => details.edit() },
+    { label: t('menu', 'Edit'), hint: '⌘E', separated: true, action: () => editEntry() },
     { label: t('menu', 'Duplicate'), action: () => duplicateEntry(entry) },
     {
       label: t('menu', 'Move to group…'),
@@ -647,10 +685,11 @@ async function save(): Promise<void> {
     }
     if (canWriteInPlace) return;
     const data = await saveDatabase(database);
-    download(data, target.name);
+    const how = await shareOrDownload(data, target.name);
+    if (how === 'cancelled') return;
     if (revision === started) dirty = false;
     updateStatus();
-    toast(t('toast', '{name} downloaded', { name: target.name }));
+    toast(how === 'shared' ? t('toast', '{name} shared', { name: target.name }) : t('toast', '{name} downloaded', { name: target.name }));
     return;
   }
 
@@ -680,7 +719,7 @@ async function saveCopy(): Promise<void> {
     await picked.write(data);
     toast(t('toast', 'Saved a copy as {name}', { name: picked.name }));
   } else if (!canWriteInPlace) {
-    download(data, name);
+    await shareOrDownload(data, name);
   }
 }
 
@@ -688,7 +727,7 @@ function updateStatus(): void {
   if (!db || !file) return;
   statusFile.textContent = file.writable
     ? file.name
-    : `${file.name} · ${file instanceof NewFile ? t('status', 'not saved yet') : t('status', 'read-only, saving downloads a copy')}`;
+    : `${file.name} · ${file instanceof NewFile ? t('status', 'not saved yet') : sharesFiles() ? t('status', 'read-only, saving shares a copy') : t('status', 'read-only, saving downloads a copy')}`;
   statusState.textContent = dirty ? t('status', 'Unsaved changes') : t('status', 'Saved');
   statusState.classList.toggle('status-state--dirty', dirty);
   const count = entriesBelow(db, db.getDefaultGroup()).length;
@@ -862,7 +901,9 @@ function openSettings(anchor: HTMLElement): void {
       class: 'settings-note',
       text: canWriteInPlace
         ? t('settings', 'Autosave works when the file was opened with write access.')
-        : t('settings', 'This browser cannot write files in place, so saving downloads a copy.'),
+        : sharesFiles()
+          ? t('settings', 'This browser cannot write files in place, so saving shares a copy.')
+          : t('settings', 'This browser cannot write files in place, so saving downloads a copy.'),
     }),
     h('label', { class: 'settings-row settings-row--check' }, legacy, h('span', { text: t('settings', 'Show legacy password algorithms') })),
     h('p', { class: 'settings-note', text: t('settings', 'The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.') }),
@@ -888,11 +929,17 @@ function setLanguageChoice(choice: Settings['language']): void {
 function applyLanguage(): void {
   setLanguage(resolveLanguage(settings.language));
   translatePage();
+  // No keyboard for the shortcut on a touch screen.
+  if (isTouch()) searchInput.placeholder = searchInput.placeholder.replace(/\s*\(⌘[^)]*\)/, '');
   const note = el('browser-note');
   note.hidden = canWriteInPlace;
   note.textContent = canWriteInPlace
     ? ''
-    : t('gate', 'This browser opens the file read-only: Save downloads an updated copy of the database. Chrome, Edge and Arc save changes straight back into the file.');
+    : sharesFiles()
+      ? t('gate', 'On this device the file opens read-only: Save hands an updated copy to the share sheet, where "Save to Files" can put it over the original.')
+      : isTouch()
+        ? t('gate', 'On this device the file opens read-only: Save downloads an updated copy of the database.')
+        : t('gate', 'This browser opens the file read-only: Save downloads an updated copy of the database. Chrome, Edge and Arc save changes straight back into the file.');
 }
 
 function setTheme(theme: Theme): void {
@@ -981,6 +1028,9 @@ unlockForm.addEventListener('submit', (event) => {
   void unlock();
 });
 passwordInput.after(maskInput(passwordInput));
+// Safari on iOS greys out a file whose extension it does not know when the picker names one;
+// chooseFile() checks the name itself.
+if (isTouch()) filePicker.removeAttribute('accept');
 const updateLayout = bindLayoutBadge(passwordInput, el('layout'));
 
 /** Empties the unlock field and hides it again; setting `value` fires no input event. */
@@ -1038,23 +1088,44 @@ el('new-group').addEventListener('click', () => void newGroup());
 el('new-entry').addEventListener('click', () => void newEntry());
 el('save').addEventListener('click', () => void save());
 el('lock').addEventListener('click', () => void lock());
-el('generator').addEventListener('click', (event) =>
-  generatorAt(event.currentTarget as HTMLElement, t('generator', 'Copy'), (password) => void copy(password, t('entry', 'Password'))),
-);
+el('generator').addEventListener('click', (event) => toolbarGenerator(event.currentTarget as HTMLElement));
 el('settings').addEventListener('click', (event) => openSettings(event.currentTarget as HTMLElement));
 el('sort').addEventListener('click', (event) => sortMenu(event.currentTarget as HTMLElement));
-el('theme').addEventListener('click', () => {
+el('theme').addEventListener('click', () => nextTheme());
+// A phone's toolbar has room for these only as a menu.
+el('more').addEventListener('click', (event) => {
+  const anchor = event.currentTarget as HTMLElement;
+  menuAt(anchor, [
+    { label: t('menu', 'Password generator'), hint: '⌘G', action: () => toolbarGenerator(anchor) },
+    { label: t('menu', 'Theme: {theme}', { theme: themeLabel(settings.theme) }), action: () => nextTheme() },
+    { label: t('menu', 'Settings'), action: () => openSettings(anchor) },
+    { label: t('menu', 'Lock'), hint: '⌘L', separated: true, action: () => void lock() },
+  ]);
+});
+
+/** The generator on its own: the password it makes is copied. */
+function toolbarGenerator(anchor: HTMLElement): void {
+  generatorAt(anchor, t('generator', 'Copy'), (password) => void copy(password, t('entry', 'Password')));
+}
+
+function nextTheme(): void {
   const order: Theme[] = ['system', 'light', 'dark'];
   const next = order[(order.indexOf(settings.theme) + 1) % order.length] ?? 'system';
   setTheme(next);
   toast(t('toast', 'Theme: {theme}', { theme: themeLabel(next) }));
-});
+}
 el('zoom-in').addEventListener('click', () => setZoom(settings.zoom + ZOOM_STEP));
 el('zoom-out').addEventListener('click', () => setZoom(settings.zoom - ZOOM_STEP));
 el('zoom-reset').addEventListener('click', () => setZoom(100));
 el('toggle-sidebar').addEventListener('click', toggleSidebar);
+el('back').addEventListener('click', back);
 
 function toggleSidebar(): void {
+  // On a phone the panel slides over the list, and that is not a preference to remember.
+  if (isNarrow()) {
+    toggleDrawer();
+    return;
+  }
   settings.sidebarHidden = !settings.sidebarHidden;
   applyPanels(settings);
   saveSettings(settings);
@@ -1063,7 +1134,7 @@ function toggleSidebar(): void {
 searchInput.addEventListener('input', () => {
   refresh();
   const first = list.items[0];
-  if (first && !list.items.some((entry) => uuidOf(entry) === activeUuid)) void selectEntry(first);
+  if (first && !list.items.some((entry) => uuidOf(entry) === activeUuid)) void selectEntry(isNarrow() ? null : first);
 });
 searchInput.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowDown' || event.key === 'Enter') {
@@ -1149,7 +1220,7 @@ document.addEventListener('keydown', (event) => {
       case 'e':
         event.preventDefault();
         if (details.isEditing) void details.commit();
-        else details.edit();
+        else editEntry();
         return;
       case 'g':
         event.preventDefault();
@@ -1186,7 +1257,10 @@ document.addEventListener('keydown', (event) => {
   }
 
   if (event.key === 'Escape') {
-    if (details.isEditing) {
+    if (isDrawerOpen()) {
+      event.preventDefault();
+      closeDrawer();
+    } else if (details.isEditing) {
       event.preventDefault();
       void details.cancel();
     } else if (inField) (event.target as HTMLElement).blur();
@@ -1202,9 +1276,15 @@ document.addEventListener('keydown', (event) => {
     void removeEntry(entry);
   } else if (event.key === 'Enter' && entry) {
     event.preventDefault();
-    details.edit();
+    editEntry();
   }
 });
+
+/** Edits the selected entry, which on a phone has to come on screen for that. */
+function editEntry(): void {
+  details.edit();
+  if (details.isEditing) showDetails();
+}
 
 /* ------------------------------------------------------------------ *
  * Idle lock and leaving the page

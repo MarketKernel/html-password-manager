@@ -1,6 +1,7 @@
 /** Small dialogs, a context menu, popovers and toasts — enough to avoid native prompts. */
 
 import { t } from './i18n';
+import { closed, isNarrow, opened } from './screens';
 
 let overlay: HTMLDivElement | null = null;
 
@@ -228,6 +229,8 @@ export function form(options: FormOptions): Promise<FormResult | null> {
     ),
   );
   host.append(box);
+  // On a phone the back button cancels the dialog.
+  opened('dialog');
 
   const first = [...inputs.values()].find((input) => input.type !== 'checkbox' && input.type !== 'file');
   if (first) {
@@ -243,8 +246,12 @@ export function form(options: FormOptions): Promise<FormResult | null> {
       host.hidden = true;
       host.replaceChildren();
       document.removeEventListener('keydown', onKey, true);
+      host.removeEventListener('dismiss', onDismiss);
+      closed();
       resolve(result);
     };
+    const onDismiss = (): void => close(null);
+    host.addEventListener('dismiss', onDismiss);
     const onKey = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') {
         event.preventDefault();
@@ -302,8 +309,42 @@ export interface MenuItem {
   hint?: string;
 }
 
+/**
+ * On a phone a menu or a popover is a sheet: pinned to the bottom, as wide as
+ * the screen, over a dimmed page that closes it on a tap. Returns what undoes it.
+ */
+function asSheet(panel: HTMLElement, dismiss: () => void): () => void {
+  panel.classList.add(panel.classList.contains('popover') ? 'popover--sheet' : 'context-menu--sheet');
+  const backdrop = h('div', { class: 'sheet-backdrop' });
+  backdrop.addEventListener('click', dismiss);
+  panel.before(backdrop);
+  // Safari on iOS does not shrink the page for the keyboard, it slides the view over it:
+  // the sheet follows the visible part, so a field in it stays above the keys.
+  const view = window.visualViewport;
+  const fit = (): void => {
+    if (!view || Math.abs(view.scale - 1) > 0.01) {
+      panel.style.bottom = '';
+      panel.style.maxHeight = '';
+      return;
+    }
+    panel.style.bottom = `${Math.max(0, window.innerHeight - view.height - view.offsetTop)}px`;
+    panel.style.maxHeight = `calc(${view.height}px - env(safe-area-inset-top, 0px) - 8px)`;
+  };
+  fit();
+  view?.addEventListener('resize', fit);
+  view?.addEventListener('scroll', fit);
+  opened('sheet');
+  return () => {
+    backdrop.remove();
+    view?.removeEventListener('resize', fit);
+    view?.removeEventListener('scroll', fit);
+    closed();
+  };
+}
+
 export function menu(x: number, y: number, items: MenuItem[]): void {
-  document.querySelector('.context-menu')?.remove();
+  document.querySelector('.context-menu')?.dispatchEvent(new Event('dismiss'));
+  const sheet = isNarrow();
   const list = h('div', { class: 'context-menu', role: 'menu' });
   for (const item of items) {
     if (item.separated) list.append(h('div', { class: 'context-sep' }));
@@ -324,24 +365,39 @@ export function menu(x: number, y: number, items: MenuItem[]): void {
     });
     list.append(button);
   }
+  if (sheet) {
+    const cancel = h('button', { type: 'button', class: 'context-item context-item--cancel', text: t('dialog', 'Cancel') });
+    cancel.addEventListener('click', () => dismiss());
+    list.append(h('div', { class: 'context-sep' }), cancel);
+  }
   document.body.append(list);
-  const width = list.offsetWidth;
-  const height = list.offsetHeight;
-  list.style.left = `${Math.max(8, Math.min(x, window.innerWidth - width - 8))}px`;
-  list.style.top = `${Math.max(8, Math.min(y, window.innerHeight - height - 8))}px`;
+  let unsheet: (() => void) | null = null;
+  if (sheet) unsheet = asSheet(list, () => dismiss());
+  else {
+    const width = list.offsetWidth;
+    const height = list.offsetHeight;
+    list.style.left = `${Math.max(8, Math.min(x, window.innerWidth - width - 8))}px`;
+    list.style.top = `${Math.max(8, Math.min(y, window.innerHeight - height - 8))}px`;
+  }
 
   const onDown = (event: Event): void => {
-    if (event.target instanceof Node && list.contains(event.target)) return;
+    // A tap on a sheet's backdrop closes it on the click, not here: the click would land on what lies below.
+    if (event.target instanceof Node && (list.contains(event.target) || (event.target as Element).classList?.contains('sheet-backdrop'))) return;
     dismiss();
   };
   const onKey = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') dismiss();
   };
+  let open = true;
   function dismiss(): void {
+    if (!open) return;
+    open = false;
     list.remove();
+    unsheet?.();
     document.removeEventListener('mousedown', onDown, true);
     document.removeEventListener('keydown', onKey, true);
   }
+  list.addEventListener('dismiss', dismiss);
   window.setTimeout(() => {
     document.addEventListener('mousedown', onDown, true);
     document.addEventListener('keydown', onKey, true);
@@ -356,9 +412,19 @@ export function menuAt(anchor: HTMLElement, items: MenuItem[]): void {
 /** A panel pinned under `anchor` that closes on an outside click or Escape. */
 export function popover(anchor: HTMLElement, content: HTMLElement, onClose?: () => void): () => void {
   document.querySelector('.popover')?.dispatchEvent(new Event('dismiss'));
+  const sheet = isNarrow();
   const panel = h('div', { class: 'popover' }, content);
   document.body.append(panel);
+  let unsheet: (() => void) | null = null;
+  if (sheet) {
+    // Nothing else in the generator or the settings closes them.
+    const close = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('dialog', 'Close'), 'aria-label': t('dialog', 'Close') }, icon(ICONS.close));
+    close.addEventListener('click', () => dismiss());
+    panel.prepend(h('div', { class: 'sheet-head' }, close));
+    unsheet = asSheet(panel, () => dismiss());
+  }
   const place = (): void => {
+    if (sheet) return;
     const box = anchor.getBoundingClientRect();
     const width = panel.offsetWidth;
     const height = panel.offsetHeight;
@@ -375,6 +441,7 @@ export function popover(anchor: HTMLElement, content: HTMLElement, onClose?: () 
 
   const onDown = (event: Event): void => {
     if (event.target instanceof Node && (panel.contains(event.target) || anchor.contains(event.target))) return;
+    if ((event.target as Element | null)?.classList?.contains('sheet-backdrop')) return;
     dismiss();
   };
   const onKey = (event: KeyboardEvent): void => {
@@ -388,6 +455,7 @@ export function popover(anchor: HTMLElement, content: HTMLElement, onClose?: () 
     if (!open) return;
     open = false;
     panel.remove();
+    unsheet?.();
     resized.disconnect();
     document.removeEventListener('mousedown', onDown, true);
     document.removeEventListener('keydown', onKey, true);

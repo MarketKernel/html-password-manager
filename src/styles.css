@@ -62,6 +62,17 @@ html, body {
   height: 100%;
   margin: 0;
 }
+/* On phones 100% can reach under the browser's own bars; the dynamic height does not.
+   On a computer the two are the same. */
+@supports (height: 100dvh) {
+  body { height: 100dvh; }
+}
+/* Pulling the page down would reload it on a phone, and the open database with it.
+   Only the vertical axis: a sideways swipe still goes back and forward on a trackpad. */
+html { overscroll-behavior-y: contain; }
+.entries, .tree, .details-scroller, .popover, .context-menu { overscroll-behavior-y: contain; }
+/* Taps act at once, without waiting to see whether a double tap zooms. */
+button, .entry, .tree-item, .recent-open { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
 body {
   background: var(--bg);
@@ -232,6 +243,8 @@ button, input, textarea, select {
   display: grid;
   place-items: center;
   padding: 24px;
+  padding-top: calc(24px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   background: var(--bg);
   z-index: 40;
   overflow: auto;
@@ -358,6 +371,8 @@ button, input, textarea, select {
   grid-template-columns: var(--sidebar) 5px minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   height: 100%;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 body.sidebar-hidden .app { grid-template-columns: 0 0 minmax(0, 1fr); }
 body.sidebar-hidden .sidebar,
@@ -394,6 +409,7 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
   gap: 4px;
   padding: 10px 8px 6px;
   padding-inline-start: 10px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
   min-height: 57px;
 }
 .vault {
@@ -466,11 +482,13 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
  * Toolbar
  * ------------------------------------------------------------------ */
 
+/* The env() insets keep clear of a phone's notch and home indicator; they are 0 elsewhere. */
 .toolbar {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 9px 12px;
+  padding-top: calc(9px + env(safe-area-inset-top, 0px));
   border-bottom: 1px solid var(--edge);
   background: var(--bg);
   flex: none;
@@ -801,6 +819,7 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
   box-shadow: var(--shadow);
   padding: 14px;
   max-height: calc(100vh - 16px);
+  max-height: calc(100dvh - 16px);
   overflow-y: auto;
 }
 
@@ -895,6 +914,7 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
   align-items: center;
   gap: 12px;
   padding: 5px 14px;
+  padding-bottom: calc(5px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--edge);
   background: var(--panel);
   color: var(--faint);
@@ -953,6 +973,7 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
   z-index: 70;
   min-width: 210px;
   max-height: calc(100vh - 16px);
+  max-height: calc(100dvh - 16px);
   overflow: auto;
   background: var(--bg);
   border: 1px solid var(--edge);
@@ -985,7 +1006,7 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 34px;
+  bottom: calc(34px + env(safe-area-inset-bottom, 0px));
   transform: translate(-50%, 16px);
   background: var(--text);
   color: var(--bg);
@@ -1002,6 +1023,60 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
 .toast--error { background: var(--danger); color: #fff; }
 
 /* ------------------------------------------------------------------ *
+ * Controls only a phone shows: the narrow layout below turns them on
+ * ------------------------------------------------------------------ */
+
+#back, #more, .drawer-backdrop, .tree-item .tree-more { display: none; }
+.tree-item .tree-more { width: 32px; height: 28px; margin-block: -4px; margin-inline-end: -4px; }
+[dir='rtl'] #back svg { transform: scaleX(-1); }
+
+/* Menus and popovers as sheets from the bottom: ui.ts sets these classes on a phone only. */
+.context-menu--sheet, .popover--sheet {
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: 0;
+  min-width: 0;
+  border-width: 1px 0 0;
+  border-radius: 16px 16px 0 0;
+  max-height: calc(100vh - 8px);
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 8px);
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  padding-inline: max(14px, env(safe-area-inset-left, 0px)) max(14px, env(safe-area-inset-right, 0px));
+}
+.context-menu--sheet { padding-top: 8px; }
+.context-menu--sheet .context-item { font-size: 16px; padding-block: 12px; }
+.context-item--cancel { justify-content: center; color: var(--muted); }
+.popover--sheet .gen, .popover--sheet .settings { width: auto; }
+.sheet-head { display: flex; justify-content: flex-end; margin: -6px -6px 2px; }
+.sheet-backdrop { position: fixed; inset: 0; z-index: 65; background: rgba(12, 12, 18, 0.34); }
+
+/* ------------------------------------------------------------------ *
+ * Touch screens, of any width: larger targets, nothing behind a hover
+ * ------------------------------------------------------------------ */
+
+@media (hover: none), (pointer: coarse) {
+  .field-actions { opacity: 1; }
+  .icon-button--small { width: 36px; height: 36px; }
+  .recent-forget { width: 40px; height: 40px; }
+  .tree-item { padding-block: 9px; }
+  .tree-caret { width: 28px; }
+  .entry { padding-block: 0.7em; }
+  .gen-check { padding: 8px 10px; }
+  .settings-row { padding: 10px 0; }
+  .context-item { padding: 11px 12px; }
+  /* Nothing to drag a file with, and no keys for the shortcuts. */
+  .gate-hint, .context-item kbd { display: none; }
+  /* A long press on a row is not a link to share or save. */
+  .entry, .tree-item { -webkit-touch-callout: none; }
+  .search input, .field-input, .dialog-input, .unlock-input { -webkit-appearance: none; appearance: none; }
+  /* A right click opens a group's menu; with no mouse, this button does. */
+  .tree-item .tree-more { display: inline-flex; }
+  /* Taps have no hover to show them, so they show while pressed. */
+  .icon-button:active, .entry:active, .tree-item:active, .context-item:active { background: var(--panel-2); }
+}
+
+/* ------------------------------------------------------------------ *
  * Narrow screens: the group panel hides, the list stacks over the entry
  * ------------------------------------------------------------------ */
 
@@ -1009,17 +1084,75 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
   .zoom { display: none; }
 }
 
+/* A phone: one screen at a time — the list, or the entry (body.show-details) —
+   and the group panel slides in over the list (body.drawer-open). src/screens.ts
+   sets both classes and keeps the back button in step with them. */
 @media (max-width: 760px) {
   .app { grid-template-columns: 0 0 minmax(0, 1fr); }
-  .sidebar, #sidebar-resizer, #list-resizer, #toggle-sidebar { display: none; }
-  .panes { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 40%) minmax(0, 1fr); }
-  .list-pane { border-inline-end: 0; border-bottom: 1px solid var(--edge); }
+  #sidebar-resizer, #list-resizer { display: none; }
+  .tree-item .tree-more { display: inline-flex; }
+
+  /* body.sidebar-hidden is a computer's choice; here the panel is always a drawer. */
+  .sidebar, body.sidebar-hidden .sidebar {
+    display: flex;
+    position: fixed;
+    z-index: 50;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: min(85vw, 320px);
+    box-shadow: var(--shadow);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.2s, visibility 0.2s;
+  }
+  [dir='rtl'] .sidebar { transform: translateX(100%); }
+  body.drawer-open .sidebar { transform: none; visibility: visible; }
+  .tree { padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+  body.drawer-open .drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    background: rgba(12, 12, 18, 0.34);
+  }
+
+  .panes { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .list-pane { border-inline-end: 0; }
+  .details-pane { display: none; }
+  body.show-details .list-pane { display: none; }
+  body.show-details .details-pane { display: flex; }
+  /* The entry's screen: back instead of the groups, and no search to type into. */
+  body.show-details #back { display: inline-flex; }
+  body.show-details #toggle-sidebar { display: none; }
+  body.show-details .search { visibility: hidden; }
+
+  /* The toolbar keeps the search, New entry and Save; the rest is in the ⋯ menu. */
+  #generator, #theme, #settings, #lock { display: none; }
+  #more { display: inline-flex; }
+  .toolbar { gap: 6px; padding-inline: 8px; }
+  .toolbar-group { gap: 2px; }
+  .search { min-width: 0; }
   .details-scroller { padding: 18px 16px 40px; }
+  /* Editing: Cancel and Save beside the icon, the title on a line of its own below them. */
+  .details--edit .details-head { flex-wrap: wrap; row-gap: 0.8em; }
+  .details--edit .details-actions { margin-inline-start: auto; align-self: center; }
+  .details--edit .details-heading { order: 1; flex-basis: 100%; }
   .field { grid-template-columns: minmax(0, 1fr) auto; }
   .field .field-label { grid-column: 1 / -1; }
   .field--edit, .field--custom, .field--add { grid-template-columns: minmax(0, 1fr); }
   .toolbar-new { font-size: 0; padding: 6px 12px; }
   .toolbar-plus { font-size: 18px; margin: 0; }
+
+  /* Below 16px Safari on iOS zooms the page into a field when it takes the focus. */
+  .field-input, .search input, .dialog-input, .settings-select { font-size: max(16px, 1em); }
+  .status-count { display: none; }
+  /* Dialogs sit high, where the keyboard does not reach. */
+  .overlay { align-items: start; padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
+  .dialog { width: calc(100vw - 24px); }
+}
+
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
 }
 
 /* Right to left: arrows that point "forward" turn round. */

@@ -1,7 +1,7 @@
 /**
  * Drives the built page in headless Chrome: unlocking Database.kdbx, browsing,
- * searching, editing, deleting, saving and locking; then the PWA of build/pages/
- * offline, from its service worker.
+ * searching, editing, deleting, saving and locking; the same page on a phone's
+ * screen, by touch; then the PWA of build/pages/ offline, from its service worker.
  *
  * Needs `npm run build` first and a local Chrome (or `CHROME=/path/to/chrome`).
  * The File System Access API is switched off, so the page takes the read-only
@@ -702,11 +702,167 @@ try {
     await clickNth('.entry', 'Sample Entry #2');
     await shot('6-dark');
     await evaluate(`document.documentElement.dataset.theme = 'light'`);
-    await send('Emulation.setDeviceMetricsOverride', { width: 420, height: 860, deviceScaleFactor: 1, mobile: false });
-    await sleep(150);
-    await shot('7-narrow');
-    await send('Emulation.clearDeviceMetricsOverride');
   }
+
+  /* -------------------------------------------------------------- *
+   * A phone: 390×844, a touch screen with no hover. One screen at a
+   * time, the groups in a drawer, menus as sheets, and the history in
+   * step with them, so that back closes the layer on top.
+   * -------------------------------------------------------------- */
+  await clickNth('.entry', 'Sample Entry #2');
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+  await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+  await sleep(200);
+  const tapAt = async (x, y) => {
+    await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await sleep(120);
+  };
+  const centre = (selector) => evaluate(`(() => { const n = document.querySelector(${JSON.stringify(selector)}); if (!n) return null; const r = n.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`);
+  const tap = async (selector) => {
+    const box = await centre(selector);
+    if (!box) throw new Error(`Nothing to tap: ${selector}`);
+    await tapAt(box[0], box[1]);
+  };
+  const tapNth = async (selector, label) => {
+    const ok = await evaluate(`(() => {
+      document.querySelectorAll('[data-pick]').forEach((n) => n.removeAttribute('data-pick'));
+      const hit = [...document.querySelectorAll(${JSON.stringify(selector)})].find((n) => n.textContent.includes(${JSON.stringify(label)}));
+      if (hit) hit.setAttribute('data-pick', '');
+      return !!hit;
+    })()`);
+    if (!ok) throw new Error(`No ${selector} with "${label}"`);
+    await tap('[data-pick]');
+  };
+  // The drawer slides in: what is tapped in it next has to have stopped moving.
+  const openDrawer = async () => {
+    await tap('#toggle-sidebar');
+    await sleep(300);
+  };
+  const layers = () => evaluate(`[document.body.classList.contains('show-details'), document.body.classList.contains('drawer-open'), history.state?.hpm ?? 0]`);
+  const shown = (selector) => evaluate(`[...document.querySelectorAll(${JSON.stringify(selector)})].filter((n) => n.getClientRects().length > 0 && getComputedStyle(n).visibility !== 'hidden').length`);
+  const labels = () => evaluate(`[...document.querySelectorAll('.context-item')].map((n) => n.firstChild.textContent)`);
+
+  check('phone: the entry shown stays on screen as the window narrows', await layers(), [true, false, 1]);
+  await tap('#back');
+  check('phone: back to the list', await until(`!document.body.classList.contains('show-details') && history.state === null`), true);
+  check('phone: one pane at a time', [await shown('.list-pane'), await shown('.details-pane'), await shown('.sidebar')], [1, 0, 0]);
+  check('phone: nothing wider than the screen', await evaluate(`[document.documentElement.scrollWidth <= innerWidth, ...['.toolbar', '.list-pane'].map((s) => { const n = document.querySelector(s); return n.scrollWidth <= n.clientWidth; })]`), [true, true, true]);
+  check('phone: the toolbar', await Promise.all(['#toggle-sidebar', '#new-entry', '#search', '#save', '#more', '#back', '#generator', '#theme', '#settings', '#lock'].map(shown)), [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]);
+  // Safari on iOS zooms into a field whose text is smaller.
+  check('phone: fields large enough not to zoom', await evaluate(`parseFloat(getComputedStyle(document.querySelector('#search')).fontSize) >= 16`), true);
+  await shot('7a-phone-list');
+
+  await tapNth('.entry', 'Sample Entry #2');
+  check('phone: a tap opens the entry', [await layers(), await text('.details-title'), await shown('.list-pane'), await shown('.details-pane')], [[true, false, 1], 'Sample Entry #2', 0, 1]);
+  check('phone: back instead of the groups, no search', await Promise.all(['#back', '#toggle-sidebar', '#search'].map(shown)), [1, 0, 0]);
+  check('phone: copy buttons without a hover', await evaluate(`getComputedStyle(document.querySelector('.field-actions')).opacity`), '1');
+  await shot('7b-phone-entry');
+  await evaluate(`history.back()`);
+  check('phone: the system back returns to the list', await until(`!document.body.classList.contains('show-details')`), true);
+
+  // The groups slide in over the list, and a group picked there opens as a list.
+  await openDrawer();
+  check('phone: the drawer', [await layers(), await shown('.sidebar'), (await shown('.tree-more')) > 0], [[false, true, 1], 1, true]);
+  await shot('7c-phone-drawer');
+  await tapNth('.tree-item--group', 'General');
+  check('phone: a group picked closes the drawer', await until(`!document.body.classList.contains('drawer-open') && history.state === null`), true);
+  check('phone: the group, as a list', [await text('#list-title'), await layers()], ['General', [false, false, 0]]);
+
+  // No right click and no drag: the ⋯ of a group opens its menu, which moves it too.
+  // (Unlocked again from the file it was opened from, the database is the sample one.)
+  await openDrawer();
+  await evaluate(`document.querySelectorAll('[data-pick]').forEach((n) => n.removeAttribute('data-pick')); [...document.querySelectorAll('.tree-item--group')].find((n) => n.textContent.includes('Homebanking')).querySelector('.tree-more').setAttribute('data-pick', '')`);
+  await tap('[data-pick]');
+  check('phone: the group menu, as a sheet', [await labels(), await layers()], [['New entry here', 'New group inside', 'Rename', 'Move to group…', 'Delete group', 'Cancel'], [false, true, 2]]);
+  check('phone: the ⋯ does not pick the group', await text('#list-title'), 'General');
+  check('phone: a sheet along the bottom', await evaluate(`(() => { const r = document.querySelector('.context-menu--sheet').getBoundingClientRect(); return [Math.round(r.left), Math.round(r.right), Math.round(r.bottom)]; })()`), [0, 390, 844]);
+  await tapNth('.context-item', 'Move to group');
+  check('phone: where a group can go', await labels(), ['Database', '   General', '   Windows', '   Network', '   Internet', '   eMail', 'Cancel']);
+  await tapNth('.context-item', 'Internet');
+  const tree = await evaluate(`[...document.querySelectorAll('.tree-item--group')].map((n) => n.querySelector('.tree-label').textContent + ' ' + n.style.paddingInlineStart)`);
+  check('phone: the group moved', tree.slice(-3), ['Internet 20px', 'Homebanking 34px', 'eMail 20px']);
+  check('phone: the sheet gone, the drawer still open', await until(`history.state?.hpm === 1 && !document.querySelector('.context-menu')`), true);
+  await evaluate(`history.back()`);
+  check('phone: back closes the drawer', await until(`!document.body.classList.contains('drawer-open') && history.state === null`), true);
+
+  // What the toolbar has no room for is in its ⋯ menu.
+  await tap('#more');
+  const theme = { light: 'Light', dark: 'Dark', system: 'System' }[process.env.THEME ?? 'light'];
+  check('phone: the ⋯ menu', await labels(), ['Password generator', `Theme: ${theme}`, 'Settings', 'Lock', 'Cancel']);
+  await shot('7d-phone-menu');
+  await evaluate(`history.back()`);
+  check('phone: back closes a sheet first', await until(`!document.querySelector('.context-menu') && history.state === null`), true);
+  await tap('#more');
+  await tapNth('.context-item', 'Password generator');
+  check('phone: the generator, as a sheet', [await shown('.popover--sheet .gen'), await layers()], [1, [false, false, 1]]);
+  await shot('7e-phone-generator');
+  await tap('.sheet-head .icon-button');
+  check('phone: the sheet closes', await until(`!document.querySelector('.popover') && history.state === null`), true);
+  // A tap on a sheet's backdrop closes it and goes no further, to the entry under it.
+  await tap('#sort');
+  const under = await centre('.entry');
+  await tapAt(under[0], under[1]);
+  check('phone: the backdrop keeps the tap', [await evaluate(`!!document.querySelector('.context-menu')`), await layers()], [false, [false, false, 0]]);
+
+  // Back from an edit keeps it; a new entry left empty is dropped.
+  await openDrawer();
+  await tapNth('.tree-item--all', 'All entries');
+  await until(`history.state === null`);
+  await tapNth('.entry', 'Sample Entry #2');
+  await tapNth('.details-actions .button', 'Edit');
+  await evaluate(`(() => { const i = document.querySelector('[data-field="username"]'); i.focus(); i.select(); })()`);
+  await type('phone-user');
+  await evaluate(`document.activeElement.blur()`);
+  await evaluate(`history.back()`);
+  check('phone: back from an edit', await until(`!document.body.classList.contains('show-details') && history.state === null`), true);
+  await tapNth('.entry', 'Sample Entry #2');
+  check('phone: the edit kept', [await fieldValue('User name'), await text('#status-state')], ['phone-user', 'Unsaved changes']);
+  await tap('#back');
+  await until(`!document.body.classList.contains('show-details')`);
+  const count = (await texts('.entry-title')).length;
+  await tap('#new-entry');
+  check('phone: a new entry on its own screen', [await layers(), await visible('.details--edit')], [[true, false, 1], true]);
+  await evaluate(`document.activeElement.blur()`);
+  await evaluate(`history.back()`);
+  check('phone: a new entry left empty is dropped', [await until(`!document.body.classList.contains('show-details')`), (await texts('.entry-title')).length], [true, count]);
+
+  // Save hands the database to the share sheet where the system takes files that way (iOS).
+  await evaluate(`navigator.canShare = () => true; navigator.share = async (data) => { window.__shared = data.files; }`);
+  await tap('#save');
+  check('phone: saved through the share sheet', await until(`document.querySelector('#status-state').textContent === 'Saved'`, 15000), true);
+  check('phone: the file shared', [await evaluate(`window.__shared.map((f) => f.name)`), await text('.toast'), (await text('#status-file')).endsWith('read-only, saving shares a copy')], [['Database.kdbx'], 'Database.kdbx shared', true]);
+  const sharedBytes = Buffer.from(await evaluate(`(async () => { const bytes = new Uint8Array(await window.__shared[0].arrayBuffer()); let s = ''; for (const b of bytes) s += String.fromCharCode(b); return btoa(s); })()`), 'base64');
+  const sharedDb = await K.openDatabase(sharedBytes.buffer.slice(sharedBytes.byteOffset, sharedBytes.byteOffset + sharedBytes.byteLength), PASSWORD, null);
+  check('phone: the shared file has the edit', K.field([...sharedDb.getDefaultGroup().allEntries()].find((e) => K.field(e, 'Title') === 'Sample Entry #2'), 'UserName'), 'phone-user');
+
+  // Locking from the ⋯ menu; the dots of the master password still cover its text at a phone's size.
+  await tapNth('.entry', 'Sample Entry #2');
+  await tap('#more');
+  await tapNth('.context-item', 'Lock');
+  check('phone: locked, every layer closed', [await until(`!document.querySelector('#unlock').hidden`), await layers()], [true, [false, false, 0]]);
+  await type(PASSWORD);
+  check('phone: dots as wide as the text', await evaluate(`(() => {
+    const input = document.querySelector('#password');
+    const probe = document.createElement('span');
+    probe.style.cssText = 'position:absolute;white-space:pre;font:' + getComputedStyle(input).font;
+    probe.textContent = input.value;
+    document.body.append(probe);
+    const diff = Math.abs(probe.getBoundingClientRect().width - document.querySelector('.unlock-field .secret-dots').getBoundingClientRect().width);
+    probe.remove();
+    return diff < 1;
+  })()`), true);
+  await tap('#unlock-button');
+  check('phone: unlocked', await until(`!document.querySelector('#app').hidden`), true);
+  await tapNth('.entry', 'Sample Entry #2');
+
+  // A computer's window again: three panes, and nothing of the phone left over.
+  await send('Emulation.setTouchEmulationEnabled', { enabled: false });
+  await send('Emulation.clearDeviceMetricsOverride');
+  await sleep(200);
+  check('phone → computer: three panes', [await shown('.sidebar'), await shown('.list-pane'), await shown('.details-pane')], [1, 1, 1]);
+  check('phone → computer: no phone classes, no steps left', await until(`document.body.className === '' && history.state === null`), true);
+  check('phone → computer: the toolbar', await Promise.all(['#toggle-sidebar', '#generator', '#settings', '#lock', '#more', '#back', '.tree-more'].map(shown)), [1, 1, 1, 1, 0, 0, 0]);
 
   /* -------------------------------------------------------------- *
    * Writing in place. The native pickers cannot be driven headless, so

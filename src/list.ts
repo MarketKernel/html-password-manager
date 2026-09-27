@@ -8,7 +8,8 @@ import { hostOf } from './search';
 import { h } from './ui';
 
 export interface ListHost {
-  onSelect(entry: Entry): void;
+  /** `open`: a tap or a click, which on a phone opens the entry's own screen; a right click only selects. */
+  onSelect(entry: Entry, open: boolean): void;
   onContextMenu(entry: Entry, x: number, y: number): void;
   canEdit(): boolean;
 }
@@ -108,14 +109,14 @@ export class EntryList {
 
   private readonly onClick = (event: MouseEvent): void => {
     const entry = this.find(event.target);
-    if (entry) this.host.onSelect(entry);
+    if (entry) this.host.onSelect(entry, true);
   };
 
   private readonly onContextMenu = (event: MouseEvent): void => {
     const entry = this.find(event.target);
     if (!entry) return;
     event.preventDefault();
-    this.host.onSelect(entry);
+    this.host.onSelect(entry, false);
     this.host.onContextMenu(entry, event.clientX, event.clientY);
   };
 

@@ -80,7 +80,8 @@
     "All entries": "Toutes les entrées",
     "Groups": "Groupes",
     "Tags": "Étiquettes",
-    "(unnamed)": "(sans nom)"
+    "(unnamed)": "(sans nom)",
+    "More": "Plus"
   },
   "menu": {
     "Restore": "Restaurer",
@@ -103,7 +104,10 @@
     "Rename database…": "Renommer la base de données…",
     "Change master password…": "Changer le mot de passe principal…",
     "Lock": "Verrouiller",
-    "Close database": "Fermer la base de données"
+    "Close database": "Fermer la base de données",
+    "Password generator": "Générateur de mots de passe",
+    "Theme: {theme}": "Thème : {theme}",
+    "Settings": "Paramètres"
   },
   "generator": {
     "{count} bits": {
@@ -180,7 +184,9 @@
     "+ Key file": "+ Fichier clé",
     "remove": "retirer",
     "Unlock": "Déverrouiller",
-    "Caps Lock is on": "Caps Lock est activé"
+    "Caps Lock is on": "Caps Lock est activé",
+    "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "Sur cet appareil, le fichier s’ouvre en lecture seule : Enregistrer transmet une copie à jour au menu Partager, où « Enregistrer dans Fichiers » peut remplacer l’original.",
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "Sur cet appareil, le fichier s’ouvre en lecture seule : Enregistrer télécharge une copie à jour de la base de données."
   },
   "status": {
     "{count} entries": {
@@ -192,7 +198,8 @@
     "not saved yet": "pas encore enregistrée",
     "read-only, saving downloads a copy": "lecture seule, l’enregistrement télécharge une copie",
     "Unsaved changes": "Modifications non enregistrées",
-    "Saved": "Enregistrée"
+    "Saved": "Enregistrée",
+    "read-only, saving shares a copy": "lecture seule, l’enregistrement partage une copie"
   },
   "database": {
     "General": "Général",
@@ -230,7 +237,8 @@
     "Not saved: {reason}": "Non enregistré : {reason}",
     "Saved a copy as {name}": "Copie enregistrée sous {name}",
     "Master key changed": "Clé principale modifiée",
-    "Theme: {theme}": "Thème : {theme}"
+    "Theme: {theme}": "Thème : {theme}",
+    "{name} shared": "Partagé : {name}"
   },
   "dialog": {
     "Discard changes?": "Abandonner les modifications ?",
@@ -284,7 +292,8 @@
       "many": "Convertir {count} de mots de passe dérivés en mots de passe enregistrés",
       "other": "Convertir {count} mots de passe dérivés en mots de passe enregistrés"
     },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Les mots de passe dérivés sont calculés à partir du mot de passe principal : avec un nouveau, chacun devient un autre mot de passe. Enregistrés, ils restent tels quels, mais ne peuvent plus être retrouvés sans le fichier."
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Les mots de passe dérivés sont calculés à partir du mot de passe principal : avec un nouveau, chacun devient un autre mot de passe. Enregistrés, ils restent tels quels, mais ne peuvent plus être retrouvés sans le fichier.",
+    "Close": "Fermer"
   },
   "app": {
     "Password manager": "Gestionnaire de mots de passe"
@@ -306,7 +315,8 @@
     "Light": "Clair",
     "Dark": "Sombre",
     "Show legacy password algorithms": "Afficher les anciens algorithmes de mots de passe",
-    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "Le générateur propose alors aussi les dérivés v2 et v1, les calculatrices de deux anciens programmes, pour retrouver les mots de passe créés avec eux."
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "Le générateur propose alors aussi les dérivés v2 et v1, les calculatrices de deux anciens programmes, pour retrouver les mots de passe créés avec eux.",
+    "This browser cannot write files in place, so saving shares a copy.": "Ce navigateur ne peut pas modifier les fichiers directement : l’enregistrement partage donc une copie."
   },
   "password": {
     "Show password": "Afficher le mot de passe",
@@ -335,7 +345,9 @@
     "Lock (⌘L)": "Verrouiller (⌘L)",
     "Entries": "Entrées",
     "Entry list width": "Largeur de la liste des entrées",
-    "Entry": "Entrée"
+    "Entry": "Entrée",
+    "Back": "Retour",
+    "More": "Plus"
   },
   "derived": {
     "This password is derived by generator {version}, which this version of the app does not know": "Ce mot de passe est dérivé par le générateur {version}, que cette version de l’application ne connaît pas",

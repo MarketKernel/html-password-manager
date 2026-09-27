@@ -25,10 +25,33 @@ written back into the same file, a moment after each edit if autosave is on, and
 is offered again on the next visit — only its handle is remembered, never its contents or
 the password. In Safari and Firefox the file opens read-only, and Save downloads an updated
 copy of the database — and so it does on phones: Chrome on Android has no File System
-Access, and every browser on iOS, Chrome included, runs on Safari's engine.
+Access, and every browser on iOS, Chrome included, runs on Safari's engine. On iOS, Save
+hands the copy to the share sheet instead — see "[On a phone](#on-a-phone)".
 
 "New database" creates an empty KDBX 4 database encrypted with AES-256 and Argon2id
 (64 MiB, 10 passes — KeePassXC's defaults, about half a second in a browser).
+
+### On a phone
+
+Up to 760 pixels wide — a phone held upright — the page shows one thing at a time. The
+entry list fills the screen; a tap opens an entry on a screen of its own, and ‹ in the
+toolbar, the system's back button or a swipe back return to the list. An edit is kept on the
+way back, as picking another entry keeps it on a computer; a new entry left empty is dropped.
+☰ slides the groups, tags and recycle bin in over the list. Menus, the generator and the
+settings rise from the bottom of the screen; back closes them first, and cancels a dialog.
+The generator, the theme, the settings and the lock are in the toolbar's ⋯ menu.
+
+A touch screen has no right click and no drag: the ⋯ beside a group opens the menu a right
+click opens on a computer, and its "Move to group…" does what a drag does. An entry's menu is
+its ⋯ on the entry's screen.
+
+The file opens read-only. On iOS, Save hands the updated database to the share sheet, where
+"Save to Files" can put it in place of the original; closing the sheet leaves the changes
+unsaved. Chrome on Android shares only pictures, sound, video and text, so there Save
+downloads the copy.
+
+Wider, and on a tablet, the three panes stay as they are on a computer; a touch screen of any
+size gets larger buttons and the ⋯ beside the groups.
 
 ## Security
 
@@ -385,7 +408,7 @@ unlocks the sample database.
 
 ```
 src/template.html   markup with the __STYLES__/__APP__/__ICON__ placeholders, the CSP
-src/styles.css      palette, light and dark themes, three panes
+src/styles.css      palette, light and dark themes, three panes; a phone's one screen at a time
 src/main.ts         the gate, unlocking, saving, locking, toolbar, shortcuts, settings
 src/kdbx.ts         kdbxweb + Argon2: open, save, create; fields, groups, recycle bin
 src/files.ts        File System Access API, drag-and-drop, file input; recent files
@@ -403,7 +426,8 @@ src/avatar.ts       entry icons: custom icons from the database or a coloured le
 src/settings.ts     localStorage: language, theme, zoom, panels, lock and clipboard timers
 src/i18n.ts         t()/tn(), the language list, translating the page's markup
 src/locales/        one dictionary per language
-src/ui.ts           dialogs, context menu, popovers, toasts, icons
+src/ui.ts           dialogs, context menu, popovers, toasts, icons; sheets on a phone
+src/screens.ts      the phone layout: the list or the entry, the group drawer, the back button
 tools/              tests: .kdbx round trips, generator and TOTP, derived passwords, legacy algorithms, dictionaries, the page in headless Chrome
 src/sw.js           the service worker of the Pages build
 vendor/             the icon, and its PNG sizes for the PWA

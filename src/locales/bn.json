@@ -79,7 +79,8 @@
     "All entries": "সব এন্ট্রি",
     "Groups": "গ্রুপ",
     "Tags": "ট্যাগ",
-    "(unnamed)": "(নামহীন)"
+    "(unnamed)": "(নামহীন)",
+    "More": "আরও"
   },
   "menu": {
     "Restore": "পুনরুদ্ধার করুন",
@@ -102,7 +103,10 @@
     "Rename database…": "ডেটাবেসের নাম বদলান…",
     "Change master password…": "মাস্টার পাসওয়ার্ড পরিবর্তন করুন…",
     "Lock": "লক করুন",
-    "Close database": "ডেটাবেস বন্ধ করুন"
+    "Close database": "ডেটাবেস বন্ধ করুন",
+    "Password generator": "পাসওয়ার্ড জেনারেটর",
+    "Theme: {theme}": "থিম: {theme}",
+    "Settings": "সেটিংস"
   },
   "generator": {
     "{count} bits": {
@@ -178,7 +182,9 @@
     "+ Key file": "+ কী ফাইল",
     "remove": "সরান",
     "Unlock": "আনলক করুন",
-    "Caps Lock is on": "Caps Lock চালু আছে"
+    "Caps Lock is on": "Caps Lock চালু আছে",
+    "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "এই ডিভাইসে ফাইলটি শুধু পড়ার জন্য খোলে: সংরক্ষণ করলে হালনাগাদ কপিটি শেয়ার মেনুতে যায়, সেখানে \"ফাইলে সংরক্ষণ করুন\" সেটিকে মূল ফাইলের জায়গায় রাখতে পারে।",
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "এই ডিভাইসে ফাইলটি শুধু পড়ার জন্য খোলে: সংরক্ষণ করলে ডেটাবেসের একটি হালনাগাদ কপি ডাউনলোড হয়।"
   },
   "status": {
     "{count} entries": {
@@ -189,7 +195,8 @@
     "not saved yet": "এখনও সংরক্ষিত হয়নি",
     "read-only, saving downloads a copy": "শুধু পড়ার জন্য, সংরক্ষণ করলে একটি কপি ডাউনলোড হয়",
     "Unsaved changes": "অসংরক্ষিত পরিবর্তন",
-    "Saved": "সংরক্ষিত"
+    "Saved": "সংরক্ষিত",
+    "read-only, saving shares a copy": "শুধু পড়ার জন্য, সংরক্ষণ করলে একটি কপি শেয়ার হয়"
   },
   "database": {
     "General": "সাধারণ",
@@ -227,7 +234,8 @@
     "Not saved: {reason}": "সংরক্ষিত হয়নি: {reason}",
     "Saved a copy as {name}": "কপিটি {name} নামে সংরক্ষিত হয়েছে",
     "Master key changed": "মাস্টার কী পরিবর্তিত হয়েছে",
-    "Theme: {theme}": "থিম: {theme}"
+    "Theme: {theme}": "থিম: {theme}",
+    "{name} shared": "{name} শেয়ার হয়েছে"
   },
   "dialog": {
     "Discard changes?": "পরিবর্তনগুলো বাতিল করবেন?",
@@ -278,7 +286,8 @@
       "one": "{count}টি উদ্ভূত পাসওয়ার্ডকে সংরক্ষিত পাসওয়ার্ডে পরিণত করুন",
       "other": "{count}টি উদ্ভূত পাসওয়ার্ডকে সংরক্ষিত পাসওয়ার্ডে পরিণত করুন"
     },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "উদ্ভূত পাসওয়ার্ড মাস্টার পাসওয়ার্ড থেকে গণনা করা হয়: নতুন মাস্টার পাসওয়ার্ডে প্রতিটি অন্য পাসওয়ার্ড হয়ে যায়। সংরক্ষিত হলে সেগুলো যেমন আছে তেমন থাকে, কিন্তু ফাইল ছাড়া আর পুনরুদ্ধার করা যায় না।"
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "উদ্ভূত পাসওয়ার্ড মাস্টার পাসওয়ার্ড থেকে গণনা করা হয়: নতুন মাস্টার পাসওয়ার্ডে প্রতিটি অন্য পাসওয়ার্ড হয়ে যায়। সংরক্ষিত হলে সেগুলো যেমন আছে তেমন থাকে, কিন্তু ফাইল ছাড়া আর পুনরুদ্ধার করা যায় না।",
+    "Close": "বন্ধ করুন"
   },
   "app": {
     "Password manager": "পাসওয়ার্ড ম্যানেজার"
@@ -300,7 +309,8 @@
     "Light": "হালকা",
     "Dark": "গাঢ়",
     "Show legacy password algorithms": "পুরনো পাসওয়ার্ড অ্যালগরিদম দেখান",
-    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "তখন জেনারেটর উদ্ভূত v2 ও v1-ও দেয় — দুটি পুরনো প্রোগ্রামের ক্যালকুলেটর, সেগুলো দিয়ে তৈরি পাসওয়ার্ড ফিরে পেতে।"
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "তখন জেনারেটর উদ্ভূত v2 ও v1-ও দেয় — দুটি পুরনো প্রোগ্রামের ক্যালকুলেটর, সেগুলো দিয়ে তৈরি পাসওয়ার্ড ফিরে পেতে।",
+    "This browser cannot write files in place, so saving shares a copy.": "এই ব্রাউজার সরাসরি ফাইলে লিখতে পারে না, তাই সংরক্ষণ করলে একটি কপি শেয়ার হয়।"
   },
   "password": {
     "Show password": "পাসওয়ার্ড দেখান",
@@ -329,7 +339,9 @@
     "Lock (⌘L)": "লক করুন (⌘L)",
     "Entries": "এন্ট্রি",
     "Entry list width": "এন্ট্রি তালিকার প্রস্থ",
-    "Entry": "এন্ট্রি"
+    "Entry": "এন্ট্রি",
+    "Back": "ফিরে যান",
+    "More": "আরও"
   },
   "derived": {
     "This password is derived by generator {version}, which this version of the app does not know": "এই পাসওয়ার্ডটি জেনারেটর {version} দিয়ে তৈরি, যা অ্যাপের এই সংস্করণ চেনে না",

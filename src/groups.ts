@@ -1,13 +1,14 @@
 /**
  * The left panel: all entries, the group tree, tags and the recycle bin.
  * Entries and groups can be dragged onto a group to move them, or onto the
- * recycle bin to delete them.
+ * recycle bin to delete them. A group's menu opens on a right click, or from
+ * the ⋯ button a touch screen shows, which has neither.
  */
 
 import { groupIcon } from './avatar';
 import { isRightToLeft, t } from './i18n';
 import { allTags, entriesBelow, inRecycleBin, recycleBin, uuidOf, type Group, type Kdbx } from './kdbx';
-import { h, icon, ICONS, menu, type MenuItem } from './ui';
+import { h, icon, ICONS, menu, menuAt, type MenuItem } from './ui';
 
 export type Selection =
   | { kind: 'all' }
@@ -28,6 +29,8 @@ export interface SidebarHost {
   onEmptyTrash(): void;
   onMoveEntry(uuid: string, target: Group | 'trash'): void;
   onMoveGroup(uuid: string, target: Group | 'trash'): void;
+  /** Picking where a group goes from a menu: what a drag does, for a touch screen. */
+  onMoveGroupMenu(group: Group, anchor: HTMLElement): void;
   onCollapse(): void;
   canEdit(): boolean;
 }
@@ -230,6 +233,10 @@ export class Sidebar {
       h('span', { class: 'tree-label', text: options.label }),
       h('span', { class: 'tree-count', text: options.count ? String(options.count) : '' }),
     );
+    if ((options.kind === 'group' || options.kind === 'trash') && this.host.canEdit()) {
+      // Shown on touch screens only (see styles.css).
+      row.append(h('button', { type: 'button', class: 'icon-button icon-button--small tree-more', title: t('sidebar', 'More'), 'aria-label': t('sidebar', 'More'), 'aria-haspopup': 'true' }, icon(ICONS.more)));
+    }
     return row;
   }
 
@@ -250,6 +257,12 @@ export class Sidebar {
 
   private readonly onClick = (event: MouseEvent): void => {
     const target = event.target as HTMLElement | null;
+    const more = target?.closest<HTMLElement>('.tree-more');
+    if (more) {
+      const items = this.menuOf(more.closest<HTMLElement>('.tree-item'), more);
+      if (items) menuAt(more, items);
+      return;
+    }
     const toggle = target?.closest<HTMLElement>('[data-toggle]');
     if (toggle && toggle.textContent) {
       this.toggle(toggle.dataset['toggle'] ?? '');
@@ -261,6 +274,7 @@ export class Sidebar {
   };
 
   private readonly onDoubleClick = (event: MouseEvent): void => {
+    if ((event.target as HTMLElement | null)?.closest('.tree-more')) return;
     const row = (event.target as HTMLElement | null)?.closest<HTMLElement>('.tree-item--group, .tree-item--trash');
     const key = row?.dataset['kind'] === 'trash' ? 'trash' : row?.dataset['uuid'];
     if (!key || row?.querySelector('.tree-caret')?.textContent === '') return;
@@ -268,31 +282,41 @@ export class Sidebar {
   };
 
   private readonly onContextMenu = (event: MouseEvent): void => {
-    const db = this.db;
-    if (!db || !this.host.canEdit()) return;
-    const row = (event.target as HTMLElement | null)?.closest<HTMLElement>('.tree-item');
+    if (!this.db || !this.host.canEdit()) return;
+    const row = (event.target as HTMLElement | null)?.closest<HTMLElement>('.tree-item') ?? null;
     event.preventDefault();
+    const items = this.menuOf(row, row ?? this.root);
+    if (items) menu(event.clientX, event.clientY, items);
+  };
+
+  /** The menu of a row, or of the tree's empty space (`row` null): that of the top group. */
+  private menuOf(row: HTMLElement | null, anchor: HTMLElement): MenuItem[] | null {
+    const db = this.db;
+    if (!db || !this.host.canEdit()) return null;
     if (row?.dataset['kind'] === 'trash') {
-      menu(event.clientX, event.clientY, [{ label: t('menu', 'Empty recycle bin'), danger: true, action: () => this.host.onEmptyTrash() }]);
-      return;
+      return [{ label: t('menu', 'Empty recycle bin'), danger: true, action: () => this.host.onEmptyTrash() }];
     }
     const group = row?.dataset['uuid'] ? db.getGroup(row.dataset['uuid']) : db.getDefaultGroup();
-    if (!group) return;
+    if (!group) return null;
     if (inRecycleBin(db, group)) {
-      menu(event.clientX, event.clientY, [
+      return [
         { label: t('menu', 'Restore group'), action: () => this.host.onRestore(group) },
         { label: t('menu', 'Delete permanently'), danger: true, action: () => this.host.onDelete(group) },
-      ]);
-      return;
+      ];
     }
     const items: MenuItem[] = [
       { label: t('menu', 'New entry here'), action: () => this.host.onNewEntry(group) },
       { label: t('menu', 'New group inside'), action: () => this.host.onNewGroup(group) },
       { label: t('menu', 'Rename'), action: () => this.host.onRename(group), separated: true },
     ];
-    if (group.parentGroup) items.push({ label: t('menu', 'Delete group'), danger: true, action: () => this.host.onDelete(group) });
-    menu(event.clientX, event.clientY, items);
-  };
+    if (group.parentGroup) {
+      items.push(
+        { label: t('menu', 'Move to group…'), action: () => this.host.onMoveGroupMenu(group, anchor) },
+        { label: t('menu', 'Delete group'), danger: true, action: () => this.host.onDelete(group) },
+      );
+    }
+    return items;
+  }
 
   private readonly onDragStart = (event: DragEvent): void => {
     const row = (event.target as HTMLElement | null)?.closest<HTMLElement>('.tree-item--group');

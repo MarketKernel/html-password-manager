@@ -83,7 +83,8 @@
     "All entries": "كل المدخلات",
     "Groups": "المجموعات",
     "Tags": "الوسوم",
-    "(unnamed)": "(بلا اسم)"
+    "(unnamed)": "(بلا اسم)",
+    "More": "المزيد"
   },
   "menu": {
     "Restore": "استعادة",
@@ -106,7 +107,10 @@
     "Rename database…": "إعادة تسمية قاعدة البيانات…",
     "Change master password…": "تغيير كلمة المرور الرئيسية…",
     "Lock": "قفل",
-    "Close database": "إغلاق قاعدة البيانات"
+    "Close database": "إغلاق قاعدة البيانات",
+    "Password generator": "مولّد كلمات المرور",
+    "Theme: {theme}": "السمة: {theme}",
+    "Settings": "الإعدادات"
   },
   "generator": {
     "{count} bits": {
@@ -186,7 +190,9 @@
     "+ Key file": "+ ملف مفتاح",
     "remove": "إزالة",
     "Unlock": "فتح القفل",
-    "Caps Lock is on": "مفتاح Caps Lock مفعّل"
+    "Caps Lock is on": "مفتاح Caps Lock مفعّل",
+    "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "على هذا الجهاز يُفتح الملف للقراءة فقط: يسلّم الحفظ نسخة محدّثة إلى قائمة المشاركة، حيث يمكن لخيار «حفظ في الملفات» وضعها مكان الملف الأصلي.",
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "على هذا الجهاز يُفتح الملف للقراءة فقط: يؤدي الحفظ إلى تنزيل نسخة محدّثة من قاعدة البيانات."
   },
   "status": {
     "{count} entries": {
@@ -201,7 +207,8 @@
     "not saved yet": "لم تُحفظ بعد",
     "read-only, saving downloads a copy": "للقراءة فقط، والحفظ ينزّل نسخة",
     "Unsaved changes": "تغييرات غير محفوظة",
-    "Saved": "تم الحفظ"
+    "Saved": "تم الحفظ",
+    "read-only, saving shares a copy": "للقراءة فقط، والحفظ يشارك نسخة"
   },
   "database": {
     "General": "عام",
@@ -239,7 +246,8 @@
     "Not saved: {reason}": "لم يتم الحفظ: {reason}",
     "Saved a copy as {name}": "حُفظت نسخة باسم {name}",
     "Master key changed": "تم تغيير المفتاح الرئيسي",
-    "Theme: {theme}": "السمة: {theme}"
+    "Theme: {theme}": "السمة: {theme}",
+    "{name} shared": "تمت مشاركة {name}"
   },
   "dialog": {
     "Discard changes?": "تجاهل التغييرات؟",
@@ -302,7 +310,8 @@
       "many": "تحويل {count} كلمة مرور مشتقة إلى مخزّنة",
       "other": "تحويل {count} كلمة مرور مشتقة إلى مخزّنة"
     },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "كلمات المرور المشتقة تُحسب من كلمة المرور الرئيسية: مع كلمة جديدة تصبح كل منها كلمة مرور مختلفة. إذا خُزّنت تبقى كما هي، لكن لا يمكن استعادتها بعد ذلك دون الملف."
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "كلمات المرور المشتقة تُحسب من كلمة المرور الرئيسية: مع كلمة جديدة تصبح كل منها كلمة مرور مختلفة. إذا خُزّنت تبقى كما هي، لكن لا يمكن استعادتها بعد ذلك دون الملف.",
+    "Close": "إغلاق"
   },
   "app": {
     "Password manager": "مدير كلمات المرور"
@@ -324,7 +333,8 @@
     "Light": "فاتحة",
     "Dark": "داكنة",
     "Show legacy password algorithms": "إظهار خوارزميات كلمات المرور القديمة",
-    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "عندها يقدّم المولّد أيضًا المشتقتين v2 وv1، وهما حاسبتا برنامجين قديمين، لاستعادة كلمات المرور التي أُنشئت بهما."
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "عندها يقدّم المولّد أيضًا المشتقتين v2 وv1، وهما حاسبتا برنامجين قديمين، لاستعادة كلمات المرور التي أُنشئت بهما.",
+    "This browser cannot write files in place, so saving shares a copy.": "لا يستطيع هذا المتصفح الكتابة في الملفات مباشرة، لذا يؤدي الحفظ إلى مشاركة نسخة."
   },
   "password": {
     "Show password": "إظهار كلمة المرور",
@@ -353,7 +363,9 @@
     "Lock (⌘L)": "قفل (⌘L)",
     "Entries": "المدخلات",
     "Entry list width": "عرض قائمة المدخلات",
-    "Entry": "المدخل"
+    "Entry": "المدخل",
+    "Back": "رجوع",
+    "More": "المزيد"
   },
   "derived": {
     "This password is derived by generator {version}, which this version of the app does not know": "كلمة المرور هذه مشتقة بالمولّد {version}، ولا يعرفه هذا الإصدار من التطبيق",

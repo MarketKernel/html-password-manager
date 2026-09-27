@@ -79,7 +79,8 @@
     "All entries": "सभी प्रविष्टियाँ",
     "Groups": "समूह",
     "Tags": "टैग",
-    "(unnamed)": "(बेनाम)"
+    "(unnamed)": "(बेनाम)",
+    "More": "और"
   },
   "menu": {
     "Restore": "पुनर्स्थापित करें",
@@ -102,7 +103,10 @@
     "Rename database…": "डेटाबेस का नाम बदलें…",
     "Change master password…": "मास्टर पासवर्ड बदलें…",
     "Lock": "लॉक करें",
-    "Close database": "डेटाबेस बंद करें"
+    "Close database": "डेटाबेस बंद करें",
+    "Password generator": "पासवर्ड जनरेटर",
+    "Theme: {theme}": "थीम: {theme}",
+    "Settings": "सेटिंग्स"
   },
   "generator": {
     "{count} bits": {
@@ -178,7 +182,9 @@
     "+ Key file": "+ कुंजी फ़ाइल",
     "remove": "हटाएँ",
     "Unlock": "अनलॉक करें",
-    "Caps Lock is on": "Caps Lock चालू है"
+    "Caps Lock is on": "Caps Lock चालू है",
+    "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "इस डिवाइस पर फ़ाइल केवल-पठन मोड में खुलती है: सहेजने पर अपडेट की गई कॉपी शेयर मेनू को दी जाती है, जहाँ \"फ़ाइलें में सहेजें\" उसे मूल फ़ाइल की जगह रख सकता है।",
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "इस डिवाइस पर फ़ाइल केवल-पठन मोड में खुलती है: सहेजने पर डेटाबेस की अपडेट की गई कॉपी डाउनलोड होती है।"
   },
   "status": {
     "{count} entries": {
@@ -189,7 +195,8 @@
     "not saved yet": "अभी सहेजा नहीं गया",
     "read-only, saving downloads a copy": "केवल-पठन, सहेजने पर कॉपी डाउनलोड होती है",
     "Unsaved changes": "बिना सहेजे बदलाव",
-    "Saved": "सहेजा गया"
+    "Saved": "सहेजा गया",
+    "read-only, saving shares a copy": "केवल-पठन, सहेजने पर कॉपी शेयर होती है"
   },
   "database": {
     "General": "सामान्य",
@@ -227,7 +234,8 @@
     "Not saved: {reason}": "सहेजा नहीं गया: {reason}",
     "Saved a copy as {name}": "कॉपी {name} के रूप में सहेजी गई",
     "Master key changed": "मास्टर कुंजी बदल दी गई",
-    "Theme: {theme}": "थीम: {theme}"
+    "Theme: {theme}": "थीम: {theme}",
+    "{name} shared": "{name} शेयर हो गया"
   },
   "dialog": {
     "Discard changes?": "बदलाव छोड़ दें?",
@@ -278,7 +286,8 @@
       "one": "{count} व्युत्पन्न पासवर्ड को संग्रहीत में बदलें",
       "other": "{count} व्युत्पन्न पासवर्डों को संग्रहीत में बदलें"
     },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "व्युत्पन्न पासवर्ड मास्टर पासवर्ड से गणना किए जाते हैं: नए मास्टर पासवर्ड के साथ हर एक दूसरा पासवर्ड बन जाता है। संग्रहीत होने पर वे जैसे हैं वैसे रहते हैं, पर फ़ाइल के बिना वापस नहीं पाए जा सकते।"
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "व्युत्पन्न पासवर्ड मास्टर पासवर्ड से गणना किए जाते हैं: नए मास्टर पासवर्ड के साथ हर एक दूसरा पासवर्ड बन जाता है। संग्रहीत होने पर वे जैसे हैं वैसे रहते हैं, पर फ़ाइल के बिना वापस नहीं पाए जा सकते।",
+    "Close": "बंद करें"
   },
   "app": {
     "Password manager": "पासवर्ड मैनेजर"
@@ -300,7 +309,8 @@
     "Light": "हल्की",
     "Dark": "गहरी",
     "Show legacy password algorithms": "पुराने पासवर्ड एल्गोरिदम दिखाएँ",
-    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "तब जनरेटर व्युत्पन्न v2 और v1 भी देता है — दो पुराने प्रोग्रामों के कैलकुलेटर, उनसे बने पासवर्ड वापस पाने के लिए।"
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "तब जनरेटर व्युत्पन्न v2 और v1 भी देता है — दो पुराने प्रोग्रामों के कैलकुलेटर, उनसे बने पासवर्ड वापस पाने के लिए।",
+    "This browser cannot write files in place, so saving shares a copy.": "यह ब्राउज़र फ़ाइलों को सीधे नहीं लिख सकता, इसलिए सहेजने पर एक कॉपी शेयर होती है।"
   },
   "password": {
     "Show password": "पासवर्ड दिखाएँ",
@@ -329,7 +339,9 @@
     "Lock (⌘L)": "लॉक करें (⌘L)",
     "Entries": "प्रविष्टियाँ",
     "Entry list width": "प्रविष्टि सूची की चौड़ाई",
-    "Entry": "प्रविष्टि"
+    "Entry": "प्रविष्टि",
+    "Back": "वापस",
+    "More": "और"
   },
   "derived": {
     "This password is derived by generator {version}, which this version of the app does not know": "यह पासवर्ड जनरेटर {version} से निकाला गया है, जिसे ऐप का यह संस्करण नहीं जानता",

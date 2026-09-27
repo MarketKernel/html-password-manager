@@ -22,7 +22,9 @@
     "Open {name}": "Открыть {name}",
     "Remove from the list": "Убрать из списка",
     "Unlocking…": "Открываю…",
-    "This browser opens the file read-only: Save downloads an updated copy of the database. Chrome, Edge and Arc save changes straight back into the file.": "Этот браузер открывает файл только для чтения: «Сохранить» скачивает обновлённую копию базы. Chrome, Edge и Arc сохраняют изменения прямо в файл."
+    "This browser opens the file read-only: Save downloads an updated copy of the database. Chrome, Edge and Arc save changes straight back into the file.": "Этот браузер открывает файл только для чтения: «Сохранить» скачивает обновлённую копию базы. Chrome, Edge и Arc сохраняют изменения прямо в файл.",
+    "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "На этом устройстве файл открывается только для чтения: «Сохранить» передаёт обновлённую копию в меню «Поделиться», где «Сохранить в Файлы» может записать её поверх исходного файла.",
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "На этом устройстве файл открывается только для чтения: «Сохранить» скачивает обновлённую копию базы."
   },
   "password": {
     "Show password": "Показать пароль",
@@ -51,14 +53,17 @@
     "Lock (⌘L)": "Заблокировать (⌘L)",
     "Entries": "Записи",
     "Entry list width": "Ширина списка записей",
-    "Entry": "Запись"
+    "Entry": "Запись",
+    "Back": "Назад",
+    "More": "Ещё"
   },
   "sidebar": {
     "Recycle bin": "Корзина",
     "All entries": "Все записи",
     "Groups": "Группы",
     "Tags": "Метки",
-    "(unnamed)": "(без названия)"
+    "(unnamed)": "(без названия)",
+    "More": "Ещё"
   },
   "list": {
     "Expired": "Истёк срок",
@@ -163,7 +168,10 @@
     "Rename database…": "Переименовать базу…",
     "Change master password…": "Сменить мастер-пароль…",
     "Lock": "Заблокировать",
-    "Close database": "Закрыть базу"
+    "Close database": "Закрыть базу",
+    "Password generator": "Генератор паролей",
+    "Theme: {theme}": "Тема: {theme}",
+    "Settings": "Настройки"
   },
   "generator": {
     "{count} bits": {
@@ -232,7 +240,8 @@
     "not saved yet": "ещё не сохранена",
     "read-only, saving downloads a copy": "только чтение, сохранение скачивает копию",
     "Unsaved changes": "Есть несохранённые изменения",
-    "Saved": "Сохранено"
+    "Saved": "Сохранено",
+    "read-only, saving shares a copy": "только чтение, сохранение отправляет копию"
   },
   "database": {
     "General": "Общее",
@@ -253,7 +262,8 @@
     "Not saved: {reason}": "Не сохранено: {reason}",
     "Saved a copy as {name}": "Копия сохранена как {name}",
     "Master key changed": "Мастер-ключ изменён",
-    "Theme: {theme}": "Тема: {theme}"
+    "Theme: {theme}": "Тема: {theme}",
+    "{name} shared": "{name} отправлен"
   },
   "dialog": {
     "Discard changes?": "Отменить изменения?",
@@ -310,7 +320,8 @@
       "many": "Превратить {count} вычисляемых паролей в хранимые",
       "other": "Превратить {count} вычисляемого пароля в хранимые"
     },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Вычисляемые пароли зависят от мастер-пароля: с новым каждый из них станет другим. Хранимые останутся прежними, но восстановить их без файла будет уже нельзя."
+    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Вычисляемые пароли зависят от мастер-пароля: с новым каждый из них станет другим. Хранимые останутся прежними, но восстановить их без файла будет уже нельзя.",
+    "Close": "Закрыть"
   },
   "settings": {
     "System": "Как в системе",
@@ -329,7 +340,8 @@
     "Light": "Светлая",
     "Dark": "Тёмная",
     "Show legacy password algorithms": "Показывать устаревшие алгоритмы вычисления паролей",
-    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "Тогда генератор предлагает ещё вычисляемые v2 и v1 — калькуляторы двух старых программ, чтобы восстановить сделанные ими пароли."
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "Тогда генератор предлагает ещё вычисляемые v2 и v1 — калькуляторы двух старых программ, чтобы восстановить сделанные ими пароли.",
+    "This browser cannot write files in place, so saving shares a copy.": "Этот браузер не умеет записывать файлы на место, поэтому сохранение отправляет копию через «Поделиться»."
   },
   "errors": {
     "The browser refused to copy": "Браузер не разрешил копирование",
