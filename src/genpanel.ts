@@ -3,8 +3,9 @@
  * from a list — newest derivation first, random last:
  *
  * - derived v3 — derived from the master password, the site, the user name
- *   and a version (src/derived.ts); from an entry it makes the entry's
- *   password derived instead of handing a password over;
+ *   and a version (src/derived.ts); from an entry the user name is the
+ *   entry's, and a site typed for any other than an e-mail address becomes
+ *   its website;
  * - derived v2 and v1 (legacy 2 and legacy 1) — the calculators of two older programs
  *   (src/legacy.ts), shown only when the settings ask for them. From an
  *   entry the identifier is suggested; the phrases are gone when the
@@ -16,11 +17,12 @@ import {
   computePassword,
   derivedBits,
   derivePassword,
+  mailDomain,
+  normalizeUser,
   REQUIREMENT_DEFAULTS,
   sessionMasterPassword,
   siteOf,
   specProblem,
-  storedProblem,
   VERSION_MAX,
   type DerivedSpec,
   type Requirements,
@@ -44,17 +46,14 @@ import {
 } from './legacy';
 import { bindLayoutBadge, h, icon, ICONS, maskInput, popover, setRevealed } from './ui';
 
-/** The settings a derived password keeps, apart from the site, which follows the website. */
-export type DerivedSettings = Requirements & { version: number };
-
 /** The entry the generator was opened from. */
 export interface GeneratorEntry {
-  site: string;
-  user: string;
-  /** The entry's derived settings, null for a stored password. */
-  derived: DerivedSettings | null;
-  /** Version 3 was chosen: the entry's password becomes derived with these settings. */
-  onDerive(settings: DerivedSettings): void;
+  /** The website and the user name as the entry's form has them. */
+  url(): string;
+  user(): string;
+  /** Typed in the generator, they are typed in the entry's form too. */
+  setUrl(url: string): void;
+  setUser(user: string): void;
 }
 
 export interface GeneratorPanelOptions {
@@ -204,7 +203,7 @@ function randomMode({ config, changed, close }: ModeContext): Mode {
 
 function derivedMode({ config, changed, close }: ModeContext): Mode {
   const entry = config.entry;
-  const settings: DerivedSettings = { ...REQUIREMENT_DEFAULTS, version: 1, ...entry?.derived };
+  const settings: Requirements & { version: number } = { ...REQUIREMENT_DEFAULTS, version: 1 };
   const preview = h('output', { class: 'gen-preview', 'aria-live': 'polite', text: '…' });
   const bits = h('span', { class: 'gen-bits' });
   const note = h('div', { class: 'field-note', hidden: '' });
@@ -215,12 +214,20 @@ function derivedMode({ config, changed, close }: ModeContext): Mode {
   // The database's master password by default; another one can be typed, and is kept nowhere.
   const master = secretInput(t('gate', 'Master password'), 'gen-v3-master');
   const session = masterSwitch(master, true, t('generator', 'Derived from the password this database was unlocked with; untick to derive from another master password'), 'gen-v3-session');
-  const stored = h('span', { class: 'field-hint', text: t('derived', 'Nothing but these settings is saved; the password is computed each time.') });
-  const custom = h('span', { class: 'field-hint', text: t('generator', 'With another master password the result is put in as an ordinary stored password: the entry could not compute it again.') });
-  const siteInput = entry ? null : textInput(t('entry', 'Website'), '', 'gen-v3-site');
-  const userInput = entry ? null : textInput(t('entry', 'User name'), '', 'gen-v3-user');
-  const spec = (): DerivedSpec => ({ ...settings, site: entry ? entry.site : siteOf(siteInput?.value ?? '') });
-  const user = (): string => (entry ? entry.user : (userInput?.value ?? ''));
+  // The user name first, and the entry's own: typed here, it is typed there too. An e-mail
+  // address names its site (site.com for test@site.com), which is filled in then, the entry's
+  // website — perhaps mail.site.com — left as it is. Any other user name needs the site typed,
+  // and from an entry what is typed becomes its website as well.
+  const userInput = textInput(t('entry', 'User name'), entry?.user() ?? '', 'gen-v3-user');
+  const siteInput = textInput(t('derived', 'Site'), '', 'gen-v3-site');
+  const siteHint = h('span', { class: 'field-hint', hidden: '' });
+  const autoSite = (): string => mailDomain(userInput.value) ?? siteOf(entry?.url() ?? '');
+  siteInput.value = autoSite();
+  // A site typed stays when the user name changes.
+  let siteTyped = false;
+  const spec = (): DerivedSpec => ({ ...settings, site: siteOf(siteInput.value) });
+  // The password is derived from both, so neither may be left empty.
+  const problem = (): string | null => (normalizeUser(userInput.value) ? null : t('derived', 'Enter the user name: the password is derived from it too')) ?? specProblem(spec());
 
   // Argon2 runs only when the site, user name or version changed; the requirements merely reshape its output.
   const update = (delay: number): void => {
@@ -229,22 +236,27 @@ function derivedMode({ config, changed, close }: ModeContext): Mode {
     showBits(bits, derivedBits(settings));
     password = '';
     const own = session.box.checked;
-    const wrong = specProblem(spec()) ?? (own || master.input.value ? null : t('generator', 'Enter the master password to derive from'));
-    custom.hidden = own || !entry;
-    stored.hidden = !own || !entry;
+    const domain = spec().site;
+    // The same address signs in to many sites: the one taken from it may be the wrong one.
+    const fromUser = Boolean(domain) && domain === mailDomain(userInput.value);
+    siteHint.hidden = !fromUser && (!domain || domain === siteInput.value.trim());
+    siteHint.textContent = fromUser
+      ? t('generator', 'From the user name. Signing in to another site with this address? Type that site.')
+      : t('derived', 'Site: {site}', { site: domain });
+    const wrong = problem() ?? (own || master.input.value ? null : t('generator', 'Enter the master password to derive from'));
     note.hidden = !wrong;
     note.textContent = wrong ?? '';
     preview.textContent = wrong ? '—' : '…';
     changed();
     if (wrong) return;
     const request = spec();
-    const name = user();
+    const name = userInput.value;
     const typed = master.input.value;
     timer = window.setTimeout(() => {
       (own ? computePassword(request, name) : derivePassword(typed, request, name)).then(
         (result) => {
           if (mine !== turn) return;
-          password = result.password;
+          password = result;
           preview.textContent = password;
           changed();
         },
@@ -275,41 +287,37 @@ function derivedMode({ config, changed, close }: ModeContext): Mode {
     update(0);
     if (!session.box.checked) master.input.focus();
   });
-  siteInput?.addEventListener('input', () => update(400));
-  userInput?.addEventListener('input', () => update(400));
-
-  const account = entry
-    ? [
-        h(
-          'div',
-          { class: 'gen-account' },
-          ...(entry.site ? [h('span', { text: t('derived', 'Site: {site}, from the website', { site: entry.site }) })] : []),
-          ...(entry.user ? [h('span', { text: t('generator', 'User name: {user}, from the entry', { user: entry.user }) })] : []),
-        ),
-      ]
-    : [labelled(t('entry', 'Website'), siteInput as HTMLInputElement), labelled(t('entry', 'User name'), userInput as HTMLInputElement)];
+  userInput.addEventListener('input', () => {
+    entry?.setUser(userInput.value);
+    if (!siteTyped) siteInput.value = autoSite();
+    update(400);
+  });
+  siteInput.addEventListener('input', () => {
+    siteTyped = Boolean(siteInput.value.trim());
+    if (!mailDomain(userInput.value)) entry?.setUrl(siteInput.value);
+    update(400);
+  });
 
   update(0);
   return {
     body: [
-      preview,
-      note,
       session.node,
       labelled(t('gate', 'Master password'), master.node),
-      ...account,
+      labelled(t('entry', 'User name'), userInput),
+      labelled(t('derived', 'Site'), siteInput, undefined, siteHint),
       h('div', { class: 'derived-inputs' }, h('label', { class: 'derived-input' }, h('span', { class: 'derived-caption', text: t('derived', 'Version') }), h('span', { class: 'field-inline' }, version, next))),
       ...requirementControls(settings, () => update(0)),
-      ...(entry ? [stored, custom] : []),
+      // The password last, over the button that takes it, and what keeps it from being made.
+      labelled(t('entry', 'Password'), preview),
+      note,
     ],
     foot: bits,
-    // From an entry, with the database's master password, the settings are enough: a missing website is asked for there.
-    ready: () => (entry && session.box.checked ? !storedProblem({ ...settings, site: entry.site }) : Boolean(password)),
+    ready: () => Boolean(password),
     use: () => {
       close();
-      if (entry && session.box.checked) entry.onDerive({ ...settings });
-      else config.onUse(password);
+      config.onUse(password);
     },
-    focus: session.box.checked ? (siteInput ?? undefined) : master.input,
+    focus: session.box.checked ? [userInput, siteInput].find((input) => !input.value.trim()) : master.input,
   };
 }
 
@@ -535,7 +543,7 @@ function masterSwitch(field: SecretInput, checked: boolean, title: string, name:
 
 /** The identifier an entry suggests; it stays editable. */
 function suggestedIdentifier(config: GeneratorPanelOptions): string {
-  return config.entry ? legacyIdentifier(config.entry.user, config.entry.site) : '';
+  return config.entry ? legacyIdentifier(config.entry.user(), siteOf(config.entry.url())) : '';
 }
 
 /**
@@ -597,7 +605,7 @@ function showBits(node: HTMLElement, bits: number): void {
 }
 
 /** Colour step for an entropy in bits, as the generator shows it. */
-export function bitsLevel(bits: number): string {
+function bitsLevel(bits: number): string {
   return bits < 50 ? '1' : bits < 80 ? '2' : bits < 110 ? '3' : '4';
 }
 
@@ -715,7 +723,7 @@ function computeButton(
 }
 
 /** The length slider and the character-set toggles; they change `options` in place. */
-export function requirementControls(options: Requirements, onChange: () => void): HTMLElement[] {
+function requirementControls(options: Requirements, onChange: () => void): HTMLElement[] {
   const lengthValue = h('span', { class: 'gen-length-value', text: String(options.length) });
   const slider = h('input', { type: 'range', min: String(LENGTH_MIN), max: '64', class: 'gen-slider', 'aria-label': t('generator', 'Length') });
   slider.value = String(Math.min(64, options.length));

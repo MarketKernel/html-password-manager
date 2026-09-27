@@ -5,7 +5,6 @@
 :root {
   --sidebar: 250px;
   --list: 340px;
-  --zoom: 1;
 
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
@@ -519,24 +518,6 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
 }
 .search input:focus { border-color: var(--accent); background: var(--bg); }
 
-.zoom {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid var(--edge);
-  border-radius: 10px;
-  background: var(--panel);
-  margin: 0 4px;
-}
-.zoom .icon-button { width: 34px; height: 32px; font-size: 18px; }
-.zoom-value {
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  min-width: 54px;
-  font-variant-numeric: tabular-nums;
-}
-
 /* ------------------------------------------------------------------ *
  * Entry list
  * ------------------------------------------------------------------ */
@@ -547,7 +528,6 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
   min-width: 0;
   min-height: 0;
   border-inline-end: 1px solid var(--edge);
-  font-size: calc(14px * var(--zoom));
 }
 .list-head {
   display: flex;
@@ -621,7 +601,7 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
  * ------------------------------------------------------------------ */
 
 .details-pane { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-.details-scroller { flex: 1; overflow: auto; padding: 26px 30px 60px; font-size: calc(14px * var(--zoom)); }
+.details-scroller { flex: 1; overflow: auto; padding: 26px 30px 60px; }
 .placeholder { color: var(--faint); text-align: center; padding-top: 16vh; }
 
 .details { max-width: 46em; margin: 0 auto; }
@@ -642,6 +622,21 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
 }
 .details-path { color: var(--muted); margin-top: 0.2em; font-size: 0.92em; }
 .details-actions { display: flex; align-items: center; gap: 6px; flex: none; align-self: flex-start; }
+/* Editing: the title field and Cancel · Save share a line, the group's path goes under the
+   field. The 1fr row takes what the icon needs beyond the path, so with no path the field
+   sits level with the icon. */
+.details--edit .details-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: 1fr auto;
+  grid-template-areas: 'icon title actions' 'icon path .';
+  gap: 0 1em;
+}
+.details--edit .details-heading { display: contents; }
+.details--edit .details-head > .avatar { grid-area: icon; }
+.details--edit .details-title-input { grid-area: title; }
+.details--edit .details-path { grid-area: path; }
+.details--edit .details-actions { grid-area: actions; align-self: center; }
 
 .fields { display: flex; flex-direction: column; }
 .field {
@@ -757,25 +752,14 @@ body.sidebar-hidden #sidebar-resizer { display: none; }
 .field-stack { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .custom-name { font-size: 0.92em; color: var(--muted); }
 
-/* Derived passwords: computed from the master password, not stored */
-.field-stack--tight { gap: 2px; }
+/* A hint or a warning under a field */
 .field-hint { color: var(--faint); font-size: 0.85em; }
 .field-note { color: var(--warn); font-size: 0.88em; line-height: 1.4; }
-.field-value--error { color: var(--danger); font-family: inherit; letter-spacing: 0; }
-.derived-preview {
-  flex: 1;
-  background: var(--code-bg);
-  border-radius: 8px;
-  padding: 0.4em 0.65em;
-  min-height: 2.2em;
-  user-select: all;
-}
+/* The generator's captions over its fields, and version 3's version */
 .derived-inputs { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 14px; }
 .derived-input { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.derived-site { color: var(--muted); font-size: 0.9em; padding-bottom: 0.5em; overflow-wrap: anywhere; }
 .derived-caption { color: var(--muted); font-size: 0.82em; }
 .derived-version { width: 8.5em; }
-.derived-foot { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .field--add .button { justify-self: start; }
 .field-adders { display: flex; flex-wrap: wrap; gap: 6px; }
 
@@ -862,7 +846,6 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
 .gen-kind { font-weight: 550; cursor: pointer; }
 .gen-body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .gen-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.gen-account { display: flex; flex-direction: column; gap: 2px; color: var(--muted); font-size: 0.9em; overflow-wrap: anywhere; }
 .gen-row--wrap { flex-wrap: wrap; align-items: flex-end; gap: 8px 12px; }
 .gen-number { width: 7.5em; }
 .gen-row--compute { gap: 10px; }
@@ -923,6 +906,8 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
 }
 .status-path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .status-spacer { flex: 1; }
+/* The file's name gives way first: the state stays on one line. */
+.status-state { white-space: nowrap; }
 .status-state--dirty { color: var(--accent); }
 .status-count { font-variant-numeric: tabular-nums; white-space: nowrap; }
 
@@ -1077,12 +1062,8 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
 }
 
 /* ------------------------------------------------------------------ *
- * Narrow screens: the group panel hides, the list stacks over the entry
+ * Phones: the list or the entry, the groups in a drawer
  * ------------------------------------------------------------------ */
-
-@media (max-width: 980px) {
-  .zoom { display: none; }
-}
 
 /* A phone: one screen at a time — the list, or the entry (body.show-details) —
    and the group panel slides in over the list (body.drawer-open). src/screens.ts
@@ -1127,16 +1108,20 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
   body.show-details .search { visibility: hidden; }
 
   /* The toolbar keeps the search, New entry and Save; the rest is in the ⋯ menu. */
-  #generator, #theme, #settings, #lock { display: none; }
+  #generator, #settings, #lock { display: none; }
   #more { display: inline-flex; }
   .toolbar { gap: 6px; padding-inline: 8px; }
   .toolbar-group { gap: 2px; }
   .search { min-width: 0; }
   .details-scroller { padding: 18px 16px 40px; }
   /* Editing: Cancel and Save beside the icon, the title on a line of its own below them. */
-  .details--edit .details-head { flex-wrap: wrap; row-gap: 0.8em; }
-  .details--edit .details-actions { margin-inline-start: auto; align-self: center; }
-  .details--edit .details-heading { order: 1; flex-basis: 100%; }
+  .details--edit .details-head {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas: 'icon actions' 'title title' 'path path';
+  }
+  .details--edit .details-actions { justify-self: end; }
+  .details--edit .details-title-input { margin-top: 0.8em; }
   .field { grid-template-columns: minmax(0, 1fr) auto; }
   .field .field-label { grid-column: 1 / -1; }
   .field--edit, .field--custom, .field--add { grid-template-columns: minmax(0, 1fr); }

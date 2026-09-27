@@ -11,7 +11,7 @@ Edge and Arc, use the install button in the address bar; on Android, Chrome's �
 Install app; on iOS, Share → Add to Home Screen, in Safari or in Chrome. The database stays
 on your disk there too — see "[GitHub Pages](#github-pages)".
 
-![html-password-manager: groups, entries and an entry with a derived password](docs/password-manager.jpg)
+![html-password-manager: groups, entries and an entry being edited](docs/password-manager.jpg)
 
 ## How to use
 
@@ -39,7 +39,7 @@ toolbar, the system's back button or a swipe back return to the list. An edit is
 way back, as picking another entry keeps it on a computer; a new entry left empty is dropped.
 ☰ slides the groups, tags and recycle bin in over the list. Menus, the generator and the
 settings rise from the bottom of the screen; back closes them first, and cancels a dialog.
-The generator, the theme, the settings and the lock are in the toolbar's ⋯ menu.
+The generator, the settings and the lock are in the toolbar's ⋯ menu.
 
 A touch screen has no right click and no drag: the ⋯ beside a group opens the menu a right
 click opens on a computer, and its "Move to group…" does what a drag does. An entry's menu is
@@ -100,8 +100,8 @@ size gets larger buttons and the ⋯ beside the groups.
   names; every word of the query must match.
 - **Password generator** (the dice, `⌘G`) makes a password of the kind picked in its list,
   newest derivation first; the last choice is remembered:
-  - **Derived v3** — in an entry it keeps only the rules for computing the password from the
-    master password, the site, the user name and a version — see
+  - **Derived v3** — computed from the master password, the user name, the site and a
+    version, so it can be computed again without the file — see
     "[Derived passwords](#derived-passwords)";
   - **Derived v2** and **Derived v1** — the calculators of two older programs (legacy 2 and
     legacy 1), listed when Settings → "Show legacy password algorithms" is on — see
@@ -113,65 +113,52 @@ size gets larger buttons and the ⋯ beside the groups.
 - **Languages**: English, 中文, हिन्दी, Español, Français, العربية, বাংলা, Português, Русский,
   اردو — the ten most spoken. Chosen in Settings, or taken from the browser; Arabic and Urdu
   lay the window out right to left.
-- **Theme**: system, light, dark. **Zoom**: 50–200 %. Language, theme, zoom, panel widths,
-  sorting, generator options and collapsed groups are remembered.
+- **Theme**: system, light, dark, in Settings. Language, theme, panel widths, sorting,
+  generator options and collapsed groups are remembered.
 
 ## Derived passwords
 
-A password is either stored (an ordinary password kept in the file) or **derived**: computed
-each time from
+**Derived v3** in the generator computes a password from
 
-- the master password of the database (the key file, if any, is left out),
-- the site — the domain of the entry's website (`https://www.github.com/login` → `github.com`),
-- the user name of the entry,
+- the master password of the database (the key file, if any, is left out), or another one
+  typed there,
+- the user name,
+- the site — the domain the account is on (`https://www.github.com/login` → `github.com`),
 - the version — 1, 2, … up to 2³² − 1; "+1" gives the same account a new password.
 
 Those four make 32 bytes of entropy. The requirements — length, character sets, look-alikes —
-only shape those bytes into characters: changing them does not change the entropy. So a lost
-database costs nothing: the same master password, site, user name and version give the same
-password on any machine. To recover one, create a new database with the same master password
-and a derived entry with the same website, user name and version. The defaults are 20
-characters, all four character sets, no look-alikes; entries with other requirements need
-those requirements remembered as well.
+only shape those bytes into characters: changing them does not change the entropy. **Use**
+puts the result into the entry as an ordinary stored password. Nothing of how it was made is
+kept: the entry is like any other, and other KeePass apps show the same password. Should the
+file be lost, the same master password, user name, site, version and requirements give the
+same password on any machine. The defaults are 20 characters, all four character sets, no
+look-alikes; a password made with others needs them remembered as well.
 
-To make an entry's password derived, open the generator from the password field in edit mode,
-pick **Derived v3** and press **Use**. The editor then shows the derived password with its
-version and requirements; **Store this password** turns it back into a stored one with the
-same value, and any other kind from the generator replaces it. From the toolbar the generator
-takes the website and the user name as inputs and copies the result.
+The generator asks for the user name first — from an entry, the entry's own: what is typed
+there shows in the form too — then the site; both are required, and the password they give is
+at the bottom, over **Use**.
+
+- A user name that is an e-mail address names its site: `test@site.com` fills in `site.com`,
+  and the entry's website is left as it is — it may well be `mail.site.com`. The same address
+  signs in to many sites, though, and the generator says so under the field: for GitHub with
+  `test@gmail.com`, type `github.com` over the `gmail.com` it put there.
+- Any other user name needs the site typed, and from an entry what is typed becomes its
+  website too. The website the entry already has is filled in to begin with.
+
+Of what is typed as the site, the scheme, path, port and a leading `www.` do not matter; a
+subdomain does — `login.github.com` and `github.com` are two sites. A site that is not a URL
+("My bank") is used as it is. From the toolbar the generator works the same way, with fields
+of its own, and copies the result.
 
 "Use the database's master password" is ticked each time the generator opens. Untick it to
 derive from another master password, typed there and kept nowhere — to recover a password
-made in another database, say. Such a result is put in as an ordinary stored password: a
-derived entry is always computed from its own database's master password.
-
-The site and the user name are the entry's own fields, not copies: editing the website to
-another domain makes another password, and the editor shows the new one at once. The
-scheme, path, port and a leading `www.` do not matter; a subdomain does — `login.github.com`
-and `github.com` are two sites. A website that is not a URL ("My bank") is used as it is.
-
-**Storage and compatibility.** The file format does not change. The password field of the
-entry holds a JSON object instead of a password, marked with a fixed GUID:
-
-```json
-{"$derived":"6f1c2b9e-4a7d-4e38-9b51-2d0c8a73f5e4","gen":3,"ver":1,
- "len":20,"upper":true,"lower":true,"digits":true,"symbols":true,"ambiguous":false,"check":"c0014f12"}
-```
-
-Other KeePass apps open the database as usual, but show that JSON as the password. `check`
-is a short fingerprint of the entropy the password was saved with: when the master password,
-the website or the user name changed since, the entry says it is a different password now,
-and saving it again accepts the new one.
-
-**Changing the master password** changes every derived password. The dialog counts the
-entries that have one and offers (on by default) to turn them into stored passwords first:
-they keep their values, but can no longer be recovered without the file. Left derived, each
-becomes a new password, and the old values can be computed only from the old master password.
+made in another database, or before the master password was changed. Changing it leaves the
+passwords in the file as they are; only what the generator computes from then on differs.
 
 ### The algorithm: generator 3
 
-Everything below is frozen: changing any constant would change every derived password
-already in use. A future generator would get a new number (`"gen"` in the JSON) and leave
+Everything below is frozen: changing any constant would make every password made with it
+impossible to compute again. A future generator would come as a new kind in the list and leave
 this one as it is. The code is `src/derived.ts`; `npm test` checks it against fixed vectors
 and against an independent implementation written from this description with Node's own
 `crypto`. The primitives are standard — SHA-256, HMAC-SHA-256, Argon2id — so the algorithm
@@ -183,10 +170,10 @@ characters out of those bytes.
 **Stage 1 — entropy.**
 
 1. *Normalize the inputs.* All strings are UTF-8.
-   - `site` — the host of the entry's website, parsed as a WHATWG URL (`https://` is put in
-     front when the text has no `scheme://`): lower case, IDN in punycode, no port, no user
-     name or password, a leading `www.` dropped. A website that does not parse as a URL is
-     used as it is. Then trimmed, NFC-normalized, lower-cased.
+   - `site` — the host of what was typed as the site: the text parsed as a WHATWG URL
+     (`https://` is put in front when the text has no `scheme://`): lower case, IDN in
+     punycode, no port, no user name or password, a leading `www.` dropped; text that does
+     not parse as a URL is used as it is. Then trimmed, NFC-normalized, lower-cased.
    - `user` — the user name, trimmed and NFC-normalized; case is kept.
    - `master` — the master password, NFC-normalized, nothing trimmed. An "é" typed as one
      character or as "e" plus a combining accent gives the same password.
@@ -237,21 +224,17 @@ password looks, not the entropy behind it.
    ```
    Length is 4 to 128. Taking one character from every set first is what makes "has a
    digit" and "has a symbol" guaranteed; the shuffle hides where those characters went.
-7. *Check.* `check = hex(HMAC-SHA-256(key = entropy, "hpm-v3-check")[0..4])` — 8 hex
-   digits saved in the JSON. It shows that the inputs changed; it is not the password and
-   gives nothing of it away.
 
-**Test vector.** Master password `Тестовый пароль`, website `https://www.github.com/login`
-(site `github.com`), user name `me@example.com`, version 1, the default requirements
+**Test vector.** Master password `Тестовый пароль`, site `https://www.github.com/login`
+(`github.com`), user name `me@example.com`, version 1, the default requirements
 (20 characters, all four sets, no look-alikes):
 
 ```
 password  A6qVXXF]7<%a)aa<x7*U
-check     c0014f12
 ```
 
-The same entropy with 12 characters and no symbols gives `yaM6VJaJFYUQ` (the check stays
-`c0014f12`); version 2 with the defaults gives `3q_bwppbE8P2+ufKr:P6`.
+The same entropy with 12 characters and no symbols gives `yaM6VJaJFYUQ`; version 2 with the
+defaults gives `3q_bwppbE8P2+ufKr:P6`.
 
 ### How strong it is
 
@@ -262,12 +245,12 @@ The same entropy with 12 characters and no symbols gives `yaM6VJaJFYUQ` (the che
   attacker guess the master password offline, since the site and user name are known. Each
   guess costs one Argon2id run over 64 MiB — around 0.15–0.4 s in a browser, less on
   dedicated hardware. A short or common master password will be found; a long passphrase
-  will not. Stored passwords do not have this weakness, which is why both kinds exist.
+  will not. Random passwords do not have this weakness, which is why the generator has both.
 - As long as the master password holds, a leaked password reveals nothing about the other
   sites or versions: they come from other salts, so from other Argon2 runs.
 
 The master password is kept XOR-masked in memory while the database is open, along with the
-entropy and passwords computed so far; locking drops them all.
+entropy computed so far; locking drops them both.
 
 ## Legacy algorithms
 
@@ -338,7 +321,6 @@ Use them to recover old passwords, not for new ones.
 | Previous · next entry | `↑` · `↓` |
 | Delete the entry | `⌫` |
 | Group panel | `⌘\` |
-| Zoom | `⌘+` · `⌘−` · `⌘0` |
 
 ## Translations
 
@@ -417,13 +399,13 @@ src/list.ts         the entry list
 src/details.ts      one entry: reading, editing on a draft, history, attachments, TOTP
 src/search.ts       search, sorting, safe links
 src/generator.ts    password generator and strength estimate
-src/derived.ts      derived passwords: generator 3, the site of a website, the stored JSON, the session's master password
+src/derived.ts      derived passwords: generator 3, the site of a website or an e-mail address, the session's master password
 src/legacy.ts       the legacy algorithms: legacy 1 and legacy 2
 src/genpanel.ts     the generator popover: random, version 3, legacy 1 and 2
 src/otp.ts          TOTP (RFC 6238) and the ways secrets are stored
 src/clipboard.ts    copying with a timed wipe
 src/avatar.ts       entry icons: custom icons from the database or a coloured letter
-src/settings.ts     localStorage: language, theme, zoom, panels, lock and clipboard timers
+src/settings.ts     localStorage: language, theme, panels, lock and clipboard timers
 src/i18n.ts         t()/tn(), the language list, translating the page's markup
 src/locales/        one dictionary per language
 src/ui.ts           dialogs, context menu, popovers, toasts, icons; sheets on a phone

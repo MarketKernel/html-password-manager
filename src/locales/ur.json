@@ -105,7 +105,6 @@
     "Lock": "لاک کریں",
     "Close database": "ڈیٹا بیس بند کریں",
     "Password generator": "پاس ورڈ جنریٹر",
-    "Theme: {theme}": "تھیم: {theme}",
     "Settings": "ترتیبات"
   },
   "generator": {
@@ -130,7 +129,6 @@
     "Copy": "کاپی کریں",
     "Random": "بے ترتیب",
     "Kind of password": "پاس ورڈ کی قسم",
-    "User name: {user}, from the entry": "صارف نام: {user}، اندراج سے",
     "Master key": "ماسٹر کلید",
     "Identifier": "شناخت کنندہ",
     "Primary key": "بنیادی کلید",
@@ -155,12 +153,12 @@
     "The database's master password": "ڈیٹا بیس کا ماسٹر پاس ورڈ",
     "The password this database was unlocked with is the master key: nothing to type or to keep": "جس پاس ورڈ سے یہ ڈیٹا بیس کھولا گیا وہی ماسٹر کلید ہے: نہ کچھ لکھنا ہے نہ یاد رکھنا",
     "Derived from the password this database was unlocked with; untick to derive from another master password": "اس پاس ورڈ سے اخذ شدہ جس سے یہ ڈیٹا بیس کھولا گیا؛ کسی دوسرے ماسٹر پاس ورڈ سے بنانے کے لیے نشان ہٹائیں",
-    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "دوسرے ماسٹر پاس ورڈ کے ساتھ نتیجہ عام محفوظ پاس ورڈ کے طور پر ڈالا جاتا ہے: اندراج اسے دوبارہ حساب نہیں کر سکتا۔",
     "Enter the master password to derive from": "وہ ماسٹر پاس ورڈ درج کریں جس سے اخذ کرنا ہے",
     "Derived v3": "اخذ شدہ v3",
     "Derived v2": "اخذ شدہ v2",
     "Derived v1": "اخذ شدہ v1",
-    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "جس پاس ورڈ سے یہ ڈیٹا بیس کھولا گیا وہی بنیادی خفیہ فقرہ ہے: نہ کچھ لکھنا ہے نہ یاد رکھنا"
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "جس پاس ورڈ سے یہ ڈیٹا بیس کھولا گیا وہی بنیادی خفیہ فقرہ ہے: نہ کچھ لکھنا ہے نہ یاد رکھنا",
+    "From the user name. Signing in to another site with this address? Type that site.": "صارف نام سے۔ اس پتے سے کسی اور سائٹ میں سائن ان کرتے ہیں؟ وہ سائٹ لکھیں۔"
   },
   "gate": {
     "KeePass database": "KeePass ڈیٹا بیس",
@@ -234,7 +232,6 @@
     "Not saved: {reason}": "محفوظ نہیں ہوا: {reason}",
     "Saved a copy as {name}": "کاپی {name} کے نام سے محفوظ کی گئی",
     "Master key changed": "ماسٹر کلید تبدیل ہو گئی",
-    "Theme: {theme}": "تھیم: {theme}",
     "{name} shared": "{name} شیئر ہو گیا"
   },
   "dialog": {
@@ -282,11 +279,6 @@
     "Done": "ہو گیا",
     "The name cannot be empty": "نام خالی نہیں ہو سکتا",
     "Delete": "حذف کریں",
-    "Turn {count} derived passwords into stored ones": {
-      "one": "{count} اخذ شدہ پاس ورڈ کو محفوظ شدہ میں بدلیں",
-      "other": "{count} اخذ شدہ پاس ورڈز کو محفوظ شدہ میں بدلیں"
-    },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "اخذ شدہ پاس ورڈ ماسٹر پاس ورڈ سے حساب کیے جاتے ہیں: نئے ماسٹر پاس ورڈ کے ساتھ ہر ایک دوسرا پاس ورڈ بن جاتا ہے۔ محفوظ کرنے پر وہ ویسے ہی رہتے ہیں، مگر فائل کے بغیر بحال نہیں ہو سکتے۔",
     "Close": "بند کریں"
   },
   "app": {
@@ -330,11 +322,6 @@
     "Search entries": "اندراجات تلاش کریں",
     "Save (⌘S)": "محفوظ کریں (⌘S)",
     "Password generator (⌘G)": "پاس ورڈ جنریٹر (⌘G)",
-    "Zoom": "زوم",
-    "Zoom out (⌘−)": "زوم آؤٹ (⌘−)",
-    "Reset zoom (⌘0)": "زوم ری سیٹ کریں (⌘0)",
-    "Zoom in (⌘+)": "زوم اِن (⌘+)",
-    "Theme": "تھیم",
     "Settings": "ترتیبات",
     "Lock (⌘L)": "لاک کریں (⌘L)",
     "Entries": "اندراجات",
@@ -344,22 +331,17 @@
     "More": "مزید"
   },
   "derived": {
-    "This password is derived by generator {version}, which this version of the app does not know": "یہ پاس ورڈ جنریٹر {version} سے اخذ کیا گیا ہے، جسے ایپ کا یہ ورژن نہیں جانتا",
-    "The derived password settings are damaged: {reason}": "اخذ شدہ پاس ورڈ کی ترتیبات خراب ہیں: {reason}",
     "The version is a whole number from 1 to {max}": "ورژن 1 سے {max} تک کا مکمل عدد ہے",
     "The length is from {min} to {max}": "لمبائی {min} سے {max} تک ہے",
     "Pick at least one character set": "کم از کم ایک حروف کا مجموعہ منتخب کریں",
     "The database has no master password to derive passwords from": "ڈیٹا بیس میں کوئی ماسٹر پاس ورڈ نہیں جس سے پاس ورڈ اخذ کیے جائیں",
-    "Derived · {site} · version {version}": "اخذ شدہ · {site} · ورژن {version}",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "ماسٹر پاس ورڈ، سائٹ، صارف نام اور ورژن سے حساب کیا جاتا ہے: فائل کے بغیر بھی بحال ہو سکتا ہے",
     "Needs a master password, and this database opens with a key file alone": "ماسٹر پاس ورڈ درکار ہے، اور یہ ڈیٹا بیس صرف کلیدی فائل سے کھلتا ہے",
     "Version": "ورژن",
     "Next version: a new password for the same site and user name": "اگلا ورژن: اسی سائٹ اور صارف نام کے لیے نیا پاس ورڈ",
-    "Nothing but these settings is saved; the password is computed each time.": "صرف یہ ترتیبات محفوظ ہوتی ہیں؛ پاس ورڈ ہر بار حساب کیا جاتا ہے۔",
     "Enter the website: the password is derived from its domain": "ویب سائٹ درج کریں: پاس ورڈ اس کے ڈومین سے اخذ ہوتا ہے",
-    "Site: {site}, from the website": "سائٹ: {site}، ویب سائٹ سے",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "یہ پاس ورڈ محفوظ ہونے کے بعد ماسٹر پاس ورڈ، ویب سائٹ یا صارف نام بدل گیا ہے، اس لیے اب یہ دوسرا پاس ورڈ ہے۔",
-    "Store this password": "یہ پاس ورڈ محفوظ کریں",
-    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "پاس ورڈ کو ہی فائل میں رکھیں: یہ اب ماسٹر پاس ورڈ، ویب سائٹ یا صارف نام کے ساتھ نہیں بدلے گا"
+    "Enter the user name: the password is derived from it too": "صارف نام درج کریں: پاس ورڈ اس سے بھی اخذ ہوتا ہے",
+    "Site": "سائٹ",
+    "Site: {site}": "سائٹ: {site}"
   }
 }

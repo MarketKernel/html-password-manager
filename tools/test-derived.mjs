@@ -1,14 +1,14 @@
 /**
  * Derived passwords. The fixed vectors freeze generator 3: if one of them
- * changes, every derived password in every database changes with it. The
- * reference below is written from the specification in src/derived.ts with
- * Node's own crypto, so a password can be recovered from that text alone.
+ * changes, every password ever made with it can no longer be computed again.
+ * The reference below is written from the specification in src/derived.ts
+ * with Node's own crypto, so a password can be recovered from that text alone.
  */
 import { createHash, createHmac } from 'node:crypto';
 import { argon2id } from 'hash-wasm';
 import { checker, load } from './load.mjs';
 
-const D = await load('derived', 'kdbx');
+const D = await load('derived');
 const { check, done } = checker();
 
 const MASTER = 'Тестовый пароль';
@@ -17,12 +17,12 @@ const base = { ...D.REQUIREMENT_DEFAULTS, site: 'github.com', version: 1 };
 
 // Generator 3, frozen
 const vectors = [
-  [{}, 'A6qVXXF]7<%a)aa<x7*U', 'c0014f12'],
-  [{ length: 12, symbols: false }, 'yaM6VJaJFYUQ', 'c0014f12'],
-  [{ version: 2 }, '3q_bwppbE8P2+ufKr:P6', '3a47bd70'],
+  [{}, 'A6qVXXF]7<%a)aa<x7*U'],
+  [{ length: 12, symbols: false }, 'yaM6VJaJFYUQ'],
+  [{ version: 2 }, '3q_bwppbE8P2+ufKr:P6'],
 ];
-for (const [change, password, keyCheck] of vectors) {
-  check(`vector ${JSON.stringify(change)}`, await D.derivePassword(MASTER, { ...base, ...change }, USER), { password, check: keyCheck });
+for (const [change, password] of vectors) {
+  check(`vector ${JSON.stringify(change)}`, await D.derivePassword(MASTER, { ...base, ...change }, USER), password);
 }
 
 // An independent implementation of the specification
@@ -60,8 +60,7 @@ async function reference(master, site, user, version, req) {
     const j = draw(i + 1);
     [chars[i], chars[j]] = [chars[j], chars[i]];
   }
-  const keyCheck = createHmac('sha256', entropy).update('hpm-v3-check').digest().subarray(0, 4).toString('hex');
-  return { password: chars.join(''), check: keyCheck };
+  return chars.join('');
 }
 const cases = [
   [MASTER, ' GitHub.COM ', ` ${USER}`, 1, D.REQUIREMENT_DEFAULTS],
@@ -73,37 +72,19 @@ const cases = [
 for (const [master, site, user, version, req] of cases) {
   check(`reference ${site}/${version}`, await D.derivePassword(master, { ...req, site, version }, user), await reference(master, site, user, version, req));
 }
-check('NFC master', (await D.derivePassword('cafe\u0301', base, USER)).password, (await D.derivePassword('caf\u00e9', base, USER)).password);
+check('NFC master', await D.derivePassword('cafe\u0301', base, USER), await D.derivePassword('caf\u00e9', base, USER));
 
 // The requirements shape the same entropy
-const long = (await D.derivePassword(MASTER, { ...base, length: 40 }, USER)).password;
+const long = await D.derivePassword(MASTER, { ...base, length: 40 }, USER);
 check('length only', [...long].length, 40);
-check('digits only', /^[0-9]{10}$/.test((await D.derivePassword(MASTER, { ...base, length: 10, upper: false, lower: false, symbols: false }, USER)).password), true);
+check('digits only', /^[0-9]{10}$/.test(await D.derivePassword(MASTER, { ...base, length: 10, upper: false, lower: false, symbols: false }, USER)), true);
 check('every set', [/[A-Z]/, /[a-z]/, /[0-9]/, /[^A-Za-z0-9]/].map((re) => re.test(long)), [true, true, true, true]);
-check('no look-alikes', /[O0oIl1|]/.test((await D.derivePassword(MASTER, { ...base, length: 128 }, USER)).password), false);
-check('other user', (await D.derivePassword(MASTER, base, 'you@example.com')).password !== vectors[0][1], true);
-check('other site', (await D.derivePassword(MASTER, { ...base, site: 'gitlab.com' }, USER)).password !== vectors[0][1], true);
-check('other master', (await D.derivePassword('другой', base, USER)).password !== vectors[0][1], true);
+check('no look-alikes', /[O0oIl1|]/.test(await D.derivePassword(MASTER, { ...base, length: 128 }, USER)), false);
+check('other user', (await D.derivePassword(MASTER, base, 'you@example.com')) !== vectors[0][1], true);
+check('other site', (await D.derivePassword(MASTER, { ...base, site: 'gitlab.com' }, USER)) !== vectors[0][1], true);
+check('other master', (await D.derivePassword('другой', base, USER)) !== vectors[0][1], true);
 
-// The stored form
-const stored = D.serializeDerived({ ...base, check: 'c0014f12' });
-check('marker', JSON.parse(stored).$derived, D.DERIVED_MARKER);
-check('the site is not stored: it follows the website', 'site' in JSON.parse(stored), false);
-check('round trip', D.parseDerived(stored, 'https://www.GitHub.com/login'), { site: 'github.com', version: 1, ...D.REQUIREMENT_DEFAULTS, check: 'c0014f12' });
-check('no website is no damage', D.parseDerived(stored)?.site, '');
-check('ordinary password', D.parseDerived('hunter2'), null);
-check('ordinary JSON', D.parseDerived('{"a":1}'), null);
-check('broken JSON', D.parseDerived(`{"$derived":"${D.DERIVED_MARKER}"`), null);
-const throws = (fn) => {
-  try {
-    fn();
-    return false;
-  } catch (error) {
-    return error instanceof D.DerivedError;
-  }
-};
-check('newer generator', throws(() => D.parseDerived(stored.replace('"gen":3', '"gen":4'))), true);
-check('damaged settings', throws(() => D.parseDerived(stored.replace('"len":20', '"len":2'))), true);
+// What is asked for
 check('version range', [0, 1, 4294967295, 4294967296, 1.5].map((version) => D.specProblem({ ...base, version }) === null), [false, true, true, false, false]);
 check('site required', D.specProblem({ ...base, site: '  ' }) !== null, true);
 check('a set required', D.specProblem({ ...base, upper: false, lower: false, digits: false, symbols: false }) !== null, true);
@@ -112,31 +93,23 @@ check(
   ['https://www.GitHub.com/login', 'github.com/x', 'http://user:pw@Example.COM:8443/a?b', 'localhost:8080', 'login.example.com', 'https://пример.рф/', ' My Bank ', ''].map(D.siteOf),
   ['github.com', 'github.com', 'example.com', 'localhost', 'login.example.com', 'xn--e1afmkfd.xn--p1ai', 'my bank', ''],
 );
+check(
+  'the domain of an e-mail user name',
+  ['test@site.com', ' Test@Mail.Site.COM ', 'test@www.site.com', 'test', 'test@localhost', 'a@b@site.com', ''].map(D.mailDomain),
+  ['site.com', 'mail.site.com', 'site.com', null, null, null, null],
+);
 check('bits capped', D.derivedBits({ ...base, length: 128 }), 256);
 
-// The session: the entry's password, and what locking forgets
-const db = await D.createDatabase('Derived', MASTER, null);
-const entry = D.createEntry(db, db.getDefaultGroup());
-entry.fields.set('UserName', USER);
-entry.fields.set('Password', D.makeValue(stored, true));
-check('no website, no password', await Promise.resolve(D.entryPassword(entry)).then(() => 'derived', (error) => error instanceof D.DerivedError), true);
-entry.fields.set('URL', 'https://github.com/');
-check('stored entry password', await D.entryPassword(Object.assign(D.createEntry(db, db.getDefaultGroup()), { fields: new Map([['Password', D.makeValue('hunter2', true)]]) })), 'hunter2');
+// The session: the database's own master password, and what locking forgets
+const failed = (promise) => promise.then(() => false, (error) => error instanceof D.DerivedError);
 D.setMasterPassword(null);
-check('locked', await D.entryPassword(entry).then(() => 'derived', (error) => error instanceof D.DerivedError), true);
+check('locked: nothing to derive from', await failed(D.computePassword(base, USER)), true);
 D.setMasterPassword(MASTER);
-check('derived entry password', await D.entryPassword(entry), vectors[0][1]);
-check('cached', D.cachedPassword(base, USER)?.password, vectors[0][1]);
-check('reshaped from cached entropy', await D.computePassword({ ...base, length: 12, symbols: false }, USER), { password: vectors[1][1], check: vectors[1][2] });
+check('the session\'s master password', await D.computePassword(base, USER), vectors[0][1]);
+check('reshaped from the entropy kept', await D.computePassword({ ...base, length: 12, symbols: false }, USER), vectors[1][1]);
+check('no site, no password', await failed(D.computePassword({ ...base, site: '' }, USER)), true);
+check('the master password to legacy 1 and 2', D.sessionMasterPassword(), MASTER);
 D.setMasterPassword(null);
-check('forgotten on lock', D.cachedPassword(base, USER), undefined);
-
-// Saved and reopened: other apps see JSON, this one the password
-const reopened = await D.openDatabase(await D.saveDatabase(db), MASTER, null);
-const again = reopened.getDefaultGroup().entries.find((item) => D.field(item, 'UserName') === USER);
-D.setMasterPassword(MASTER);
-check('survives the file', await D.entryPassword(again), vectors[0][1]);
-check('raw field is JSON', D.field(again, 'Password'), stored);
-D.setMasterPassword(null);
+check('forgotten on lock', D.sessionMasterPassword(), null);
 
 done('derived');

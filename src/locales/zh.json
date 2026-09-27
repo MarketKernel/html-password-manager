@@ -104,7 +104,6 @@
     "Lock": "锁定",
     "Close database": "关闭数据库",
     "Password generator": "密码生成器",
-    "Theme: {theme}": "主题：{theme}",
     "Settings": "设置"
   },
   "generator": {
@@ -128,7 +127,6 @@
     "Copy": "复制",
     "Random": "随机",
     "Kind of password": "密码类型",
-    "User name: {user}, from the entry": "用户名：{user}，来自条目",
     "Master key": "主密钥",
     "Identifier": "标识符",
     "Primary key": "主要密钥",
@@ -153,12 +151,12 @@
     "The database's master password": "数据库的主密码",
     "The password this database was unlocked with is the master key: nothing to type or to keep": "以解锁此数据库的密码作为主密钥：无需输入，也无需记住",
     "Derived from the password this database was unlocked with; untick to derive from another master password": "由解锁此数据库的密码推导；取消勾选可从其他主密码推导",
-    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "使用其他主密码时，结果将作为普通存储密码填入：条目无法再次计算它。",
     "Enter the master password to derive from": "输入用于推导的主密码",
     "Derived v3": "推导 v3",
     "Derived v2": "推导 v2",
     "Derived v1": "推导 v1",
-    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "以解锁此数据库的密码作为主要秘密短语：无需输入，也无需记住"
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "以解锁此数据库的密码作为主要秘密短语：无需输入，也无需记住",
+    "From the user name. Signing in to another site with this address? Type that site.": "取自用户名。用这个地址登录的是别的网站？请填写那个网站。"
   },
   "gate": {
     "KeePass database": "KeePass 数据库",
@@ -231,7 +229,6 @@
     "Not saved: {reason}": "未保存：{reason}",
     "Saved a copy as {name}": "已另存副本为 {name}",
     "Master key changed": "主密钥已更改",
-    "Theme: {theme}": "主题：{theme}",
     "{name} shared": "已共享 {name}"
   },
   "dialog": {
@@ -277,10 +274,6 @@
     "Done": "完成",
     "The name cannot be empty": "名称不能为空",
     "Delete": "删除",
-    "Turn {count} derived passwords into stored ones": {
-      "other": "将 {count} 个推导密码转为存储密码"
-    },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "推导密码由主密码计算得出：换了主密码，每个都会变成另一个密码。转为存储后保持不变，但没有文件就无法再恢复。",
     "Close": "关闭"
   },
   "app": {
@@ -324,11 +317,6 @@
     "Search entries": "搜索条目",
     "Save (⌘S)": "保存 (⌘S)",
     "Password generator (⌘G)": "密码生成器 (⌘G)",
-    "Zoom": "缩放",
-    "Zoom out (⌘−)": "缩小 (⌘−)",
-    "Reset zoom (⌘0)": "重置缩放 (⌘0)",
-    "Zoom in (⌘+)": "放大 (⌘+)",
-    "Theme": "主题",
     "Settings": "设置",
     "Lock (⌘L)": "锁定 (⌘L)",
     "Entries": "条目",
@@ -338,22 +326,17 @@
     "More": "更多"
   },
   "derived": {
-    "This password is derived by generator {version}, which this version of the app does not know": "此密码由生成器 {version} 推导，此版本的应用不认识它",
-    "The derived password settings are damaged: {reason}": "推导密码的设置已损坏：{reason}",
     "The version is a whole number from 1 to {max}": "版本是 1 到 {max} 之间的整数",
     "The length is from {min} to {max}": "长度为 {min} 到 {max}",
     "Pick at least one character set": "请至少选择一种字符集",
     "The database has no master password to derive passwords from": "数据库没有可用于推导密码的主密码",
-    "Derived · {site} · version {version}": "推导 · {site} · 版本 {version}",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "由主密码、网站、用户名和版本计算得出：没有文件也能恢复",
     "Needs a master password, and this database opens with a key file alone": "需要主密码，而此数据库仅用密钥文件打开",
     "Version": "版本",
     "Next version: a new password for the same site and user name": "下一个版本：同一网站和用户名的新密码",
-    "Nothing but these settings is saved; the password is computed each time.": "只保存这些设置；密码每次都重新计算。",
     "Enter the website: the password is derived from its domain": "请输入网址：密码由其域名推导",
-    "Site: {site}, from the website": "网站：{site}，取自网址",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "自保存此密码以来，主密码、网址或用户名已更改，现在它是另一个密码。",
-    "Store this password": "存储此密码",
-    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "将密码本身保存在文件中：它将不再随主密码、网址或用户名而改变"
+    "Enter the user name: the password is derived from it too": "请输入用户名：密码也由它推导",
+    "Site": "网站",
+    "Site: {site}": "网站：{site}"
   }
 }

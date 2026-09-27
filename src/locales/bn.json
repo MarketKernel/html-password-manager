@@ -105,7 +105,6 @@
     "Lock": "লক করুন",
     "Close database": "ডেটাবেস বন্ধ করুন",
     "Password generator": "পাসওয়ার্ড জেনারেটর",
-    "Theme: {theme}": "থিম: {theme}",
     "Settings": "সেটিংস"
   },
   "generator": {
@@ -130,7 +129,6 @@
     "Copy": "কপি",
     "Random": "এলোমেলো",
     "Kind of password": "পাসওয়ার্ডের ধরন",
-    "User name: {user}, from the entry": "ব্যবহারকারীর নাম: {user}, এন্ট্রি থেকে",
     "Master key": "মাস্টার কী",
     "Identifier": "শনাক্তকারী",
     "Primary key": "প্রাথমিক কী",
@@ -155,12 +153,12 @@
     "The database's master password": "ডেটাবেসের মাস্টার পাসওয়ার্ড",
     "The password this database was unlocked with is the master key: nothing to type or to keep": "যে পাসওয়ার্ডে এই ডেটাবেস খোলা হয়েছে, সেটিই মাস্টার কী: কিছু লিখতে বা মনে রাখতে হবে না",
     "Derived from the password this database was unlocked with; untick to derive from another master password": "যে পাসওয়ার্ডে এই ডেটাবেস খোলা হয়েছে তা থেকে উদ্ভূত; অন্য মাস্টার পাসওয়ার্ড থেকে তৈরি করতে টিক সরান",
-    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "অন্য মাস্টার পাসওয়ার্ডে ফলাফলটি সাধারণ সংরক্ষিত পাসওয়ার্ড হিসেবে বসানো হয়: এন্ট্রি এটি আবার গণনা করতে পারত না।",
     "Enter the master password to derive from": "যে মাস্টার পাসওয়ার্ড থেকে তৈরি করবেন তা লিখুন",
     "Derived v3": "উদ্ভূত v3",
     "Derived v2": "উদ্ভূত v2",
     "Derived v1": "উদ্ভূত v1",
-    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "যে পাসওয়ার্ডে এই ডেটাবেস খোলা হয়েছে, সেটিই প্রাথমিক গোপন বাক্যাংশ: কিছু লিখতে বা মনে রাখতে হবে না"
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "যে পাসওয়ার্ডে এই ডেটাবেস খোলা হয়েছে, সেটিই প্রাথমিক গোপন বাক্যাংশ: কিছু লিখতে বা মনে রাখতে হবে না",
+    "From the user name. Signing in to another site with this address? Type that site.": "ব্যবহারকারীর নাম থেকে। এই ঠিকানা দিয়ে অন্য সাইটে সাইন ইন করেন? সেই সাইটটি লিখুন।"
   },
   "gate": {
     "KeePass database": "KeePass ডেটাবেস",
@@ -234,7 +232,6 @@
     "Not saved: {reason}": "সংরক্ষিত হয়নি: {reason}",
     "Saved a copy as {name}": "কপিটি {name} নামে সংরক্ষিত হয়েছে",
     "Master key changed": "মাস্টার কী পরিবর্তিত হয়েছে",
-    "Theme: {theme}": "থিম: {theme}",
     "{name} shared": "{name} শেয়ার হয়েছে"
   },
   "dialog": {
@@ -282,11 +279,6 @@
     "Done": "সম্পন্ন",
     "The name cannot be empty": "নাম ফাঁকা রাখা যাবে না",
     "Delete": "মুছুন",
-    "Turn {count} derived passwords into stored ones": {
-      "one": "{count}টি উদ্ভূত পাসওয়ার্ডকে সংরক্ষিত পাসওয়ার্ডে পরিণত করুন",
-      "other": "{count}টি উদ্ভূত পাসওয়ার্ডকে সংরক্ষিত পাসওয়ার্ডে পরিণত করুন"
-    },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "উদ্ভূত পাসওয়ার্ড মাস্টার পাসওয়ার্ড থেকে গণনা করা হয়: নতুন মাস্টার পাসওয়ার্ডে প্রতিটি অন্য পাসওয়ার্ড হয়ে যায়। সংরক্ষিত হলে সেগুলো যেমন আছে তেমন থাকে, কিন্তু ফাইল ছাড়া আর পুনরুদ্ধার করা যায় না।",
     "Close": "বন্ধ করুন"
   },
   "app": {
@@ -330,11 +322,6 @@
     "Search entries": "এন্ট্রি অনুসন্ধান করুন",
     "Save (⌘S)": "সংরক্ষণ (⌘S)",
     "Password generator (⌘G)": "পাসওয়ার্ড জেনারেটর (⌘G)",
-    "Zoom": "জুম",
-    "Zoom out (⌘−)": "জুম কমান (⌘−)",
-    "Reset zoom (⌘0)": "জুম রিসেট করুন (⌘0)",
-    "Zoom in (⌘+)": "জুম বাড়ান (⌘+)",
-    "Theme": "থিম",
     "Settings": "সেটিংস",
     "Lock (⌘L)": "লক করুন (⌘L)",
     "Entries": "এন্ট্রি",
@@ -344,22 +331,17 @@
     "More": "আরও"
   },
   "derived": {
-    "This password is derived by generator {version}, which this version of the app does not know": "এই পাসওয়ার্ডটি জেনারেটর {version} দিয়ে তৈরি, যা অ্যাপের এই সংস্করণ চেনে না",
-    "The derived password settings are damaged: {reason}": "উদ্ভূত পাসওয়ার্ডের সেটিংস নষ্ট: {reason}",
     "The version is a whole number from 1 to {max}": "সংস্করণ হলো ১ থেকে {max} পর্যন্ত একটি পূর্ণসংখ্যা",
     "The length is from {min} to {max}": "দৈর্ঘ্য {min} থেকে {max}",
     "Pick at least one character set": "অন্তত একটি অক্ষর-সেট বেছে নিন",
     "The database has no master password to derive passwords from": "ডেটাবেসে এমন কোনো মাস্টার পাসওয়ার্ড নেই যা থেকে পাসওয়ার্ড তৈরি করা যায়",
-    "Derived · {site} · version {version}": "উদ্ভূত · {site} · সংস্করণ {version}",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "মাস্টার পাসওয়ার্ড, সাইট, ব্যবহারকারীর নাম ও সংস্করণ থেকে গণনা করা হয়: ফাইল ছাড়াই পুনরুদ্ধার করা যায়",
     "Needs a master password, and this database opens with a key file alone": "মাস্টার পাসওয়ার্ড দরকার, আর এই ডেটাবেস শুধু কী ফাইল দিয়ে খোলে",
     "Version": "সংস্করণ",
     "Next version: a new password for the same site and user name": "পরের সংস্করণ: একই সাইট ও ব্যবহারকারীর নামের জন্য নতুন পাসওয়ার্ড",
-    "Nothing but these settings is saved; the password is computed each time.": "শুধু এই সেটিংস সংরক্ষিত হয়; পাসওয়ার্ড প্রতিবার গণনা করা হয়।",
     "Enter the website: the password is derived from its domain": "ওয়েবসাইট লিখুন: পাসওয়ার্ড এর ডোমেইন থেকে তৈরি হয়",
-    "Site: {site}, from the website": "সাইট: {site}, ওয়েবসাইট থেকে",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "এই পাসওয়ার্ড সংরক্ষণের পর মাস্টার পাসওয়ার্ড, ওয়েবসাইট বা ব্যবহারকারীর নাম বদলেছে, তাই এখন এটি অন্য পাসওয়ার্ড।",
-    "Store this password": "এই পাসওয়ার্ড সংরক্ষণ করুন",
-    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "পাসওয়ার্ডটিই ফাইলে রাখুন: এটি আর মাস্টার পাসওয়ার্ড, ওয়েবসাইট বা ব্যবহারকারীর নামের সাথে বদলাবে না"
+    "Enter the user name: the password is derived from it too": "ব্যবহারকারীর নাম লিখুন: পাসওয়ার্ড এটি থেকেও তৈরি হয়",
+    "Site": "সাইট",
+    "Site: {site}": "সাইট: {site}"
   }
 }

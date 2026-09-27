@@ -44,10 +44,10 @@ if (typeof WebSocket === 'undefined') {
 
 const K = await load('kdbx', 'derived', 'legacy');
 const DERIVED_SPEC = { ...K.REQUIREMENT_DEFAULTS, site: 'github.com', version: 1 };
-const DERIVED = (await K.derivePassword(PASSWORD, DERIVED_SPEC, 'me@example.com')).password;
+const DERIVED = await K.derivePassword(PASSWORD, DERIVED_SPEC, 'me@example.com');
 const SESSION_KEY = await K.legacy1PrimaryKey(PASSWORD, 'me@example.com');
 const SESSION_KEY_2 = (await K.legacy2Key('dmytro@github.com', PASSWORD, 10, { symbols: false, upper: true, lower: true })).value;
-const DERIVED_V2 = (await K.derivePassword(PASSWORD, { ...DERIVED_SPEC, version: 2 }, 'me@example.com')).password;
+const DERIVED_V2 = await K.derivePassword(PASSWORD, { ...DERIVED_SPEC, version: 2 }, 'me@example.com');
 const { check, done } = checker();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -120,6 +120,8 @@ const evaluate = async (expr) => {
 const text = (selector) => evaluate(`document.querySelector(${JSON.stringify(selector)})?.textContent ?? null`);
 const texts = (selector) => evaluate(`[...document.querySelectorAll(${JSON.stringify(selector)})].map((n) => n.textContent)`);
 const visible = (selector) => evaluate(`(() => { const n = document.querySelector(${JSON.stringify(selector)}); return !!n && n.getClientRects().length > 0; })()`);
+/** The two are centred on one line, to the pixel. */
+const level = (a, b) => evaluate(`(() => { const middle = (s) => { const r = document.querySelector(s).getBoundingClientRect(); return r.top + r.height / 2; }; return Math.abs(middle(${JSON.stringify(a)}) - middle(${JSON.stringify(b)})) < 1; })()`);
 async function until(expr, timeout = 8000) {
   const end = Date.now() + timeout;
   while (Date.now() < end) {
@@ -456,7 +458,7 @@ try {
   check('bin: caret folds', (await texts('.tree-item--group .tree-label')).includes('Old'), false);
   await shot('5-app');
 
-  // A new entry whose password is derived from the master password, not stored
+  // A new entry with a password derived from the master password, the site and the user name
   await clickNth('.tree-item--all', 'All entries');
   await press('n', MOD);
   await type('GitHub');
@@ -468,7 +470,37 @@ try {
   check('generator: no legacy kinds by default', await kinds(), ['Derived v3', 'Random']);
   check('generator: the last kind is remembered', await evaluate(`document.querySelector('[data-field="gen-kind"]').value`), 'random');
   await pickKind('v3');
-  check('generator v3: the entry\'s site and user', await text('.gen-account'), 'Site: github.com, from the websiteUser name: me@example.com, from the entry');
+  const value = (selector) => evaluate(`document.querySelector(${JSON.stringify(selector)}).value`);
+  const useDisabled = () => evaluate(`document.querySelector('.gen .button--primary').disabled`);
+  // Use waits for the password, which is an Argon2 run away.
+  const useReady = () => until(`!document.querySelector('.gen .button--primary').disabled`);
+  const siteHint = () => evaluate(`(() => { const n = document.querySelector('[data-field="gen-v3-site"] ~ .field-hint'); return n.hidden ? null : n.textContent; })()`);
+  check('generator v3: the user name first, then the site', await evaluate(`!!(document.querySelector('[data-field="gen-v3-user"]').compareDocumentPosition(document.querySelector('[data-field="gen-v3-site"]')) & Node.DOCUMENT_POSITION_FOLLOWING)`), true);
+  // An e-mail address names its site: it is filled in from there, and the entry's website is left as it is.
+  check('generator v3: the site from the e-mail address', [await value('[data-field="gen-v3-user"]'), await value('[data-field="gen-v3-site"]'), await siteHint(), await value('[data-field="url"]')], ['me@example.com', 'example.com', 'From the user name. Signing in to another site with this address? Type that site.', 'https://www.github.com/login']);
+  await shot('4b1-v3-mail-domain');
+  check('generator v3: the password last, over the button', await evaluate(`(() => { const body = document.querySelector('.gen-body'); return body.lastElementChild.classList.contains('field-note') && body.lastElementChild.previousElementSibling.contains(document.querySelector('.gen-preview')); })()`), true);
+  // The user name is the entry's own, and required; with no address in it the site is the website's.
+  const emptied = (name) => evaluate(`(() => { const i = document.querySelector('[data-field="gen-v3-${name}"]'); i.value = ''; i.dispatchEvent(new Event('input')); })()`);
+  const typeIn = async (name, text) => {
+    await emptied(name);
+    await evaluate(`document.querySelector('[data-field="gen-v3-${name}"]').focus()`);
+    await type(text);
+  };
+  await emptied('user');
+  check('generator v3: the user name required', [await text('.gen .field-note'), await useDisabled(), await value('[data-field="username"]'), await value('[data-field="gen-v3-site"]')], ['Enter the user name: the password is derived from it too', true, '', 'github.com']);
+  await typeIn('user', 'me');
+  check('generator v3: typed into the entry too', [await value('[data-field="username"]'), await value('[data-field="gen-v3-site"]'), await siteHint(), await useReady()], ['me', 'github.com', null, true]);
+  // Then the site is asked for, and what is typed becomes the entry's website.
+  await emptied('site');
+  check('generator v3: the site required', [await text('.gen .field-note'), await useDisabled(), await value('[data-field="url"]')], ['Enter the website: the password is derived from its domain', true, '']);
+  await typeIn('site', 'https://www.github.com/login');
+  check('generator v3: the site typed is the website', [await value('[data-field="url"]'), await siteHint(), await useReady()], ['https://www.github.com/login', 'Site: github.com', true]);
+  // A site typed stays when the user name becomes an address; typed then, it leaves the website alone.
+  await typeIn('user', 'me@example.com');
+  check('generator v3: a typed site stays', [await value('[data-field="gen-v3-site"]'), await value('[data-field="username"]')], ['https://www.github.com/login', 'me@example.com']);
+  await typeIn('site', 'github.com');
+  check('generator v3: with an address, the website left alone', [await value('[data-field="url"]'), await siteHint()], ['https://www.github.com/login', null]);
   check('generator v3: previews the derived password', await until(`document.querySelector('.gen-preview').textContent === ${JSON.stringify(DERIVED)}`), true);
   const v3Master = () => evaluate(`[document.querySelector('[data-field="gen-v3-session"]').checked, document.querySelector('[data-field="gen-v3-master"]').disabled]`);
   check('generator v3: the database\'s master password by default', await v3Master(), [true, true]);
@@ -480,34 +512,18 @@ try {
   check('generator v3: another master password, another password', await until(`!['…', '—', ${JSON.stringify(DERIVED)}].includes(document.querySelector('.gen-preview').textContent)`), true);
   await click('[data-field="gen-v3-session"]');
   check('generator v3: back to the database\'s', [await v3Master(), await until(`document.querySelector('.gen-preview').textContent === ${JSON.stringify(DERIVED)}`)], [[true, true], true]);
+  await clickNth('.gen .derived-inputs button', '+1');
+  check('generator v3: the next version, another password', await until(`document.querySelector('.gen-preview').textContent === ${JSON.stringify(DERIVED_V2)}`), true);
+  await evaluate(`(() => { const i = document.querySelector('.gen .derived-version'); i.value = '1'; i.dispatchEvent(new Event('input')); })()`);
+  check('generator v3: back to version 1', await until(`document.querySelector('.gen-preview').textContent === ${JSON.stringify(DERIVED)}`), true);
+  // What is computed is put in as it is: an ordinary stored password, nothing kept of how it was made.
   await click('.gen .button--primary');
-  check('derived: the site is the website\'s domain', await text('.derived-site'), 'Site: github.com, from the website');
-  check('derived: computed, masked', await until(`document.querySelector('.derived-preview').textContent === '••••••••••'`), true);
-  await click('.derived-preview + .icon-button');
-  check('derived: the password of generator 3', await text('.derived-preview'), DERIVED);
+  check('derived: put in as the password', await evaluate(`document.querySelector('[data-field="password"]')?.value`), DERIVED);
+  check('editing: Cancel and Save level with the title', await level('.details-title-input', '.details--edit .details-actions'), true);
   await shot('4c-derived');
   await click('.details .button--primary[type=submit]');
   check('derived: saved', await text('.details-title'), 'GitHub');
-  check('derived: marked as derived', await text('.field-hint'), 'Derived · github.com · version 1');
   check('derived: revealed in read mode', await text('.field-value--secret'), DERIVED);
-  check('derived: no warning', await evaluate(`document.querySelector('.field-note').hidden`), true);
-  // Another domain is another password; the next version too; switching to a stored one keeps what is shown.
-  await press('e', MOD);
-  await evaluate(`(() => { const i = document.querySelector('[data-field="url"]'); i.focus(); i.select(); })()`);
-  await type('gitlab.com');
-  check('derived: follows the website', await until(`document.querySelector('.derived-site').textContent === 'Site: gitlab.com, from the website'`), true);
-  check('derived: another password for another site', await until(`!['…', '••••••••••', ${JSON.stringify(DERIVED)}].includes(document.querySelector('.derived-preview').textContent)`), true);
-  await evaluate(`(() => { const i = document.querySelector('[data-field="url"]'); i.focus(); i.select(); })()`);
-  await type('https://www.github.com/login');
-  check('derived: back to the first site', await until(`document.querySelector('.derived-preview').textContent === ${JSON.stringify(DERIVED)}`), true);
-  await clickNth('.derived-inputs button', '+1');
-  check('derived: next version', await until(`document.querySelector('.derived-preview').textContent === ${JSON.stringify(DERIVED_V2)}`), true);
-  await clickNth('.derived-foot button', 'Store this password');
-  check('derived: turned into a stored password', await until(`document.querySelector('[data-field="password"]')?.value === ${JSON.stringify(DERIVED_V2)}`), true);
-  await press('Escape');
-  await until(`!!document.querySelector('.overlay:not([hidden]) .dialog')`);
-  await click('.overlay .button--danger');
-  check('derived: edit dropped', await text('.field-hint'), 'Derived · github.com · version 1');
 
   // Legacy algorithms: offered once the settings ask for them, checked against the .NET originals
   await click('#settings');
@@ -520,6 +536,16 @@ try {
   };
   await click('#generator');
   check('legacy: kinds offered, newest first', await kinds(), ['Derived v3', 'Derived v2', 'Derived v1', 'Random']);
+  // The toolbar's version 3 has its own website and user name, and needs both.
+  check('generator v3 alone: nothing filled in', [await evaluate(`document.querySelector('[data-field="gen-kind"]').value`), await value('[data-field="gen-v3-user"]'), await value('[data-field="gen-v3-site"]'), await evaluate(`document.activeElement?.dataset.field`)], ['v3', '', '', 'gen-v3-user']);
+  check('generator v3 alone: the user name asked for', [await text('.gen .field-note'), await useDisabled()], ['Enter the user name: the password is derived from it too', true]);
+  await type('me');
+  check('generator v3 alone: then the site', [await text('.gen .field-note'), await useDisabled()], ['Enter the website: the password is derived from its domain', true]);
+  await typeIn('user', 'me@example.com');
+  check('generator v3 alone: the site from the address', await value('[data-field="gen-v3-site"]'), 'example.com');
+  await typeIn('site', 'github.com');
+  check('generator v3 alone: the entry\'s password', await until(`document.querySelector('.gen-preview').textContent === ${JSON.stringify(DERIVED)}`), true);
+  check('generator v3 alone: ready', await useDisabled(), false);
   await pickKind('legacy2');
   check('legacy 2: nothing to use yet', await evaluate(`document.querySelector('.gen .button--primary').disabled`), true);
   await fill('gen-l2-id', '1');
@@ -618,7 +644,7 @@ try {
   await press('Escape');
   await until(`!!document.querySelector('.overlay:not([hidden]) .dialog')`);
   await click('.overlay .button--danger');
-  check('legacy: entry edit dropped', await text('.field-hint'), 'Derived · github.com · version 1');
+  check('legacy: entry edit dropped', await text('.field-value--secret'), DERIVED);
 
   // Saving downloads the database; it opens with the same password
   await press('s', MOD);
@@ -640,14 +666,12 @@ try {
   check('saved: new group', reopened.getDefaultGroup().groups.some((g) => g.name === 'Work'), true);
   check('saved: subgroup', reopened.getDefaultGroup().groups.find((g) => g.name === 'General')?.groups.map((g) => g.name), ['Accounts']);
   const github = all.find((e) => K.field(e, 'Title') === 'GitHub');
-  const githubCheck = (await K.derivePassword(PASSWORD, DERIVED_SPEC, 'me@example.com')).check;
-  check('saved: derived settings instead of a password', K.parseDerived(K.field(github, 'Password'), K.field(github, 'URL')), { site: 'github.com', version: 1, ...K.REQUIREMENT_DEFAULTS, check: githubCheck });
+  check('saved: the derived password, stored as it is', K.field(github, 'Password'), DERIVED);
 
-  // A new master password: the derived password is turned into a stored one first
+  // A new master password leaves every password as it is: they are all stored.
   await clickNth('#db-name', 'Database');
   await clickNth('.context-item', 'Change master password');
-  check('re-key: offers to keep derived passwords', await evaluate(`document.querySelector('.dialog input[name=convert]')?.checked`), true);
-  check('re-key: counts them', (await evaluate(`document.querySelector('.dialog input[name=convert]').parentElement.textContent`)).startsWith('Turn 1 derived password into a stored one'), true);
+  check('re-key: nothing to convert', await evaluate(`document.querySelector('.dialog input[name=convert]')`), null);
   await shot('4d-rekey');
   await evaluate(`document.querySelector('.dialog input[name=password]').focus()`);
   await type('new master');
@@ -656,14 +680,12 @@ try {
   await press('Enter');
   check('re-key: done', await until(`!document.querySelector('.overlay .dialog')`), true);
   await clickNth('.entry', 'GitHub');
-  check('re-key: stored now', await evaluate(`document.querySelector('.field-hint')`), null);
   await press('s', MOD);
   await until(`document.querySelector('#status-state').textContent === 'Saved'`);
   const rekeyed = Buffer.from(await evaluate(`window.__blobBase64()`), 'base64');
   const rekeyedDb = await K.openDatabase(rekeyed.buffer.slice(rekeyed.byteOffset, rekeyed.byteOffset + rekeyed.byteLength), 'new master', null);
   const kept = [...rekeyedDb.getDefaultGroup().allEntries()].find((e) => K.field(e, 'Title') === 'GitHub');
-  check('re-key: the same password, stored', K.field(kept, 'Password'), DERIVED);
-  check('re-key: derived settings in the history', K.parseDerived(K.field(kept.history.at(-1), 'Password'), K.field(kept, 'URL'))?.site, 'github.com');
+  check('re-key: the same password', K.field(kept, 'Password'), DERIVED);
 
   // Locking wipes the view; unlocking brings it back
   await press('l', MOD);
@@ -695,6 +717,10 @@ try {
   await shot('8-arabic');
   await pickLanguage('en');
   check('en again', [await evaluate(`document.documentElement.dir`), await text('.settings-title'), await text('.toolbar-label'), await text('#list-title')], ['ltr', 'Settings', 'New entry', 'All entries']);
+
+  // The theme is in the settings, not in the toolbar; the zoom is the browser's own.
+  check('toolbar: no zoom, no theme', [await visible('.toolbar .zoom'), await visible('#theme')], [false, false]);
+  await shot('9-settings');
   await press('Escape');
 
   if (SHOTS) {
@@ -748,7 +774,8 @@ try {
   check('phone: back to the list', await until(`!document.body.classList.contains('show-details') && history.state === null`), true);
   check('phone: one pane at a time', [await shown('.list-pane'), await shown('.details-pane'), await shown('.sidebar')], [1, 0, 0]);
   check('phone: nothing wider than the screen', await evaluate(`[document.documentElement.scrollWidth <= innerWidth, ...['.toolbar', '.list-pane'].map((s) => { const n = document.querySelector(s); return n.scrollWidth <= n.clientWidth; })]`), [true, true, true]);
-  check('phone: the toolbar', await Promise.all(['#toggle-sidebar', '#new-entry', '#search', '#save', '#more', '#back', '#generator', '#theme', '#settings', '#lock'].map(shown)), [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]);
+  check('phone: the toolbar', await Promise.all(['#toggle-sidebar', '#new-entry', '#search', '#save', '#more', '#back', '#generator', '#settings', '#lock'].map(shown)), [1, 1, 1, 1, 1, 0, 0, 0, 0]);
+  check('phone: the groups button first', await evaluate(`[...document.querySelectorAll('.toolbar button')].find((n) => n.getClientRects().length > 0)?.id`), 'toggle-sidebar');
   // Safari on iOS zooms into a field whose text is smaller.
   check('phone: fields large enough not to zoom', await evaluate(`parseFloat(getComputedStyle(document.querySelector('#search')).fontSize) >= 16`), true);
   await shot('7a-phone-list');
@@ -788,11 +815,16 @@ try {
 
   // What the toolbar has no room for is in its ⋯ menu.
   await tap('#more');
-  const theme = { light: 'Light', dark: 'Dark', system: 'System' }[process.env.THEME ?? 'light'];
-  check('phone: the ⋯ menu', await labels(), ['Password generator', `Theme: ${theme}`, 'Settings', 'Lock', 'Cancel']);
+  check('phone: the ⋯ menu', await labels(), ['Password generator', 'Settings', 'Lock', 'Cancel']);
   await shot('7d-phone-menu');
   await evaluate(`history.back()`);
   check('phone: back closes a sheet first', await until(`!document.querySelector('.context-menu') && history.state === null`), true);
+  await tap('#more');
+  await tapNth('.context-item', 'Settings');
+  check('phone: the settings, as a sheet', await shown('.popover--sheet .settings-select'), 4);
+  await shot('7f-phone-settings');
+  await evaluate(`history.back()`);
+  check('phone: back closes the settings', await until(`!document.querySelector('.popover') && history.state === null`), true);
   await tap('#more');
   await tapNth('.context-item', 'Password generator');
   check('phone: the generator, as a sheet', [await shown('.popover--sheet .gen'), await layers()], [1, [false, false, 1]]);
@@ -811,6 +843,9 @@ try {
   await until(`history.state === null`);
   await tapNth('.entry', 'Sample Entry #2');
   await tapNth('.details-actions .button', 'Edit');
+  check('phone: editing, Cancel and Save beside the icon, the title below', [await level('.details--edit .avatar', '.details--edit .details-actions'), await evaluate(`document.querySelector('.details-title-input').getBoundingClientRect().top > document.querySelector('.details--edit .avatar').getBoundingClientRect().bottom`)], [true, true]);
+  await shot('7g-phone-edit');
+  check('phone: the state on one line', await evaluate(`document.querySelector('#status-state').getClientRects().length`), 1);
   await evaluate(`(() => { const i = document.querySelector('[data-field="username"]'); i.focus(); i.select(); })()`);
   await type('phone-user');
   await evaluate(`document.activeElement.blur()`);

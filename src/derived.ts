@@ -1,15 +1,9 @@
 /**
- * Derived passwords: computed from the master password, the site (the domain
- * of the entry's website), the user name and a version number instead of
- * being stored. Losing the file loses
- * nothing as long as the master password is remembered — the same inputs give
- * the same password on any machine.
- *
- * The entry keeps, in place of the password, a JSON object marked with a
- * fixed GUID: the version and the requirements (length, character sets). The
- * site and the user name are the entry's own fields, not copies of them.
- * Other KeePass apps see that JSON as the password; the format of the file
- * does not change.
+ * Derived passwords: computed from the master password, the site, the user
+ * name and a version number. The generator puts the result into an entry as
+ * an ordinary stored password — nothing about how it was made is kept — and
+ * losing the file loses nothing as long as the master password is
+ * remembered: the same inputs give the same password on any machine.
  *
  * Generator 3, frozen — changing any constant here changes every password:
  *
@@ -17,13 +11,12 @@
  *                     ‖ u32be(|site|) ‖ site ‖ u32be(|user|) ‖ user ‖ u32be(version))
  *   entropy = Argon2id(NFC(master password), salt, 64 MiB, 3 passes, 1 lane, 32 bytes)
  *   stream  = HMAC-SHA-256(entropy, "hpm-v3-stream" ‖ u32be(i)) for i = 0, 1, 2 …
- *   check   = hex(HMAC-SHA-256(entropy, "hpm-v3-check")[0..4])
  *
- * site is the host of the website, parsed as a WHATWG URL (https:// is put
- * in front when it has no scheme://): lower case, IDN in punycode, no port,
- * a leading "www." dropped. A website that is no URL is used as it is. Then
- * site is trimmed, NFC and lower case; user is trimmed and NFC; strings are
- * UTF-8. The requirements only shape the entropy into characters: each draw
+ * site is a host, as siteOf() makes it of what was typed: parsed as a WHATWG
+ * URL (https:// is put in front when it has no scheme://), lower case, IDN in
+ * punycode, no port, a leading "www." dropped; text that is no URL is used as
+ * it is. Then site is trimmed, NFC and lower case; user is trimmed and NFC;
+ * strings are UTF-8. The requirements only shape the entropy into characters: each draw
  * takes a big-endian u32 from the stream, rejecting values ≥ 2³² − 2³² mod n;
  * one character from every chosen set, in the order A–Z, a–z, 0–9, symbols,
  * the rest from all of them, then a Fisher–Yates shuffle from the end.
@@ -31,7 +24,7 @@
 
 import { argon2id } from 'hash-wasm';
 import { t } from './i18n';
-import { field, ProtectedValue, type Entry } from './kdbx';
+import { ProtectedValue } from './kdbx';
 
 export interface Requirements {
   length: number;
@@ -44,22 +37,11 @@ export interface Requirements {
 }
 
 export interface DerivedSpec extends Requirements {
-  /** The domain of the entry's website — not stored, it follows the website. */
   site: string;
   /** 1 … 2³² − 1; the next version is a new password for the same account. */
   version: number;
-  /** The check of the entropy the password was saved with, to notice a changed master password. */
-  check?: string;
 }
 
-export interface Derived {
-  password: string;
-  check: string;
-}
-
-/** Marks a password field that holds derivation settings rather than a password. */
-export const DERIVED_MARKER = '6f1c2b9e-4a7d-4e38-9b51-2d0c8a73f5e4';
-export const GENERATOR_VERSION = 3;
 export const VERSION_MAX = 0xffffffff;
 
 export const REQUIREMENT_DEFAULTS: Requirements = {
@@ -74,7 +56,6 @@ export const REQUIREMENT_DEFAULTS: Requirements = {
 const V3 = {
   domain: 'html-password-manager/derived/v3',
   stream: 'hpm-v3-stream',
-  check: 'hpm-v3-check',
   argon2: { memorySize: 64 * 1024, iterations: 3, parallelism: 1, hashLength: 32 },
   lengthMin: 4,
   lengthMax: 128,
@@ -89,69 +70,11 @@ const V3 = {
 
 const encoder = new TextEncoder();
 
-/* ------------------------------------------------------------------ *
- * The stored form
- * ------------------------------------------------------------------ */
-
 export class DerivedError extends Error {}
 
-/**
- * The settings in a password field, null for an ordinary password. Throws
- * when the field is marked as derived but cannot be used.
- */
-export function parseDerived(text: string, url = ''): DerivedSpec | null {
-  if (!text.startsWith('{') || !text.includes(DERIVED_MARKER)) return null;
-  let data: Record<string, unknown>;
-  try {
-    data = JSON.parse(text) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
-  if (typeof data !== 'object' || data === null || data['$derived'] !== DERIVED_MARKER) return null;
-  if (data['gen'] !== GENERATOR_VERSION) {
-    throw new DerivedError(t('derived', 'This password is derived by generator {version}, which this version of the app does not know', { version: String(data['gen']) }));
-  }
-  const flag = (name: string): boolean => data[name] === true;
-  const spec: DerivedSpec = {
-    site: siteOf(url),
-    version: Number(data['ver']),
-    length: Number(data['len']),
-    upper: flag('upper'),
-    lower: flag('lower'),
-    digits: flag('digits'),
-    symbols: flag('symbols'),
-    ambiguous: flag('ambiguous'),
-  };
-  if (typeof data['check'] === 'string') spec.check = data['check'];
-  // A missing website is no damage: it is asked for when the password is needed.
-  const problem = storedProblem(spec);
-  if (problem) throw new DerivedError(t('derived', 'The derived password settings are damaged: {reason}', { reason: problem }));
-  return spec;
-}
-
-export function serializeDerived(spec: DerivedSpec): string {
-  return JSON.stringify({
-    $derived: DERIVED_MARKER,
-    gen: GENERATOR_VERSION,
-    ver: spec.version,
-    len: spec.length,
-    upper: spec.upper,
-    lower: spec.lower,
-    digits: spec.digits,
-    symbols: spec.symbols,
-    ambiguous: spec.ambiguous,
-    ...(spec.check ? { check: spec.check } : {}),
-  });
-}
-
-/** What is wrong with the settings and the website, or null. */
+/** What is wrong with the settings and the site, or null. */
 export function specProblem(spec: DerivedSpec): string | null {
   if (!normalizeSite(spec.site)) return t('derived', 'Enter the website: the password is derived from its domain');
-  return storedProblem(spec);
-}
-
-/** What is wrong with the settings alone, the website aside, or null. */
-export function storedProblem(spec: DerivedSpec): string | null {
   if (!Number.isInteger(spec.version) || spec.version < 1 || spec.version > VERSION_MAX) {
     return t('derived', 'The version is a whole number from 1 to {max}', { max: VERSION_MAX });
   }
@@ -181,6 +104,12 @@ export function siteOf(url: string): string {
     /* not a URL */
   }
   return normalizeSite(text);
+}
+
+/** The domain of a user name that is an e-mail address — "site.com" for test@site.com — else null. */
+export function mailDomain(user: string): string | null {
+  const address = /^[^\s@]+@([^\s@]+\.[^\s@]+)$/.exec(normalizeUser(user));
+  return (address && siteOf(address[1] ?? '')) || null;
 }
 
 /** Entropy of a derived password: log2 of the alphabet times the length, capped by the 256 bits behind it. */
@@ -235,11 +164,6 @@ function hmacKey(entropy: Bytes): Promise<CryptoKey> {
   return crypto.subtle.importKey('raw', entropy, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
 }
 
-export async function keyCheck(entropy: Bytes): Promise<string> {
-  const mac = await hmac(await hmacKey(entropy), encoder.encode(V3.check));
-  return Array.from(mac.subarray(0, 4), (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
-
 function alphabets(requirements: Requirements): string[] {
   const sets: string[] = [];
   for (const key of ['upper', 'lower', 'digits', 'symbols'] as const) {
@@ -288,12 +212,12 @@ export async function shapePassword(entropy: Bytes, requirements: Requirements):
   return chars.join('');
 }
 
-export async function derivePassword(master: string, spec: DerivedSpec, user: string): Promise<Derived> {
+export async function derivePassword(master: string, spec: DerivedSpec, user: string): Promise<string> {
   const problem = specProblem(spec);
   if (problem) throw new DerivedError(problem);
   const entropy = await deriveEntropy(master, spec.site, user, spec.version);
   try {
-    return { password: await shapePassword(entropy, spec), check: await keyCheck(entropy) };
+    return await shapePassword(entropy, spec);
   } finally {
     entropy.fill(0);
   }
@@ -306,45 +230,27 @@ export async function derivePassword(master: string, spec: DerivedSpec, user: st
 let master: ProtectedValue | null = null;
 /**
  * Until the database locks or its password changes: the entropy of each site,
- * user name and version — so new requirements need no Argon2 run — and the
- * passwords already shaped from it.
+ * user name and version, so that new requirements need no Argon2 run.
  */
 const entropies = new Map<string, ProtectedValue>();
-const passwords = new Map<string, { password: ProtectedValue; check: string }>();
 
 /** Called on unlock, on a password change and (with null) on lock. */
 export function setMasterPassword(password: string | null): void {
   master = password ? ProtectedValue.fromString(password) : null;
   entropies.clear();
-  passwords.clear();
 }
 
-/** The master password the database was unlocked with, for legacy 1's "use the database's master password". */
+/** The master password the database was unlocked with, for the generator's "use the database's master password". */
 export function sessionMasterPassword(): string | null {
   return master?.getText() ?? null;
-}
-
-export function hasMasterPassword(): boolean {
-  return master !== null;
 }
 
 function entropyKey(spec: DerivedSpec, user: string): string {
   return JSON.stringify([normalizeSite(spec.site), normalizeUser(user), spec.version]);
 }
 
-function passwordKey(spec: DerivedSpec, user: string): string {
-  return JSON.stringify([entropyKey(spec, user), spec.length, spec.upper, spec.lower, spec.digits, spec.symbols, spec.ambiguous]);
-}
-
-/** A password computed before, without waiting. */
-export function cachedPassword(spec: DerivedSpec, user: string): Derived | undefined {
-  const hit = passwords.get(passwordKey(spec, user));
-  return hit && { password: hit.password.getText(), check: hit.check };
-}
-
-export async function computePassword(spec: DerivedSpec, user: string): Promise<Derived> {
-  const hit = cachedPassword(spec, user);
-  if (hit) return hit;
+/** The password derived from the database's own master password. */
+export async function computePassword(spec: DerivedSpec, user: string): Promise<string> {
   const problem = specProblem(spec);
   if (problem) throw new DerivedError(problem);
   if (!master) throw new DerivedError(t('derived', 'The database has no master password to derive passwords from'));
@@ -356,31 +262,8 @@ export async function computePassword(spec: DerivedSpec, user: string): Promise<
     if (master === own) entropies.set(entropyKey(spec, user), ProtectedValue.fromBinary(entropy.slice().buffer));
   }
   try {
-    const result = { password: await shapePassword(entropy, spec), check: await keyCheck(entropy) };
-    if (master === own) passwords.set(passwordKey(spec, user), { password: ProtectedValue.fromString(result.password), check: result.check });
-    return result;
+    return await shapePassword(entropy, spec);
   } finally {
     entropy.fill(0);
   }
-}
-
-/** The settings of the entry's password, null for a stored password. Throws when they are unusable. */
-export function derivedSpec(entry: Entry): DerivedSpec | null {
-  return parseDerived(field(entry, 'Password'), field(entry, 'URL'));
-}
-
-/**
- * What the entry's password is: at once when it is stored or was computed
- * before, a promise while Argon2 still has to run.
- */
-export function entryPassword(entry: Entry): string | Promise<string> {
-  let spec: DerivedSpec | null;
-  try {
-    spec = derivedSpec(entry);
-  } catch (error) {
-    return Promise.reject(error);
-  }
-  if (!spec) return field(entry, 'Password');
-  const user = field(entry, 'UserName');
-  return cachedPassword(spec, user)?.password ?? computePassword(spec, user).then((result) => result.password);
 }

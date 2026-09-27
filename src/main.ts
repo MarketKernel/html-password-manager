@@ -1,12 +1,12 @@
 /**
  * Wiring: the unlock gate, the group tree, the entry list and the entry
  * itself, saving, locking, and the chrome around them — language, theme,
- * zoom, panel widths, the generator and keyboard shortcuts.
+ * panel widths, the generator and keyboard shortcuts.
  */
 
 import { releaseIcons } from './avatar';
 import { clearClipboard, copyText } from './clipboard';
-import { entryPassword, parseDerived, setMasterPassword } from './derived';
+import { setMasterPassword } from './derived';
 import { Details } from './details';
 import {
   BlobFile,
@@ -40,7 +40,6 @@ import {
   field,
   inRecycleBin,
   isInside,
-  makeValue,
   openDatabase,
   recycleBin,
   remove,
@@ -59,14 +58,11 @@ import { matches, sortEntries, SORT_KEYS, sortLabel } from './search';
 import {
   applyPanels,
   applyTheme,
-  applyZoom,
-  clampZoom,
   CLIPBOARD_CHOICES,
   loadSettings,
   LOCK_CHOICES,
   resolveLanguage,
   saveSettings,
-  ZOOM_STEP,
   type Settings,
   type Theme,
 } from './settings';
@@ -578,7 +574,7 @@ function entryMenu(entry: Entry, anchor: HTMLElement | null): MenuItem[] {
   }
   return [
     { label: t('menu', 'Copy user name'), hint: '⌘B', action: () => void copy(field(entry, 'UserName'), t('entry', 'User name')) },
-    { label: t('menu', 'Copy password'), hint: '⌘C', action: () => void copy(entryPassword(entry), t('entry', 'Password')) },
+    { label: t('menu', 'Copy password'), hint: '⌘C', action: () => void copy(field(entry, 'Password'), t('entry', 'Password')) },
     { label: t('menu', 'Copy website'), hint: '⌘U', action: () => void copy(field(entry, 'URL'), t('entry', 'Website')) },
     { label: t('menu', 'Edit'), hint: '⌘E', separated: true, action: () => editEntry() },
     { label: t('menu', 'Duplicate'), action: () => duplicateEntry(entry) },
@@ -636,7 +632,7 @@ async function emptyTrash(): Promise<void> {
   changed();
 }
 
-async function copy(value: string | Promise<string>, what: string): Promise<void> {
+async function copy(value: string, what: string): Promise<void> {
   if (value === '') {
     toast(t('toast', '{what}: empty', { what }));
     return;
@@ -749,27 +745,9 @@ async function renameDatabase(): Promise<void> {
   changed();
 }
 
-/** Entries whose password is derived from the master password, the recycle bin included. */
-function derivedEntries(database: Kdbx): Entry[] {
-  const out: Entry[] = [];
-  const walk = (group: Group): void => {
-    for (const entry of group.entries) {
-      try {
-        if (parseDerived(field(entry, 'Password'))) out.push(entry);
-      } catch {
-        /* settings this version cannot use are left alone */
-      }
-    }
-    for (const child of group.groups) walk(child);
-  };
-  walk(database.getDefaultGroup());
-  return out;
-}
-
 async function changeMasterPassword(): Promise<void> {
   if (!db) return;
   if (details.isEditing && !(await details.commit())) return;
-  const derived = derivedEntries(db);
   const result = await form({
     title: t('dialog', 'Change master password'),
     message: t('dialog', 'The file is re-encrypted with the new key the next time it is saved.'),
@@ -777,17 +755,6 @@ async function changeMasterPassword(): Promise<void> {
       { name: 'password', label: t('dialog', 'New master password'), type: 'password' },
       { name: 'repeat', label: t('dialog', 'Repeat it'), type: 'password' },
       { name: 'key', label: t('dialog', 'Key file (optional)'), type: 'file' },
-      ...(derived.length
-        ? [
-            {
-              name: 'convert',
-              type: 'checkbox' as const,
-              value: 'true',
-              label: tn('dialog', 'Turn {count} derived password into a stored one', 'Turn {count} derived passwords into stored ones', derived.length),
-              hint: t('dialog', 'Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.'),
-            },
-          ]
-        : []),
     ],
     confirm: t('dialog', 'Change'),
     validate: (values, files) => {
@@ -798,22 +765,6 @@ async function changeMasterPassword(): Promise<void> {
   });
   if (!result || !db) return;
   const database = db;
-  if (result.values['convert'] === 'true') {
-    try {
-      // With the old master password, before it is replaced: every password stays what it was.
-      // One at a time: each is an Argon2 run over 64 MiB.
-      const passwords: string[] = [];
-      for (const entry of derived) passwords.push(await entryPassword(entry));
-      derived.forEach((entry, i) => {
-        entry.pushHistory();
-        entry.fields.set('Password', makeValue(passwords[i] ?? '', true));
-        entry.times.update();
-      });
-    } catch (error) {
-      toast(describeError(error), 'error');
-      return;
-    }
-  }
   const key = result.files['key'];
   const keyData = key ? await key.arrayBuffer() : null;
   await changeCredentials(database, result.values['password'] ?? '', keyData);
@@ -973,13 +924,6 @@ function generatorAt(anchor: HTMLElement, useLabel: string, onUse: (password: st
   });
 }
 
-function setZoom(zoom: number): void {
-  settings.zoom = clampZoom(zoom);
-  applyZoom(settings.zoom);
-  el('zoom-reset').textContent = `${settings.zoom}%`;
-  saveSettings(settings);
-}
-
 function sortMenu(anchor: HTMLElement): void {
   menuAt(
     anchor,
@@ -1091,13 +1035,11 @@ el('lock').addEventListener('click', () => void lock());
 el('generator').addEventListener('click', (event) => toolbarGenerator(event.currentTarget as HTMLElement));
 el('settings').addEventListener('click', (event) => openSettings(event.currentTarget as HTMLElement));
 el('sort').addEventListener('click', (event) => sortMenu(event.currentTarget as HTMLElement));
-el('theme').addEventListener('click', () => nextTheme());
 // A phone's toolbar has room for these only as a menu.
 el('more').addEventListener('click', (event) => {
   const anchor = event.currentTarget as HTMLElement;
   menuAt(anchor, [
     { label: t('menu', 'Password generator'), hint: '⌘G', action: () => toolbarGenerator(anchor) },
-    { label: t('menu', 'Theme: {theme}', { theme: themeLabel(settings.theme) }), action: () => nextTheme() },
     { label: t('menu', 'Settings'), action: () => openSettings(anchor) },
     { label: t('menu', 'Lock'), hint: '⌘L', separated: true, action: () => void lock() },
   ]);
@@ -1108,15 +1050,6 @@ function toolbarGenerator(anchor: HTMLElement): void {
   generatorAt(anchor, t('generator', 'Copy'), (password) => void copy(password, t('entry', 'Password')));
 }
 
-function nextTheme(): void {
-  const order: Theme[] = ['system', 'light', 'dark'];
-  const next = order[(order.indexOf(settings.theme) + 1) % order.length] ?? 'system';
-  setTheme(next);
-  toast(t('toast', 'Theme: {theme}', { theme: themeLabel(next) }));
-}
-el('zoom-in').addEventListener('click', () => setZoom(settings.zoom + ZOOM_STEP));
-el('zoom-out').addEventListener('click', () => setZoom(settings.zoom - ZOOM_STEP));
-el('zoom-reset').addEventListener('click', () => setZoom(100));
 el('toggle-sidebar').addEventListener('click', toggleSidebar);
 el('back').addEventListener('click', back);
 
@@ -1231,25 +1164,12 @@ document.addEventListener('keydown', (event) => {
         event.preventDefault();
         toggleSidebar();
         return;
-      case '=':
-      case '+':
-        event.preventDefault();
-        setZoom(settings.zoom + ZOOM_STEP);
-        return;
-      case '-':
-        event.preventDefault();
-        setZoom(settings.zoom - ZOOM_STEP);
-        return;
-      case '0':
-        event.preventDefault();
-        setZoom(100);
-        return;
     }
     // ⌘C/⌘B/⌘U copy from the selected entry — unless there is text to copy instead.
     const selected = window.getSelection()?.toString();
     if (!inField && !selected && entry && !details.isEditing && ['c', 'b', 'u'].includes(key)) {
       event.preventDefault();
-      if (key === 'c') void copy(entryPassword(entry), t('entry', 'Password'));
+      if (key === 'c') void copy(field(entry, 'Password'), t('entry', 'Password'));
       if (key === 'b') void copy(field(entry, 'UserName'), t('entry', 'User name'));
       if (key === 'u') void copy(field(entry, 'URL'), t('entry', 'Website'));
     }
@@ -1315,7 +1235,5 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
 
 applyLanguage();
 applyTheme(settings.theme);
-applyZoom(settings.zoom);
 applyPanels(settings);
-el('zoom-reset').textContent = `${settings.zoom}%`;
 showGate('pick');

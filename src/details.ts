@@ -8,23 +8,9 @@
  */
 
 import { entryAvatar } from './avatar';
-import {
-  cachedPassword,
-  computePassword,
-  derivedBits,
-  derivedSpec,
-  entryPassword,
-  hasMasterPassword,
-  serializeDerived,
-  siteOf,
-  specProblem,
-  VERSION_MAX,
-  type Derived,
-  type DerivedSpec,
-} from './derived';
 import { download } from './files';
 import { strength } from './generator';
-import { bitsLevel, requirementControls, type GeneratorEntry } from './genpanel';
+import type { GeneratorEntry } from './genpanel';
 import { dateFormat, t, tn } from './i18n';
 import {
   addAttachment,
@@ -50,8 +36,7 @@ type Binary = kdbxweb.KdbxBinary | kdbxweb.KdbxBinaryWithHash;
 
 export interface DetailsHost {
   db(): Kdbx | null;
-  /** A promise for a value still being computed, such as a derived password. */
-  copy(value: string | Promise<string>, what: string): void;
+  copy(value: string, what: string): void;
   /** An edit was applied to the entry: mark the file dirty, refresh the list. */
   changed(entry: Entry): void;
   remove(entry: Entry): void;
@@ -60,7 +45,7 @@ export interface DetailsHost {
   moveMenu(entry: Entry, anchor: HTMLElement): void;
   /** A brand-new entry was cancelled before its first save: drop it without a trace. */
   discard(entry: Entry): void;
-  /** From an entry, `entry` lets the generator make the password derived (version 3). */
+  /** From an entry, `entry` gives the generator its website and user name. */
   generator(anchor: HTMLElement, onUse: (password: string) => void, entry?: GeneratorEntry): void;
   editingChanged(editing: boolean): void;
   confirmDiscard(): Promise<boolean>;
@@ -75,10 +60,7 @@ interface DraftField {
 interface Draft {
   title: string;
   username: string;
-  /** The stored password; unused while `derived` is set. */
   password: string;
-  /** Settings of a password derived from the master password, null for a stored one. */
-  derived: DerivedSpec | null;
   url: string;
   notes: string;
   fields: DraftField[];
@@ -103,8 +85,6 @@ export class Details {
   private revealed = new Set<string>();
   private otpTimer = 0;
   private error = '';
-  /** Recomputes the derived password preview after the user name or the website changed. */
-  private accountChanged: (() => void) | null = null;
 
   constructor(
     private readonly root: HTMLElement,
@@ -175,15 +155,12 @@ export class Details {
     const entry = this.entry;
     const draft = this.draft;
     if (!this.editing || !db || !entry || !draft) return true;
-    if (draft.derived) draft.derived.site = siteOf(draft.url);
     const problem = validate(draft);
     if (problem) {
       this.error = problem;
       this.render();
       return false;
     }
-    // Saving a derived password records which master password, website and user name it came from.
-    if (draft.derived && hasMasterPassword()) draft.derived.check = (await computePassword(draft.derived, draft.username)).check;
     if (snapshot(draft) !== this.pristine || this.isNew) {
       if (!this.isNew) entry.pushHistory();
       await applyDraft(db, entry, draft);
@@ -284,7 +261,7 @@ export class Details {
 
     const rows = h('div', { class: 'fields' });
     this.addRow(rows, shown, 'UserName', t('entry', 'User name'));
-    this.passwordRow(rows, shown);
+    this.addRow(rows, shown, 'Password', t('entry', 'Password'));
     const url = field(shown, 'URL');
     if (url) rows.append(this.urlRow(url));
     const otp = otpFromFields((name) => (shown.fields.has(name) ? field(shown, name) : undefined));
@@ -341,7 +318,7 @@ export class Details {
     }
     return [
       { label: t('menu', 'Copy user name'), hint: '⌘B', action: () => this.host.copy(field(entry, 'UserName'), t('entry', 'User name')) },
-      { label: t('menu', 'Copy password'), hint: '⌘C', action: () => this.host.copy(entryPassword(entry), t('entry', 'Password')) },
+      { label: t('menu', 'Copy password'), hint: '⌘C', action: () => this.host.copy(field(entry, 'Password'), t('entry', 'Password')) },
       { label: t('menu', 'Copy website'), hint: '⌘U', action: () => this.host.copy(field(entry, 'URL'), t('entry', 'Website')) },
       { label: t('menu', 'Duplicate'), separated: true, action: () => this.host.duplicate(entry) },
       { label: t('menu', 'Move to group…'), action: () => this.host.moveMenu(entry, anchor) },
@@ -407,56 +384,6 @@ export class Details {
       this.render();
     });
     rows.append(fieldRow(label, text, [reveal, this.copyButton(value, label)]));
-  }
-
-  /** A stored password is an ordinary secret row; a derived one is computed when revealed or copied. */
-  private passwordRow(rows: HTMLElement, entry: Entry): void {
-    const label = t('entry', 'Password');
-    let spec: DerivedSpec | null;
-    try {
-      spec = derivedSpec(entry);
-    } catch (error) {
-      rows.append(fieldRow(label, h('div', { class: 'field-value field-value--error', text: messageOf(error) }), []));
-      return;
-    }
-    if (!spec) {
-      this.addRow(rows, entry, 'Password', label);
-      return;
-    }
-    const derived = spec;
-    const user = field(entry, 'UserName');
-    const shown = this.revealed.has('Password');
-    const hit = cachedPassword(derived, user);
-    const value = h('div', { class: `field-value field-value--secret${shown ? ' field-value--shown' : ''}`, text: shown ? (hit?.password ?? '…') : MASK });
-    const note = h('div', { class: 'field-note', hidden: '' });
-    const checked = (result: Derived): void => {
-      // No check yet: the entry was saved without the master password at hand.
-      note.hidden = !derived.check || result.check === derived.check;
-      note.textContent = t('derived', 'The master password, the website or the user name has changed since this password was saved, so it is a different password now.');
-    };
-    if (hit) checked(hit);
-    else if (shown) {
-      computePassword(derived, user).then(
-        (result) => {
-          value.textContent = result.password;
-          checked(result);
-        },
-        (error: unknown) => {
-          value.textContent = messageOf(error);
-          value.classList.add('field-value--error');
-        },
-      );
-    }
-    const about = h('div', { class: 'field-hint', text: t('derived', 'Derived · {site} · version {version}', { site: derived.site, version: derived.version }) });
-    const reveal = h('button', { type: 'button', class: 'icon-button icon-button--small', title: shown ? t('entry', 'Hide') : t('entry', 'Show') }, icon(shown ? ICONS.eyeOff : ICONS.eye));
-    reveal.addEventListener('click', () => {
-      if (this.revealed.has('Password')) this.revealed.delete('Password');
-      else this.revealed.add('Password');
-      this.render();
-    });
-    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Copy {what}', { what: label.toLowerCase() }) }, icon(ICONS.copy));
-    copy.addEventListener('click', () => this.host.copy(computePassword(derived, user).then((result) => result.password), label));
-    rows.append(fieldRow(label, h('div', { class: 'field-stack field-stack--tight' }, value, about, note), [reveal, copy]));
   }
 
   private urlRow(url: string): HTMLElement {
@@ -574,17 +501,10 @@ export class Details {
     );
 
     const rows = h('div', { class: 'fields' });
-    this.accountChanged = null;
-    const username = input(draft.username, t('entry', 'User name'), (value) => {
-      draft.username = value;
-      this.accountChanged?.();
-    }, 'username');
+    const username = input(draft.username, t('entry', 'User name'), (value) => (draft.username = value), 'username');
     rows.append(editRow(t('entry', 'User name'), username));
     rows.append(this.passwordEditor(draft));
-    const website = input(draft.url, 'https://', (value) => {
-      draft.url = value;
-      this.accountChanged?.();
-    }, 'url');
+    const website = input(draft.url, 'https://', (value) => (draft.url = value), 'url');
     rows.append(editRow(t('entry', 'Website'), website));
     const otp = draft.fields.find((item) => item.name === 'otp');
     if (otp) rows.append(this.otpEditor(draft, otp));
@@ -667,140 +587,31 @@ export class Details {
 
   /** Several controls share the row, so it is no <label>: a click on its text would press the first button. */
   private passwordEditor(draft: Draft): HTMLElement {
-    const body = draft.derived ? this.derivedEditor(draft, draft.derived) : this.storedEditor(draft);
-    return h('div', { class: 'field field--edit' }, h('span', { class: 'field-label', text: t('entry', 'Password') }), h('div', { class: 'field-stack' }, ...body));
+    return h('div', { class: 'field field--edit' }, h('span', { class: 'field-label', text: t('entry', 'Password') }), h('div', { class: 'field-stack' }, ...this.passwordControls(draft)));
   }
 
-  /** The generator's view of the draft: version 3 there makes the password derived. */
+  /** The generator's view of the draft: its website and user name. */
   private generatorEntry(draft: Draft): GeneratorEntry {
-    const spec = draft.derived;
+    // The generator's website and user name are the form's: what is typed there shows here at once.
+    const typed = (name: 'url' | 'username', value: string): void => {
+      const field = this.root.querySelector<HTMLInputElement>(`[data-field="${name}"]`);
+      if (field) field.value = value;
+    };
     return {
-      site: siteOf(draft.url),
-      user: draft.username,
-      derived: spec && { version: spec.version, length: spec.length, upper: spec.upper, lower: spec.lower, digits: spec.digits, symbols: spec.symbols, ambiguous: spec.ambiguous },
-      onDerive: (settings) => {
-        draft.derived = { ...settings, site: siteOf(draft.url) };
-        this.render();
-        // The site comes from the website: an empty one is the first thing to fill in.
-        if (!draft.url.trim()) this.root.querySelector<HTMLInputElement>('[data-field="url"]')?.focus();
+      url: () => draft.url,
+      user: () => draft.username,
+      setUrl: (url) => {
+        draft.url = url;
+        typed('url', url);
+      },
+      setUser: (user) => {
+        draft.username = user;
+        typed('username', user);
       },
     };
   }
 
-  /** A password from the generator replaces whatever the draft had, shown. */
-  private useGenerated(draft: Draft, password: string): void {
-    draft.derived = null;
-    draft.password = password;
-    this.revealed.add('Password');
-    this.render();
-  }
-
-  private derivedEditor(draft: Draft, spec: DerivedSpec): HTMLElement[] {
-    const value = h('div', { class: 'field-value field-value--secret derived-preview', text: '…' });
-    const note = h('div', { class: 'field-note', hidden: '' });
-    const bits = h('span', { class: 'gen-bits' });
-    const site = h('span', { class: 'derived-site' });
-    let current = '';
-    let timer = 0;
-    let turn = 0;
-
-    const paint = (): void => {
-      const shown = this.revealed.has('Password');
-      value.classList.toggle('field-value--shown', shown && Boolean(current));
-      value.textContent = current ? (shown ? current : MASK) : '…';
-    };
-    const problem = (text: string): void => {
-      current = '';
-      value.textContent = '—';
-      note.hidden = false;
-      note.textContent = text;
-    };
-    // Argon2 runs only when the site, user name or version changed; the requirements merely reshape its output.
-    const update = (delay: number): void => {
-      window.clearTimeout(timer);
-      const mine = (turn += 1);
-      spec.site = siteOf(draft.url);
-      site.textContent = spec.site ? t('derived', 'Site: {site}, from the website', { site: spec.site }) : '';
-      const entropy = derivedBits(spec);
-      bits.textContent = tn('generator', '{count} bit', '{count} bits', entropy);
-      bits.dataset['level'] = bitsLevel(entropy);
-      const wrong = specProblem(spec);
-      if (wrong) return problem(wrong);
-      note.hidden = true;
-      const hit = cachedPassword(spec, draft.username);
-      if (hit) {
-        current = hit.password;
-        return paint();
-      }
-      current = '';
-      paint();
-      timer = window.setTimeout(() => {
-        computePassword({ ...spec }, draft.username).then(
-          (result) => {
-            if (mine !== turn) return;
-            current = result.password;
-            paint();
-          },
-          (error: unknown) => {
-            if (mine === turn) problem(messageOf(error));
-          },
-        );
-      }, delay);
-    };
-    this.accountChanged = () => update(400);
-
-    const reveal = h('button', { type: 'button', class: 'icon-button icon-button--small' });
-    const paintReveal = (): void => {
-      const shown = this.revealed.has('Password');
-      reveal.title = shown ? t('entry', 'Hide') : t('entry', 'Show');
-      reveal.replaceChildren(icon(shown ? ICONS.eyeOff : ICONS.eye));
-    };
-    paintReveal();
-    reveal.addEventListener('click', () => {
-      if (this.revealed.has('Password')) this.revealed.delete('Password');
-      else this.revealed.add('Password');
-      paintReveal();
-      paint();
-    });
-    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Copy {what}', { what: t('entry', 'Password').toLowerCase() }) }, icon(ICONS.copy));
-    copy.addEventListener('click', () => this.host.copy(computePassword({ ...spec }, draft.username).then((result) => result.password), t('entry', 'Password')));
-    const dice = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Generate (⌘G)'), 'data-generate': '' }, icon(ICONS.dice));
-    dice.addEventListener('click', () => this.host.generator(dice, (password) => this.useGenerated(draft, password), this.generatorEntry(draft)));
-    const store = button(t('derived', 'Store this password'), async () => {
-      // The same password, now kept in the file.
-      try {
-        draft.password = (await computePassword({ ...spec }, draft.username)).password;
-      } catch {
-        /* incomplete settings: keep whatever was stored before */
-      }
-      draft.derived = null;
-      this.render();
-    }, 'button--small button--ghost', t('derived', 'Keep the password itself in the file: it no longer changes with the master password, the website or the user name'));
-
-    const version = h('input', { type: 'number', class: 'field-input derived-version', min: '1', max: String(VERSION_MAX), step: '1', 'aria-label': t('derived', 'Version') });
-    version.value = String(spec.version);
-    version.addEventListener('input', () => {
-      spec.version = version.value.trim() ? Number(version.value) : NaN;
-      update(400);
-    });
-    const next = h('button', { type: 'button', class: 'button button--small button--ghost', text: '+1', title: t('derived', 'Next version: a new password for the same site and user name') });
-    next.addEventListener('click', () => {
-      spec.version = Number.isInteger(spec.version) && spec.version < VERSION_MAX ? spec.version + 1 : 1;
-      version.value = String(spec.version);
-      update(0);
-    });
-
-    update(0);
-    return [
-      h('div', { class: 'field-inline' }, value, reveal, copy, dice),
-      h('div', { class: 'derived-inputs' }, h('label', { class: 'derived-input' }, h('span', { class: 'derived-caption', text: t('derived', 'Version') }), h('span', { class: 'field-inline' }, version, next)), site),
-      ...requirementControls(spec, () => update(0)),
-      h('div', { class: 'derived-foot' }, bits, h('span', { class: 'field-hint', text: t('derived', 'Nothing but these settings is saved; the password is computed each time.') }), store),
-      note,
-    ];
-  }
-
-  private storedEditor(draft: Draft): HTMLElement[] {
+  private passwordControls(draft: Draft): HTMLElement[] {
     const shown = this.revealed.has('Password');
     const pass = input(draft.password, t('entry', 'Password'), (value) => {
       draft.password = value;
@@ -926,17 +737,10 @@ export class Details {
  * ------------------------------------------------------------------ */
 
 function draftOf(entry: Entry): Draft {
-  let derived: DerivedSpec | null = null;
-  try {
-    derived = derivedSpec(entry);
-  } catch {
-    /* unusable settings are edited as the text they are */
-  }
   return {
     title: field(entry, 'Title'),
     username: field(entry, 'UserName'),
-    password: derived ? '' : field(entry, 'Password'),
-    derived: derived && { ...derived },
+    password: field(entry, 'Password'),
     url: field(entry, 'URL'),
     notes: field(entry, 'Notes'),
     fields: customFields(entry).map((name) => ({ name, value: field(entry, name), protect: isProtected(entry, name) })),
@@ -968,7 +772,7 @@ function validate(draft: Draft): string | null {
     if (name === 'otp' && item.value.trim() && !parseOtpValue(item.value)) return t('entry', 'The one-time code key is not valid');
   }
   if (draft.expires && !/^\d{4}-\d{2}-\d{2}$/.test(draft.expiry)) return t('entry', 'Pick an expiry date');
-  return draft.derived ? specProblem(draft.derived) : null;
+  return null;
 }
 
 async function applyDraft(db: Kdbx, entry: Entry, draft: Draft): Promise<void> {
@@ -976,7 +780,7 @@ async function applyDraft(db: Kdbx, entry: Entry, draft: Draft): Promise<void> {
   const standard: Record<(typeof STANDARD_FIELDS)[number], [string, boolean]> = {
     Title: [draft.title.trim(), Boolean(protection.title)],
     UserName: [draft.username, Boolean(protection.userName)],
-    Password: [draft.derived ? serializeDerived(draft.derived) : draft.password, true],
+    Password: [draft.password, true],
     URL: [draft.url.trim(), Boolean(protection.url)],
     Notes: [draft.notes, Boolean(protection.notes)],
   };
@@ -1023,10 +827,6 @@ function button(text: string, action: () => void, extra = '', title?: string): H
   const node = h('button', { type: 'button', class: `button ${extra}`.trim(), text, title });
   node.addEventListener('click', action);
   return node;
-}
-
-function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }
 
 function isoDate(date: Date): string {

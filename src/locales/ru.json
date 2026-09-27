@@ -44,11 +44,6 @@
     "Search entries": "Поиск записей",
     "Save (⌘S)": "Сохранить (⌘S)",
     "Password generator (⌘G)": "Генератор паролей (⌘G)",
-    "Zoom": "Масштаб",
-    "Zoom out (⌘−)": "Уменьшить (⌘−)",
-    "Reset zoom (⌘0)": "Сбросить масштаб (⌘0)",
-    "Zoom in (⌘+)": "Увеличить (⌘+)",
-    "Theme": "Тема",
     "Settings": "Настройки",
     "Lock (⌘L)": "Заблокировать (⌘L)",
     "Entries": "Записи",
@@ -170,7 +165,6 @@
     "Lock": "Заблокировать",
     "Close database": "Закрыть базу",
     "Password generator": "Генератор паролей",
-    "Theme: {theme}": "Тема: {theme}",
     "Settings": "Настройки"
   },
   "generator": {
@@ -197,7 +191,6 @@
     "Copy": "Копировать",
     "Random": "Случайный",
     "Kind of password": "Тип пароля",
-    "User name: {user}, from the entry": "Имя пользователя: {user}, из записи",
     "Master key": "Мастер-ключ",
     "Identifier": "Идентификатор",
     "Primary key": "Первичный ключ",
@@ -222,12 +215,12 @@
     "The database's master password": "Мастер-пароль базы",
     "The password this database was unlocked with is the master key: nothing to type or to keep": "Мастер-ключом служит пароль, которым открыта эта база: ничего не нужно ни вводить, ни запоминать",
     "Derived from the password this database was unlocked with; untick to derive from another master password": "Вычисляется от пароля, которым открыта эта база; снимите птичку, чтобы вычислить от другого мастер-пароля",
-    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "С другим мастер-паролем результат вставляется как обычный хранимый пароль: запись не смогла бы вычислить его снова.",
     "Enter the master password to derive from": "Введите мастер-пароль, от которого вычислять",
     "Derived v3": "Вычисляемый v3",
     "Derived v2": "Вычисляемый v2",
     "Derived v1": "Вычисляемый v1",
-    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "Первичной секретной фразой служит пароль, которым открыта эта база: ничего не нужно ни вводить, ни запоминать"
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "Первичной секретной фразой служит пароль, которым открыта эта база: ничего не нужно ни вводить, ни запоминать",
+    "From the user name. Signing in to another site with this address? Type that site.": "Из имени пользователя. Входите с этим адресом на другой сайт? Впишите его."
   },
   "status": {
     "{count} entries": {
@@ -262,7 +255,6 @@
     "Not saved: {reason}": "Не сохранено: {reason}",
     "Saved a copy as {name}": "Копия сохранена как {name}",
     "Master key changed": "Мастер-ключ изменён",
-    "Theme: {theme}": "Тема: {theme}",
     "{name} shared": "{name} отправлен"
   },
   "dialog": {
@@ -314,13 +306,6 @@
     "Done": "Готово",
     "The name cannot be empty": "Название не может быть пустым",
     "Delete": "Удалить",
-    "Turn {count} derived passwords into stored ones": {
-      "one": "Превратить {count} вычисляемый пароль в хранимый",
-      "few": "Превратить {count} вычисляемых пароля в хранимые",
-      "many": "Превратить {count} вычисляемых паролей в хранимые",
-      "other": "Превратить {count} вычисляемого пароля в хранимые"
-    },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "Вычисляемые пароли зависят от мастер-пароля: с новым каждый из них станет другим. Хранимые останутся прежними, но восстановить их без файла будет уже нельзя.",
     "Close": "Закрыть"
   },
   "settings": {
@@ -356,22 +341,17 @@
     "\"{name}\" does not look like a KeePass database (.kdbx)": "«{name}» не похож на базу KeePass (.kdbx)"
   },
   "derived": {
-    "This password is derived by generator {version}, which this version of the app does not know": "Этот пароль вычисляется генератором {version}, которого эта версия приложения не знает",
-    "The derived password settings are damaged: {reason}": "Настройки вычисляемого пароля повреждены: {reason}",
     "The version is a whole number from 1 to {max}": "Версия — целое число от 1 до {max}",
     "The length is from {min} to {max}": "Длина — от {min} до {max}",
     "Pick at least one character set": "Выберите хотя бы один набор символов",
     "The database has no master password to derive passwords from": "У базы нет мастер-пароля, из которого можно вычислять пароли",
-    "Derived · {site} · version {version}": "Вычисляется · {site} · версия {version}",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "Вычисляется из мастер-пароля, сайта, имени пользователя и версии: его можно восстановить и без файла",
     "Needs a master password, and this database opens with a key file alone": "Нужен мастер-пароль, а эта база открывается только ключевым файлом",
     "Version": "Версия",
     "Next version: a new password for the same site and user name": "Следующая версия: новый пароль для того же сайта и имени",
-    "Nothing but these settings is saved; the password is computed each time.": "В базе хранятся только эти настройки; пароль каждый раз вычисляется заново.",
     "Enter the website: the password is derived from its domain": "Укажите сайт записи: пароль вычисляется из его домена",
-    "Site: {site}, from the website": "Сайт: {site}, из поля «Сайт»",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "С тех пор как пароль был сохранён, изменился мастер-пароль, сайт или имя пользователя — теперь это другой пароль.",
-    "Store this password": "Хранить этот пароль",
-    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "Хранить в файле сам пароль: он больше не будет меняться вместе с мастер-паролем, сайтом или именем пользователя"
+    "Enter the user name: the password is derived from it too": "Укажите имя пользователя: пароль вычисляется и из него",
+    "Site": "Сайт",
+    "Site: {site}": "Сайт: {site}"
   }
 }

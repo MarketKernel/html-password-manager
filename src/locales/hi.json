@@ -105,7 +105,6 @@
     "Lock": "लॉक करें",
     "Close database": "डेटाबेस बंद करें",
     "Password generator": "पासवर्ड जनरेटर",
-    "Theme: {theme}": "थीम: {theme}",
     "Settings": "सेटिंग्स"
   },
   "generator": {
@@ -130,7 +129,6 @@
     "Copy": "कॉपी करें",
     "Random": "यादृच्छिक",
     "Kind of password": "पासवर्ड का प्रकार",
-    "User name: {user}, from the entry": "उपयोगकर्ता नाम: {user}, प्रविष्टि से",
     "Master key": "मास्टर कुंजी",
     "Identifier": "पहचानकर्ता",
     "Primary key": "प्राथमिक कुंजी",
@@ -155,12 +153,12 @@
     "The database's master password": "डेटाबेस का मास्टर पासवर्ड",
     "The password this database was unlocked with is the master key: nothing to type or to keep": "जिस पासवर्ड से यह डेटाबेस खोला गया, वही मास्टर कुंजी है: न कुछ लिखना है, न याद रखना",
     "Derived from the password this database was unlocked with; untick to derive from another master password": "उस पासवर्ड से व्युत्पन्न जिससे यह डेटाबेस खोला गया; किसी दूसरे मास्टर पासवर्ड से बनाने के लिए निशान हटाएँ",
-    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "दूसरे मास्टर पासवर्ड के साथ परिणाम सामान्य सहेजे गए पासवर्ड के रूप में डाला जाता है: प्रविष्टि इसे फिर से नहीं गिन पाएगी।",
     "Enter the master password to derive from": "जिस मास्टर पासवर्ड से बनाना है, उसे लिखें",
     "Derived v3": "व्युत्पन्न v3",
     "Derived v2": "व्युत्पन्न v2",
     "Derived v1": "व्युत्पन्न v1",
-    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "जिस पासवर्ड से यह डेटाबेस खोला गया, वही प्राथमिक गुप्त वाक्यांश है: न कुछ लिखना है, न याद रखना"
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "जिस पासवर्ड से यह डेटाबेस खोला गया, वही प्राथमिक गुप्त वाक्यांश है: न कुछ लिखना है, न याद रखना",
+    "From the user name. Signing in to another site with this address? Type that site.": "उपयोगकर्ता नाम से। इस पते से किसी दूसरी साइट में साइन इन करते हैं? वह साइट लिखें।"
   },
   "gate": {
     "KeePass database": "KeePass डेटाबेस",
@@ -234,7 +232,6 @@
     "Not saved: {reason}": "सहेजा नहीं गया: {reason}",
     "Saved a copy as {name}": "कॉपी {name} के रूप में सहेजी गई",
     "Master key changed": "मास्टर कुंजी बदल दी गई",
-    "Theme: {theme}": "थीम: {theme}",
     "{name} shared": "{name} शेयर हो गया"
   },
   "dialog": {
@@ -282,11 +279,6 @@
     "Done": "हो गया",
     "The name cannot be empty": "नाम खाली नहीं हो सकता",
     "Delete": "हटाएँ",
-    "Turn {count} derived passwords into stored ones": {
-      "one": "{count} व्युत्पन्न पासवर्ड को संग्रहीत में बदलें",
-      "other": "{count} व्युत्पन्न पासवर्डों को संग्रहीत में बदलें"
-    },
-    "Derived passwords are computed from the master password: with a new one each of them becomes a different password. Stored, they stay as they are, but can no longer be recovered without the file.": "व्युत्पन्न पासवर्ड मास्टर पासवर्ड से गणना किए जाते हैं: नए मास्टर पासवर्ड के साथ हर एक दूसरा पासवर्ड बन जाता है। संग्रहीत होने पर वे जैसे हैं वैसे रहते हैं, पर फ़ाइल के बिना वापस नहीं पाए जा सकते।",
     "Close": "बंद करें"
   },
   "app": {
@@ -330,11 +322,6 @@
     "Search entries": "प्रविष्टियाँ खोजें",
     "Save (⌘S)": "सहेजें (⌘S)",
     "Password generator (⌘G)": "पासवर्ड जनरेटर (⌘G)",
-    "Zoom": "ज़ूम",
-    "Zoom out (⌘−)": "ज़ूम आउट (⌘−)",
-    "Reset zoom (⌘0)": "ज़ूम रीसेट करें (⌘0)",
-    "Zoom in (⌘+)": "ज़ूम इन (⌘+)",
-    "Theme": "थीम",
     "Settings": "सेटिंग्स",
     "Lock (⌘L)": "लॉक करें (⌘L)",
     "Entries": "प्रविष्टियाँ",
@@ -344,22 +331,17 @@
     "More": "और"
   },
   "derived": {
-    "This password is derived by generator {version}, which this version of the app does not know": "यह पासवर्ड जनरेटर {version} से निकाला गया है, जिसे ऐप का यह संस्करण नहीं जानता",
-    "The derived password settings are damaged: {reason}": "व्युत्पन्न पासवर्ड की सेटिंग्स खराब हैं: {reason}",
     "The version is a whole number from 1 to {max}": "संस्करण 1 से {max} तक की पूर्ण संख्या है",
     "The length is from {min} to {max}": "लंबाई {min} से {max} तक है",
     "Pick at least one character set": "कम से कम एक अक्षर-समूह चुनें",
     "The database has no master password to derive passwords from": "डेटाबेस में कोई मास्टर पासवर्ड नहीं है जिससे पासवर्ड निकाले जा सकें",
-    "Derived · {site} · version {version}": "व्युत्पन्न · {site} · संस्करण {version}",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "मास्टर पासवर्ड, साइट, उपयोगकर्ता नाम और संस्करण से गणना किया जाता है: फ़ाइल के बिना भी वापस पाया जा सकता है",
     "Needs a master password, and this database opens with a key file alone": "मास्टर पासवर्ड चाहिए, और यह डेटाबेस केवल कुंजी फ़ाइल से खुलता है",
     "Version": "संस्करण",
     "Next version: a new password for the same site and user name": "अगला संस्करण: उसी साइट और उपयोगकर्ता नाम के लिए नया पासवर्ड",
-    "Nothing but these settings is saved; the password is computed each time.": "केवल ये सेटिंग्स सहेजी जाती हैं; पासवर्ड हर बार गणना किया जाता है।",
     "Enter the website: the password is derived from its domain": "वेबसाइट दर्ज करें: पासवर्ड उसके डोमेन से निकाला जाता है",
-    "Site: {site}, from the website": "साइट: {site}, वेबसाइट से",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "यह पासवर्ड सहेजे जाने के बाद मास्टर पासवर्ड, वेबसाइट या उपयोगकर्ता नाम बदल गया है, इसलिए अब यह दूसरा पासवर्ड है।",
-    "Store this password": "यह पासवर्ड सहेजें",
-    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "पासवर्ड को ही फ़ाइल में रखें: यह अब मास्टर पासवर्ड, वेबसाइट या उपयोगकर्ता नाम के साथ नहीं बदलेगा"
+    "Enter the user name: the password is derived from it too": "उपयोगकर्ता नाम दर्ज करें: पासवर्ड उससे भी निकाला जाता है",
+    "Site": "साइट",
+    "Site: {site}": "साइट: {site}"
   }
 }
