@@ -123,7 +123,40 @@
     "Allow look-alike characters": "एक जैसे दिखने वाले वर्णों की अनुमति दें",
     "Another one": "दूसरा बनाएँ",
     "Use": "उपयोग करें",
-    "Copy": "कॉपी करें"
+    "Copy": "कॉपी करें",
+    "Random": "यादृच्छिक",
+    "Kind of password": "पासवर्ड का प्रकार",
+    "User name: {user}, from the entry": "उपयोगकर्ता नाम: {user}, प्रविष्टि से",
+    "Master key": "मास्टर कुंजी",
+    "Identifier": "पहचानकर्ता",
+    "Primary key": "प्राथमिक कुंजी",
+    "Secondary key": "द्वितीयक कुंजी",
+    "Compute the primary key": "प्राथमिक कुंजी की गणना करें",
+    "Tied to the identifier: kept apart from the master key, it can be typed in here directly.": "पहचानकर्ता से जुड़ी: मास्टर कुंजी से अलग रखी जाती है, इसे यहाँ सीधे लिखा जा सकता है।",
+    "Result": "परिणाम",
+    "Primary secret phrase": "प्राथमिक गुप्त वाक्यांश",
+    "Key length": "कुंजी की लंबाई",
+    "Signature: compare it with the one the program showed": "हस्ताक्षर: इसे उस से मिलाएँ जो प्रोग्राम दिखाता था",
+    "Key": "कुंजी",
+    "Secondary secret phrase": "द्वितीयक गुप्त वाक्यांश",
+    "Password version": "पासवर्ड संस्करण",
+    "Password length": "पासवर्ड की लंबाई",
+    "Compute the key": "कुंजी की गणना करें",
+    "Primary protection": "प्राथमिक सुरक्षा",
+    "Secondary protection": "द्वितीयक सुरक्षा",
+    "Digits are always included": "अंक हमेशा शामिल रहते हैं",
+    "Remember until the database locks": "डेटाबेस लॉक होने तक याद रखें",
+    "Kept in the memory of this page only, never written to disk; locking the database forgets it.": "केवल इस पेज की मेमोरी में रखा जाता है, डिस्क पर कभी नहीं लिखा जाता; डेटाबेस लॉक करने पर मिट जाता है।",
+    "Use the database's master password": "डेटाबेस का मास्टर पासवर्ड इस्तेमाल करें",
+    "The database's master password": "डेटाबेस का मास्टर पासवर्ड",
+    "The password this database was unlocked with is the master key: nothing to type or to keep": "जिस पासवर्ड से यह डेटाबेस खोला गया, वही मास्टर कुंजी है: न कुछ लिखना है, न याद रखना",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "उस पासवर्ड से व्युत्पन्न जिससे यह डेटाबेस खोला गया; किसी दूसरे मास्टर पासवर्ड से बनाने के लिए निशान हटाएँ",
+    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "दूसरे मास्टर पासवर्ड के साथ परिणाम सामान्य सहेजे गए पासवर्ड के रूप में डाला जाता है: प्रविष्टि इसे फिर से नहीं गिन पाएगी।",
+    "Enter the master password to derive from": "जिस मास्टर पासवर्ड से बनाना है, उसे लिखें",
+    "Derived v3": "व्युत्पन्न v3",
+    "Derived v2": "व्युत्पन्न v2",
+    "Derived v1": "व्युत्पन्न v1",
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "जिस पासवर्ड से यह डेटाबेस खोला गया, वही प्राथमिक गुप्त वाक्यांश है: न कुछ लिखना है, न याद रखना"
   },
   "gate": {
     "KeePass database": "KeePass डेटाबेस",
@@ -265,7 +298,9 @@
     "Autosave works when the file was opened with write access.": "अपने-आप सहेजना तभी काम करता है जब फ़ाइल लिखने की अनुमति के साथ खोली गई हो।",
     "This browser cannot write files in place, so saving downloads a copy.": "यह ब्राउज़र फ़ाइलों को सीधे नहीं लिख सकता, इसलिए सहेजने पर एक कॉपी डाउनलोड होती है।",
     "Light": "हल्की",
-    "Dark": "गहरी"
+    "Dark": "गहरी",
+    "Show legacy password algorithms": "पुराने पासवर्ड एल्गोरिदम दिखाएँ",
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "तब जनरेटर व्युत्पन्न v2 और v1 भी देता है — दो पुराने प्रोग्रामों के कैलकुलेटर, उनसे बने पासवर्ड वापस पाने के लिए।"
   },
   "password": {
     "Show password": "पासवर्ड दिखाएँ",
@@ -304,8 +339,6 @@
     "Pick at least one character set": "कम से कम एक अक्षर-समूह चुनें",
     "The database has no master password to derive passwords from": "डेटाबेस में कोई मास्टर पासवर्ड नहीं है जिससे पासवर्ड निकाले जा सकें",
     "Derived · {site} · version {version}": "व्युत्पन्न · {site} · संस्करण {version}",
-    "Stored": "संग्रहीत",
-    "Derived": "व्युत्पन्न",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "मास्टर पासवर्ड, साइट, उपयोगकर्ता नाम और संस्करण से गणना किया जाता है: फ़ाइल के बिना भी वापस पाया जा सकता है",
     "Needs a master password, and this database opens with a key file alone": "मास्टर पासवर्ड चाहिए, और यह डेटाबेस केवल कुंजी फ़ाइल से खुलता है",
     "Version": "संस्करण",
@@ -313,6 +346,8 @@
     "Nothing but these settings is saved; the password is computed each time.": "केवल ये सेटिंग्स सहेजी जाती हैं; पासवर्ड हर बार गणना किया जाता है।",
     "Enter the website: the password is derived from its domain": "वेबसाइट दर्ज करें: पासवर्ड उसके डोमेन से निकाला जाता है",
     "Site: {site}, from the website": "साइट: {site}, वेबसाइट से",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "यह पासवर्ड सहेजे जाने के बाद मास्टर पासवर्ड, वेबसाइट या उपयोगकर्ता नाम बदल गया है, इसलिए अब यह दूसरा पासवर्ड है।"
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "यह पासवर्ड सहेजे जाने के बाद मास्टर पासवर्ड, वेबसाइट या उपयोगकर्ता नाम बदल गया है, इसलिए अब यह दूसरा पासवर्ड है।",
+    "Store this password": "यह पासवर्ड सहेजें",
+    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "पासवर्ड को ही फ़ाइल में रखें: यह अब मास्टर पासवर्ड, वेबसाइट या उपयोगकर्ता नाम के साथ नहीं बदलेगा"
   }
 }

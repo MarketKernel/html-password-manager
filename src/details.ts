@@ -15,7 +15,6 @@ import {
   derivedSpec,
   entryPassword,
   hasMasterPassword,
-  REQUIREMENT_DEFAULTS,
   serializeDerived,
   siteOf,
   specProblem,
@@ -25,7 +24,7 @@ import {
 } from './derived';
 import { download } from './files';
 import { strength } from './generator';
-import { bitsLevel, requirementControls } from './genpanel';
+import { bitsLevel, requirementControls, type GeneratorEntry } from './genpanel';
 import { dateFormat, t, tn } from './i18n';
 import {
   addAttachment,
@@ -61,7 +60,8 @@ export interface DetailsHost {
   moveMenu(entry: Entry, anchor: HTMLElement): void;
   /** A brand-new entry was cancelled before its first save: drop it without a trace. */
   discard(entry: Entry): void;
-  generator(anchor: HTMLElement, onUse: (password: string) => void): void;
+  /** From an entry, `entry` lets the generator make the password derived (version 3). */
+  generator(anchor: HTMLElement, onUse: (password: string) => void, entry?: GeneratorEntry): void;
   editingChanged(editing: boolean): void;
   confirmDiscard(): Promise<boolean>;
 }
@@ -663,41 +663,31 @@ export class Details {
   /** Several controls share the row, so it is no <label>: a click on its text would press the first button. */
   private passwordEditor(draft: Draft): HTMLElement {
     const body = draft.derived ? this.derivedEditor(draft, draft.derived) : this.storedEditor(draft);
-    return h('div', { class: 'field field--edit' }, h('span', { class: 'field-label', text: t('entry', 'Password') }), h('div', { class: 'field-stack' }, this.passwordMode(draft), ...body));
+    return h('div', { class: 'field field--edit' }, h('span', { class: 'field-label', text: t('entry', 'Password') }), h('div', { class: 'field-stack' }, ...body));
   }
 
-  private passwordMode(draft: Draft): HTMLElement {
-    const stored = h('button', { type: 'button', class: 'segment', 'aria-pressed': String(!draft.derived), text: t('derived', 'Stored') });
-    const derived = h('button', {
-      type: 'button',
-      class: 'segment',
-      'aria-pressed': String(Boolean(draft.derived)),
-      text: t('derived', 'Derived'),
-      title: t('derived', 'Computed from the master password, the site, the user name and the version: it can be recovered without the file'),
-    });
-    if (!draft.derived && !hasMasterPassword()) {
-      derived.disabled = true;
-      derived.title = t('derived', 'Needs a master password, and this database opens with a key file alone');
-    }
-    stored.addEventListener('click', async () => {
-      if (!draft.derived) return;
-      // The same password, now kept in the file.
-      try {
-        draft.password = (await computePassword(draft.derived, draft.username)).password;
-      } catch {
-        /* incomplete settings: keep whatever was stored before */
-      }
-      draft.derived = null;
-      this.render();
-    });
-    derived.addEventListener('click', () => {
-      if (draft.derived) return;
-      draft.derived = { ...REQUIREMENT_DEFAULTS, site: siteOf(draft.url), version: 1 };
-      this.render();
-      // The site comes from the website: an empty one is the first thing to fill in.
-      if (!draft.url.trim()) this.root.querySelector<HTMLInputElement>('[data-field="url"]')?.focus();
-    });
-    return h('div', { class: 'segments', role: 'group' }, stored, derived);
+  /** The generator's view of the draft: version 3 there makes the password derived. */
+  private generatorEntry(draft: Draft): GeneratorEntry {
+    const spec = draft.derived;
+    return {
+      site: siteOf(draft.url),
+      user: draft.username,
+      derived: spec && { version: spec.version, length: spec.length, upper: spec.upper, lower: spec.lower, digits: spec.digits, symbols: spec.symbols, ambiguous: spec.ambiguous },
+      onDerive: (settings) => {
+        draft.derived = { ...settings, site: siteOf(draft.url) };
+        this.render();
+        // The site comes from the website: an empty one is the first thing to fill in.
+        if (!draft.url.trim()) this.root.querySelector<HTMLInputElement>('[data-field="url"]')?.focus();
+      },
+    };
+  }
+
+  /** A password from the generator replaces whatever the draft had, shown. */
+  private useGenerated(draft: Draft, password: string): void {
+    draft.derived = null;
+    draft.password = password;
+    this.revealed.add('Password');
+    this.render();
   }
 
   private derivedEditor(draft: Draft, spec: DerivedSpec): HTMLElement[] {
@@ -769,6 +759,18 @@ export class Details {
     });
     const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Copy {what}', { what: t('entry', 'Password').toLowerCase() }) }, icon(ICONS.copy));
     copy.addEventListener('click', () => this.host.copy(computePassword({ ...spec }, draft.username).then((result) => result.password), t('entry', 'Password')));
+    const dice = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Generate (⌘G)'), 'data-generate': '' }, icon(ICONS.dice));
+    dice.addEventListener('click', () => this.host.generator(dice, (password) => this.useGenerated(draft, password), this.generatorEntry(draft)));
+    const store = button(t('derived', 'Store this password'), async () => {
+      // The same password, now kept in the file.
+      try {
+        draft.password = (await computePassword({ ...spec }, draft.username)).password;
+      } catch {
+        /* incomplete settings: keep whatever was stored before */
+      }
+      draft.derived = null;
+      this.render();
+    }, 'button--small button--ghost', t('derived', 'Keep the password itself in the file: it no longer changes with the master password, the website or the user name'));
 
     const version = h('input', { type: 'number', class: 'field-input derived-version', min: '1', max: String(VERSION_MAX), step: '1', 'aria-label': t('derived', 'Version') });
     version.value = String(spec.version);
@@ -785,10 +787,10 @@ export class Details {
 
     update(0);
     return [
-      h('div', { class: 'field-inline' }, value, reveal, copy),
+      h('div', { class: 'field-inline' }, value, reveal, copy, dice),
       h('div', { class: 'derived-inputs' }, h('label', { class: 'derived-input' }, h('span', { class: 'derived-caption', text: t('derived', 'Version') }), h('span', { class: 'field-inline' }, version, next)), site),
       ...requirementControls(spec, () => update(0)),
-      h('div', { class: 'derived-foot' }, bits, h('span', { class: 'field-hint', text: t('derived', 'Nothing but these settings is saved; the password is computed each time.') })),
+      h('div', { class: 'derived-foot' }, bits, h('span', { class: 'field-hint', text: t('derived', 'Nothing but these settings is saved; the password is computed each time.') }), store),
       note,
     ];
   }
@@ -821,16 +823,20 @@ export class Details {
     });
     const dice = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Generate (⌘G)'), 'data-generate': '' }, icon(ICONS.dice));
     dice.addEventListener('click', () =>
-      this.host.generator(dice, (value) => {
-        draft.password = value;
-        pass.value = value;
-        syncMask(pass);
-        this.revealed.add('Password');
-        setRevealed(pass, true);
-        reveal.replaceChildren(icon(ICONS.eyeOff));
-        updateLayout();
-        paint();
-      }),
+      this.host.generator(
+        dice,
+        (value) => {
+          draft.password = value;
+          pass.value = value;
+          syncMask(pass);
+          this.revealed.add('Password');
+          setRevealed(pass, true);
+          reveal.replaceChildren(icon(ICONS.eyeOff));
+          updateLayout();
+          paint();
+        },
+        this.generatorEntry(draft),
+      ),
     );
     return [h('div', { class: 'field-inline' }, h('span', { class: 'secret-field' }, pass, layer, badge), reveal, dice), meter];
   }

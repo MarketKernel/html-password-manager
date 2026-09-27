@@ -40,9 +40,11 @@ if (typeof WebSocket === 'undefined') {
   process.exit(1);
 }
 
-const K = await load('kdbx', 'derived');
+const K = await load('kdbx', 'derived', 'legacy');
 const DERIVED_SPEC = { ...K.REQUIREMENT_DEFAULTS, site: 'github.com', version: 1 };
 const DERIVED = (await K.derivePassword(PASSWORD, DERIVED_SPEC, 'me@example.com')).password;
+const SESSION_KEY = await K.legacy1PrimaryKey(PASSWORD, 'me@example.com');
+const SESSION_KEY_2 = (await K.legacy2Key('dmytro@github.com', PASSWORD, 10, { symbols: false, upper: true, lower: true })).value;
 const DERIVED_V2 = (await K.derivePassword(PASSWORD, { ...DERIVED_SPEC, version: 2 }, 'me@example.com')).password;
 const { check, done } = checker();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -140,6 +142,10 @@ const click = async (selector) => {
   }
   await sleep(60);
 };
+/** Picks a kind of password in the generator's list. */
+const pickKind = (kind) =>
+  evaluate(`(() => { const s = document.querySelector('[data-field="gen-kind"]'); s.value = ${JSON.stringify(kind)}; s.dispatchEvent(new Event('change')); })()`);
+const kinds = () => evaluate(`[...document.querySelectorAll('[data-field="gen-kind"] option')].map((o) => o.textContent)`);
 /** The read-mode value of the field labelled `label`, or null. */
 const fieldValue = (label) =>
   evaluate(`[...document.querySelectorAll('.field')].find((f) => f.querySelector('.field-label')?.textContent === ${JSON.stringify(label)})?.querySelector('.field-value')?.textContent ?? null`);
@@ -326,6 +332,8 @@ try {
   await type('Bank');
   await click('[data-generate]');
   check('generator open', await visible('.gen'), true);
+  check('generator: derived v3 first', await evaluate(`document.querySelector('[data-field="gen-kind"]').value`), 'v3');
+  await pickKind('random');
   await shot('4-generator');
   await click('.gen .button--primary');
   const generated = await evaluate(`document.querySelector('[data-field="password"]').value`);
@@ -437,7 +445,23 @@ try {
   await type('me@example.com');
   await evaluate(`document.querySelector('[data-field="url"]').focus()`);
   await type('https://www.github.com/login');
-  await clickNth('.segment', 'Derived');
+  await click('[data-generate]');
+  check('generator: no legacy kinds by default', await kinds(), ['Derived v3', 'Random']);
+  check('generator: the last kind is remembered', await evaluate(`document.querySelector('[data-field="gen-kind"]').value`), 'random');
+  await pickKind('v3');
+  check('generator v3: the entry\'s site and user', await text('.gen-account'), 'Site: github.com, from the websiteUser name: me@example.com, from the entry');
+  check('generator v3: previews the derived password', await until(`document.querySelector('.gen-preview').textContent === ${JSON.stringify(DERIVED)}`), true);
+  const v3Master = () => evaluate(`[document.querySelector('[data-field="gen-v3-session"]').checked, document.querySelector('[data-field="gen-v3-master"]').disabled]`);
+  check('generator v3: the database\'s master password by default', await v3Master(), [true, true]);
+  await click('[data-field="gen-v3-session"]');
+  check('generator v3: another master password asked for', [await v3Master(), await text('.gen .field-note'), await evaluate(`document.activeElement?.dataset.field`)], [[false, false], 'Enter the master password to derive from', 'gen-v3-master']);
+  await type(PASSWORD);
+  check('generator v3: the same master password typed, the same password', await until(`document.querySelector('.gen-preview').textContent === ${JSON.stringify(DERIVED)}`), true);
+  await type(' 2');
+  check('generator v3: another master password, another password', await until(`!['…', '—', ${JSON.stringify(DERIVED)}].includes(document.querySelector('.gen-preview').textContent)`), true);
+  await click('[data-field="gen-v3-session"]');
+  check('generator v3: back to the database\'s', [await v3Master(), await until(`document.querySelector('.gen-preview').textContent === ${JSON.stringify(DERIVED)}`)], [[true, true], true]);
+  await click('.gen .button--primary');
   check('derived: the site is the website\'s domain', await text('.derived-site'), 'Site: github.com, from the website');
   check('derived: computed, masked', await until(`document.querySelector('.derived-preview').textContent === '••••••••••'`), true);
   await click('.derived-preview + .icon-button');
@@ -459,12 +483,123 @@ try {
   check('derived: back to the first site', await until(`document.querySelector('.derived-preview').textContent === ${JSON.stringify(DERIVED)}`), true);
   await clickNth('.derived-inputs button', '+1');
   check('derived: next version', await until(`document.querySelector('.derived-preview').textContent === ${JSON.stringify(DERIVED_V2)}`), true);
-  await clickNth('.segment', 'Stored');
+  await clickNth('.derived-foot button', 'Store this password');
   check('derived: turned into a stored password', await until(`document.querySelector('[data-field="password"]')?.value === ${JSON.stringify(DERIVED_V2)}`), true);
   await press('Escape');
   await until(`!!document.querySelector('.overlay:not([hidden]) .dialog')`);
   await click('.overlay .button--danger');
   check('derived: edit dropped', await text('.field-hint'), 'Derived · github.com · version 1');
+
+  // Legacy algorithms: offered once the settings ask for them, checked against the .NET originals
+  await click('#settings');
+  await clickNth('.settings-row--check', 'Show legacy password algorithms');
+  check('legacy: remembered', await evaluate(`JSON.parse(localStorage.getItem('html-password-manager')).showLegacy`), true);
+  await press('Escape');
+  const fill = async (name, value) => {
+    await evaluate(`document.querySelector('[data-field=${JSON.stringify(name)}]').focus()`);
+    await type(value);
+  };
+  await click('#generator');
+  check('legacy: kinds offered, newest first', await kinds(), ['Derived v3', 'Derived v2', 'Derived v1', 'Random']);
+  await pickKind('legacy2');
+  check('legacy 2: nothing to use yet', await evaluate(`document.querySelector('.gen .button--primary').disabled`), true);
+  await fill('gen-l2-id', '1');
+  await fill('gen-l2-primary', '1');
+  check('legacy 2: phrase masked', await evaluate(`document.querySelector('[data-field="gen-l2-primary"]').classList.contains('masked')`), true);
+  await clickNth('.gen button', 'Compute the key');
+  check('legacy 2: key of the original', await until(`document.querySelector('[data-field="gen-l2-key"]').value === '8pgYm9fZha'`), true);
+  check('legacy 2: key signature', await text('.gen-group .gen-sign'), 'E8');
+  await fill('gen-l2-secondary', '1');
+  check('legacy 2: password of the original', [await evaluate(`[...document.querySelectorAll('.gen-sign')].at(-1).textContent`), await evaluate(`[...document.querySelectorAll('.gen-preview')].at(-1).textContent`)], ['MN', 'aEXTmKcRlO']);
+  await shot('4d-legacy2');
+  await pickKind('legacy1');
+  await fill('gen-l1-master', 'master');
+  await fill('gen-l1-id', 'github.com');
+  await clickNth('.gen button', 'Compute the primary key');
+  check('legacy 1: primary key of the original', await until(`document.querySelector('[data-field="gen-l1-primary"]').value === 'Lj0oFPZfaB'`, 15000), true);
+  await fill('gen-l1-secondary', 'second');
+  check('legacy 1: result of the original', await text('.gen-preview'), 'wXoWNyEWSG');
+  await shot('4e-legacy1');
+  await pickKind('legacy2');
+  check('legacy: a kind keeps what was typed', await evaluate(`document.querySelector('[data-field="gen-l2-key"]').value`), '8pgYm9fZha');
+  await press('Escape');
+  check('legacy: the popover closes', await visible('.gen'), false);
+
+  // From an entry: the identifier is suggested, the keys can be kept in memory until the lock
+  await press('e', MOD);
+  await click('[data-generate]');
+  await pickKind('legacy1');
+  check('legacy 1: an e-mail user name is the identifier', await evaluate(`document.querySelector('[data-field="gen-l1-id"]').value`), 'me@example.com');
+  const remembered = (name) => evaluate(`document.querySelector('[data-remember=${JSON.stringify(name)}]').checked`);
+  check('legacy 1: nothing kept yet', [await evaluate(`document.querySelector('[data-field="gen-l1-master"]').value`), await remembered('legacy1-master'), await remembered('legacy1-secondary')], ['', false, false]);
+  await fill('gen-l1-master', 'master');
+  await click('[data-remember="legacy1-master"]');
+  await fill('gen-l1-secondary', 'second');
+  await press('Escape');
+  await click('[data-generate]');
+  check('legacy 1: only the ticked key kept', [await evaluate(`document.querySelector('[data-field="gen-l1-master"]').value`), await evaluate(`document.querySelector('[data-field="gen-l1-secondary"]').value`), await remembered('legacy1-master'), await remembered('legacy1-secondary')], ['master', '', true, false]);
+  check('legacy 1: the missing key has the focus', await evaluate(`document.activeElement?.dataset.field`), 'gen-l1-secondary');
+  await fill('gen-l1-secondary', 'second');
+  await click('[data-remember="legacy1-secondary"]');
+  await press('Escape');
+  await click('[data-generate]');
+  check('legacy 1: both keys filled from memory', [await evaluate(`document.querySelector('[data-field="gen-l1-master"]').value`), await evaluate(`document.querySelector('[data-field="gen-l1-secondary"]').value`), await remembered('legacy1-secondary')], ['master', 'second', true]);
+  check('legacy 1: the primary key computed at once', await until(`document.querySelector('[data-field="gen-l1-primary"]').value !== ''`, 15000), true);
+  await evaluate(`(() => { const i = document.querySelector('[data-field="gen-l1-id"]'); i.focus(); i.select(); })()`);
+  await type('github.com');
+  await clickNth('.gen button', 'Compute the primary key');
+  check('legacy 1: an edited identifier', await until(`document.querySelector('[data-field="gen-l1-primary"]').value === 'Lj0oFPZfaB'`, 15000), true);
+  check('legacy 1: the result from remembered keys', await text('.gen-preview'), 'wXoWNyEWSG');
+  await click('.gen .button--primary');
+  check('legacy 1: used as a stored password', await evaluate(`document.querySelector('[data-field="password"]')?.value`), 'wXoWNyEWSG');
+  // Version 3 with another master password: put in as a stored password
+  await click('[data-generate]');
+  await pickKind('v3');
+  check('generator v3: ticked again on every opening', (await v3Master())[0], true);
+  await click('[data-field="gen-v3-session"]');
+  await type('другой мастер-пароль');
+  check('generator v3: computed from the typed one', await until(`!['…', '—'].includes(document.querySelector('.gen-preview').textContent)`), true);
+  const otherDerived = await text('.gen-preview');
+  await shot('4g-v3-other-master');
+  await click('.gen .button--primary');
+  check('generator v3: another master password gives a stored password', await evaluate(`document.querySelector('[data-field="password"]')?.value`), otherDerived);
+  // The database's master password as the master key
+  await click('[data-generate]');
+  await pickKind('legacy1');
+  const masterState = () => evaluate(`(() => { const i = document.querySelector('[data-field="gen-l1-master"]'); return [i.value, i.disabled, document.querySelector('[data-remember="legacy1-master"]').disabled]; })()`);
+  check('legacy 1: own master key by default', await masterState(), ['master', false, false]);
+  await click('[data-field="gen-l1-session"]');
+  check('legacy 1: session master: the field is off', await masterState(), ['', true, true]);
+  check('legacy 1: session master: remembered', await evaluate(`JSON.parse(localStorage.getItem('html-password-manager')).legacyUsesMaster`), { legacy1: true, legacy2: false });
+  check('legacy 1: session master: the primary key of the database password', await until(`document.querySelector('[data-field="gen-l1-primary"]').value === ${JSON.stringify(SESSION_KEY)}`, 15000), true);
+  await shot('4f-legacy1-session');
+  await press('Escape');
+  await click('[data-generate]');
+  check('legacy 1: session master: kept on the next opening', [await evaluate(`document.querySelector('[data-field="gen-l1-session"]').checked`), (await masterState())[1]], [true, true]);
+  check('legacy 1: session master: computed at once', await until(`document.querySelector('[data-field="gen-l1-primary"]').value === ${JSON.stringify(SESSION_KEY)}`, 15000), true);
+  await click('[data-field="gen-l1-session"]');
+  check('legacy 1: own master key back', await masterState(), ['master', false, false]);
+  await press('Escape');
+  await evaluate(`(() => { const i = document.querySelector('[data-field="username"]'); i.focus(); i.select(); })()`);
+  await type('dmytro');
+  await click('[data-generate]');
+  await pickKind('legacy2');
+  check('legacy 2: user name @ site', await evaluate(`document.querySelector('[data-field="gen-l2-id"]').value`), 'dmytro@github.com');
+  // The database's master password as the primary secret phrase
+  const phraseState = () => evaluate(`(() => { const i = document.querySelector('[data-field="gen-l2-primary"]'); return [i.disabled, document.querySelector('[data-remember="legacy2-primary"]').disabled]; })()`);
+  check('legacy 2: own primary phrase by default', await phraseState(), [false, false]);
+  await click('[data-field="gen-l2-session"]');
+  check('legacy 2: session master: the phrase is off', await phraseState(), [true, true]);
+  await shot('4h-legacy2-session');
+  check('legacy 2: session master: the key of the database password', await until(`document.querySelector('[data-field="gen-l2-key"]').value === ${JSON.stringify(SESSION_KEY_2)}`, 15000), true);
+  check('legacy 2: session master: remembered apart from legacy 1', await evaluate(`JSON.parse(localStorage.getItem('html-password-manager')).legacyUsesMaster`), { legacy1: false, legacy2: true });
+  await click('[data-field="gen-l2-session"]');
+  check('legacy 2: own primary phrase back', await phraseState(), [false, false]);
+  await press('Escape');
+  await press('Escape');
+  await until(`!!document.querySelector('.overlay:not([hidden]) .dialog')`);
+  await click('.overlay .button--danger');
+  check('legacy: entry edit dropped', await text('.field-hint'), 'Derived · github.com · version 1');
 
   // Saving downloads the database; it opens with the same password
   await press('s', MOD);

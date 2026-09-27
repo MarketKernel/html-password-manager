@@ -186,7 +186,40 @@
     "Allow look-alike characters": "Разрешить похожие символы",
     "Another one": "Другой",
     "Use": "Вставить",
-    "Copy": "Копировать"
+    "Copy": "Копировать",
+    "Random": "Случайный",
+    "Kind of password": "Тип пароля",
+    "User name: {user}, from the entry": "Имя пользователя: {user}, из записи",
+    "Master key": "Мастер-ключ",
+    "Identifier": "Идентификатор",
+    "Primary key": "Первичный ключ",
+    "Secondary key": "Вторичный ключ",
+    "Compute the primary key": "Вычислить первичный ключ",
+    "Tied to the identifier: kept apart from the master key, it can be typed in here directly.": "Привязан к идентификатору: хранится отдельно от мастер-ключа, и его можно ввести здесь напрямую.",
+    "Result": "Результат",
+    "Primary secret phrase": "Первичная секретная фраза",
+    "Key length": "Длина ключа",
+    "Signature: compare it with the one the program showed": "Подпись: сверьте её с той, что показывала программа",
+    "Key": "Ключ",
+    "Secondary secret phrase": "Вторичная секретная фраза",
+    "Password version": "Версия пароля",
+    "Password length": "Длина пароля",
+    "Compute the key": "Вычислить ключ",
+    "Primary protection": "Первичная защита",
+    "Secondary protection": "Вторичная защита",
+    "Digits are always included": "Цифры входят всегда",
+    "Remember until the database locks": "Помнить до блокировки базы",
+    "Kept in the memory of this page only, never written to disk; locking the database forgets it.": "Хранится только в памяти этой страницы и никогда не записывается на диск; блокировка базы её стирает.",
+    "Use the database's master password": "Использовать мастер-пароль базы",
+    "The database's master password": "Мастер-пароль базы",
+    "The password this database was unlocked with is the master key: nothing to type or to keep": "Мастер-ключом служит пароль, которым открыта эта база: ничего не нужно ни вводить, ни запоминать",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "Вычисляется от пароля, которым открыта эта база; снимите птичку, чтобы вычислить от другого мастер-пароля",
+    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "С другим мастер-паролем результат вставляется как обычный хранимый пароль: запись не смогла бы вычислить его снова.",
+    "Enter the master password to derive from": "Введите мастер-пароль, от которого вычислять",
+    "Derived v3": "Вычисляемый v3",
+    "Derived v2": "Вычисляемый v2",
+    "Derived v1": "Вычисляемый v1",
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "Первичной секретной фразой служит пароль, которым открыта эта база: ничего не нужно ни вводить, ни запоминать"
   },
   "status": {
     "{count} entries": {
@@ -294,7 +327,9 @@
     "Autosave works when the file was opened with write access.": "Автосохранение работает, когда файл открыт с правом записи.",
     "This browser cannot write files in place, so saving downloads a copy.": "Этот браузер не умеет записывать файлы на место, поэтому сохранение скачивает копию.",
     "Light": "Светлая",
-    "Dark": "Тёмная"
+    "Dark": "Тёмная",
+    "Show legacy password algorithms": "Показывать устаревшие алгоритмы вычисления паролей",
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "Тогда генератор предлагает ещё вычисляемые v2 и v1 — калькуляторы двух старых программ, чтобы восстановить сделанные ими пароли."
   },
   "errors": {
     "The browser refused to copy": "Браузер не разрешил копирование",
@@ -316,8 +351,6 @@
     "Pick at least one character set": "Выберите хотя бы один набор символов",
     "The database has no master password to derive passwords from": "У базы нет мастер-пароля, из которого можно вычислять пароли",
     "Derived · {site} · version {version}": "Вычисляется · {site} · версия {version}",
-    "Stored": "Хранится",
-    "Derived": "Вычисляется",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "Вычисляется из мастер-пароля, сайта, имени пользователя и версии: его можно восстановить и без файла",
     "Needs a master password, and this database opens with a key file alone": "Нужен мастер-пароль, а эта база открывается только ключевым файлом",
     "Version": "Версия",
@@ -325,6 +358,8 @@
     "Nothing but these settings is saved; the password is computed each time.": "В базе хранятся только эти настройки; пароль каждый раз вычисляется заново.",
     "Enter the website: the password is derived from its domain": "Укажите сайт записи: пароль вычисляется из его домена",
     "Site: {site}, from the website": "Сайт: {site}, из поля «Сайт»",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "С тех пор как пароль был сохранён, изменился мастер-пароль, сайт или имя пользователя — теперь это другой пароль."
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "С тех пор как пароль был сохранён, изменился мастер-пароль, сайт или имя пользователя — теперь это другой пароль.",
+    "Store this password": "Хранить этот пароль",
+    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "Хранить в файле сам пароль: он больше не будет меняться вместе с мастер-паролем, сайтом или именем пользователя"
   }
 }

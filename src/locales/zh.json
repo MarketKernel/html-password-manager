@@ -121,7 +121,40 @@
     "Allow look-alike characters": "允许形似字符",
     "Another one": "换一个",
     "Use": "使用",
-    "Copy": "复制"
+    "Copy": "复制",
+    "Random": "随机",
+    "Kind of password": "密码类型",
+    "User name: {user}, from the entry": "用户名：{user}，来自条目",
+    "Master key": "主密钥",
+    "Identifier": "标识符",
+    "Primary key": "主要密钥",
+    "Secondary key": "次要密钥",
+    "Compute the primary key": "计算主要密钥",
+    "Tied to the identifier: kept apart from the master key, it can be typed in here directly.": "与标识符绑定：它与主密钥分开保存，可以直接在此输入。",
+    "Result": "结果",
+    "Primary secret phrase": "主要秘密短语",
+    "Key length": "密钥长度",
+    "Signature: compare it with the one the program showed": "签名：将其与原程序显示的签名比对",
+    "Key": "密钥",
+    "Secondary secret phrase": "次要秘密短语",
+    "Password version": "密码版本",
+    "Password length": "密码长度",
+    "Compute the key": "计算密钥",
+    "Primary protection": "主要保护",
+    "Secondary protection": "次要保护",
+    "Digits are always included": "始终包含数字",
+    "Remember until the database locks": "在数据库锁定前记住",
+    "Kept in the memory of this page only, never written to disk; locking the database forgets it.": "仅保存在此页面的内存中，绝不写入磁盘；锁定数据库会将其清除。",
+    "Use the database's master password": "使用数据库的主密码",
+    "The database's master password": "数据库的主密码",
+    "The password this database was unlocked with is the master key: nothing to type or to keep": "以解锁此数据库的密码作为主密钥：无需输入，也无需记住",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "由解锁此数据库的密码推导；取消勾选可从其他主密码推导",
+    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "使用其他主密码时，结果将作为普通存储密码填入：条目无法再次计算它。",
+    "Enter the master password to derive from": "输入用于推导的主密码",
+    "Derived v3": "推导 v3",
+    "Derived v2": "推导 v2",
+    "Derived v1": "推导 v1",
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "以解锁此数据库的密码作为主要秘密短语：无需输入，也无需记住"
   },
   "gate": {
     "KeePass database": "KeePass 数据库",
@@ -259,7 +292,9 @@
     "Autosave works when the file was opened with write access.": "以可写方式打开文件时，自动保存才会生效。",
     "This browser cannot write files in place, so saving downloads a copy.": "此浏览器无法直接写入文件，因此保存时会下载副本。",
     "Light": "浅色",
-    "Dark": "深色"
+    "Dark": "深色",
+    "Show legacy password algorithms": "显示旧版密码算法",
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "生成器还会提供推导 v2 和 v1——两个旧程序的计算器，用来找回用它们生成的密码。"
   },
   "password": {
     "Show password": "显示密码",
@@ -298,8 +333,6 @@
     "Pick at least one character set": "请至少选择一种字符集",
     "The database has no master password to derive passwords from": "数据库没有可用于推导密码的主密码",
     "Derived · {site} · version {version}": "推导 · {site} · 版本 {version}",
-    "Stored": "存储",
-    "Derived": "推导",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "由主密码、网站、用户名和版本计算得出：没有文件也能恢复",
     "Needs a master password, and this database opens with a key file alone": "需要主密码，而此数据库仅用密钥文件打开",
     "Version": "版本",
@@ -307,6 +340,8 @@
     "Nothing but these settings is saved; the password is computed each time.": "只保存这些设置；密码每次都重新计算。",
     "Enter the website: the password is derived from its domain": "请输入网址：密码由其域名推导",
     "Site: {site}, from the website": "网站：{site}，取自网址",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "自保存此密码以来，主密码、网址或用户名已更改，现在它是另一个密码。"
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "自保存此密码以来，主密码、网址或用户名已更改，现在它是另一个密码。",
+    "Store this password": "存储此密码",
+    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "将密码本身保存在文件中：它将不再随主密码、网址或用户名而改变"
   }
 }

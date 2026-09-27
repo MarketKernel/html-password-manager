@@ -125,7 +125,40 @@
     "Allow look-alike characters": "Permitir caracteres parecidos",
     "Another one": "Gerar outra",
     "Use": "Usar",
-    "Copy": "Copiar"
+    "Copy": "Copiar",
+    "Random": "Aleatória",
+    "Kind of password": "Tipo de senha",
+    "User name: {user}, from the entry": "Usuário: {user}, da entrada",
+    "Master key": "Chave mestra",
+    "Identifier": "Identificador",
+    "Primary key": "Chave primária",
+    "Secondary key": "Chave secundária",
+    "Compute the primary key": "Calcular a chave primária",
+    "Tied to the identifier: kept apart from the master key, it can be typed in here directly.": "Ligada ao identificador: guardada à parte da chave mestra, pode ser digitada aqui diretamente.",
+    "Result": "Resultado",
+    "Primary secret phrase": "Frase secreta primária",
+    "Key length": "Comprimento da chave",
+    "Signature: compare it with the one the program showed": "Assinatura: compare-a com a que o programa mostrava",
+    "Key": "Chave",
+    "Secondary secret phrase": "Frase secreta secundária",
+    "Password version": "Versão da senha",
+    "Password length": "Comprimento da senha",
+    "Compute the key": "Calcular a chave",
+    "Primary protection": "Proteção primária",
+    "Secondary protection": "Proteção secundária",
+    "Digits are always included": "Os dígitos sempre são incluídos",
+    "Remember until the database locks": "Lembrar até o banco ser bloqueado",
+    "Kept in the memory of this page only, never written to disk; locking the database forgets it.": "Fica só na memória desta página e nunca é gravada no disco; bloquear o banco a esquece.",
+    "Use the database's master password": "Usar a senha mestra do banco",
+    "The database's master password": "Senha mestra do banco",
+    "The password this database was unlocked with is the master key: nothing to type or to keep": "A senha com que este banco foi aberto é a chave mestra: nada a digitar nem a guardar",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "Derivada da senha com que este banco foi aberto; desmarque para derivar de outra senha mestra",
+    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "Com outra senha mestra o resultado entra como uma senha guardada comum: a entrada não conseguiria calculá-la de novo.",
+    "Enter the master password to derive from": "Digite a senha mestra da qual derivar",
+    "Derived v3": "Derivada v3",
+    "Derived v2": "Derivada v2",
+    "Derived v1": "Derivada v1",
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "A senha com que este banco foi aberto é a frase secreta primária: nada a digitar nem a guardar"
   },
   "gate": {
     "KeePass database": "Banco de dados do KeePass",
@@ -271,7 +304,9 @@
     "Autosave works when the file was opened with write access.": "O salvamento automático funciona quando o arquivo é aberto com permissão de gravação.",
     "This browser cannot write files in place, so saving downloads a copy.": "Este navegador não consegue sobrescrever arquivos, então salvar baixa uma cópia.",
     "Light": "Claro",
-    "Dark": "Escuro"
+    "Dark": "Escuro",
+    "Show legacy password algorithms": "Mostrar os algoritmos de senha antigos",
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "O gerador passa a oferecer também as derivadas v2 e v1, as calculadoras de dois programas antigos, para recuperar as senhas feitas com eles."
   },
   "password": {
     "Show password": "Mostrar senha",
@@ -310,8 +345,6 @@
     "Pick at least one character set": "Escolha pelo menos um conjunto de caracteres",
     "The database has no master password to derive passwords from": "O banco de dados não tem uma senha mestra da qual derivar senhas",
     "Derived · {site} · version {version}": "Derivada · {site} · versão {version}",
-    "Stored": "Armazenada",
-    "Derived": "Derivada",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "Calculada a partir da senha mestra, do site, do nome de usuário e da versão: pode ser recuperada sem o arquivo",
     "Needs a master password, and this database opens with a key file alone": "Precisa de uma senha mestra, e este banco de dados abre só com um arquivo de chave",
     "Version": "Versão",
@@ -319,6 +352,8 @@
     "Nothing but these settings is saved; the password is computed each time.": "Só estas configurações são salvas; a senha é calculada a cada vez.",
     "Enter the website: the password is derived from its domain": "Informe o site: a senha é derivada do domínio dele",
     "Site: {site}, from the website": "Site: {site}, do campo site",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "A senha mestra, o site ou o nome de usuário mudou desde que esta senha foi salva, então agora é outra senha."
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "A senha mestra, o site ou o nome de usuário mudou desde que esta senha foi salva, então agora é outra senha.",
+    "Store this password": "Guardar esta senha",
+    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "Guardar a própria senha no arquivo: ela deixa de mudar com a senha mestra, o site ou o usuário"
   }
 }

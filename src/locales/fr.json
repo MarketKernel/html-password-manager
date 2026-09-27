@@ -125,7 +125,40 @@
     "Allow look-alike characters": "Autoriser les caractères semblables",
     "Another one": "Un autre",
     "Use": "Utiliser",
-    "Copy": "Copier"
+    "Copy": "Copier",
+    "Random": "Aléatoire",
+    "Kind of password": "Type de mot de passe",
+    "User name: {user}, from the entry": "Nom d’utilisateur : {user}, de l’entrée",
+    "Master key": "Clé principale",
+    "Identifier": "Identifiant",
+    "Primary key": "Clé primaire",
+    "Secondary key": "Clé secondaire",
+    "Compute the primary key": "Calculer la clé primaire",
+    "Tied to the identifier: kept apart from the master key, it can be typed in here directly.": "Liée à l’identifiant : conservée à part de la clé principale, elle peut être saisie ici directement.",
+    "Result": "Résultat",
+    "Primary secret phrase": "Phrase secrète primaire",
+    "Key length": "Longueur de la clé",
+    "Signature: compare it with the one the program showed": "Signature : comparez-la avec celle qu’affichait le programme",
+    "Key": "Clé",
+    "Secondary secret phrase": "Phrase secrète secondaire",
+    "Password version": "Version du mot de passe",
+    "Password length": "Longueur du mot de passe",
+    "Compute the key": "Calculer la clé",
+    "Primary protection": "Protection primaire",
+    "Secondary protection": "Protection secondaire",
+    "Digits are always included": "Les chiffres sont toujours inclus",
+    "Remember until the database locks": "Retenir jusqu’au verrouillage de la base",
+    "Kept in the memory of this page only, never written to disk; locking the database forgets it.": "Conservée uniquement dans la mémoire de cette page, jamais écrite sur le disque ; verrouiller la base l’efface.",
+    "Use the database's master password": "Utiliser le mot de passe principal de la base",
+    "The database's master password": "Mot de passe principal de la base",
+    "The password this database was unlocked with is the master key: nothing to type or to keep": "Le mot de passe qui a ouvert cette base sert de clé principale : rien à saisir ni à retenir",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "Dérivé du mot de passe qui a ouvert cette base ; décochez pour dériver d’un autre mot de passe principal",
+    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "Avec un autre mot de passe principal, le résultat est inséré comme un mot de passe stocké ordinaire : l’entrée ne pourrait pas le recalculer.",
+    "Enter the master password to derive from": "Saisissez le mot de passe principal dont dériver",
+    "Derived v3": "Dérivé v3",
+    "Derived v2": "Dérivé v2",
+    "Derived v1": "Dérivé v1",
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "Le mot de passe qui a ouvert cette base sert de phrase secrète primaire : rien à saisir ni à retenir"
   },
   "gate": {
     "KeePass database": "Base de données KeePass",
@@ -271,7 +304,9 @@
     "Autosave works when the file was opened with write access.": "L’enregistrement automatique fonctionne si le fichier a été ouvert avec un accès en écriture.",
     "This browser cannot write files in place, so saving downloads a copy.": "Ce navigateur ne peut pas modifier les fichiers directement : l’enregistrement télécharge donc une copie.",
     "Light": "Clair",
-    "Dark": "Sombre"
+    "Dark": "Sombre",
+    "Show legacy password algorithms": "Afficher les anciens algorithmes de mots de passe",
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "Le générateur propose alors aussi les dérivés v2 et v1, les calculatrices de deux anciens programmes, pour retrouver les mots de passe créés avec eux."
   },
   "password": {
     "Show password": "Afficher le mot de passe",
@@ -310,8 +345,6 @@
     "Pick at least one character set": "Choisissez au moins un jeu de caractères",
     "The database has no master password to derive passwords from": "La base n’a pas de mot de passe principal dont dériver les mots de passe",
     "Derived · {site} · version {version}": "Dérivé · {site} · version {version}",
-    "Stored": "Enregistré",
-    "Derived": "Dérivé",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "Calculé à partir du mot de passe principal, du site, du nom d’utilisateur et de la version : il se retrouve sans le fichier",
     "Needs a master password, and this database opens with a key file alone": "Il faut un mot de passe principal, et cette base s’ouvre avec un fichier clé seul",
     "Version": "Version",
@@ -319,6 +352,8 @@
     "Nothing but these settings is saved; the password is computed each time.": "Seuls ces réglages sont enregistrés ; le mot de passe est recalculé à chaque fois.",
     "Enter the website: the password is derived from its domain": "Indiquez le site web : le mot de passe est dérivé de son domaine",
     "Site: {site}, from the website": "Site : {site}, d’après le site web",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "Le mot de passe principal, le site web ou le nom d’utilisateur a changé depuis l’enregistrement de ce mot de passe : c’est maintenant un autre mot de passe."
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "Le mot de passe principal, le site web ou le nom d’utilisateur a changé depuis l’enregistrement de ce mot de passe : c’est maintenant un autre mot de passe.",
+    "Store this password": "Stocker ce mot de passe",
+    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "Conserver le mot de passe lui-même dans le fichier : il ne changera plus avec le mot de passe principal, le site web ou le nom d’utilisateur"
   }
 }

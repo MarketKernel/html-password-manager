@@ -22,7 +22,7 @@ import {
   rememberFile,
   type DbFile,
 } from './files';
-import { openGenerator } from './genpanel';
+import { openGenerator, type GeneratorEntry } from './genpanel';
 import { Sidebar, type Selection } from './groups';
 import { isRightToLeft, LANGUAGES, setLanguage, t, tn, translatePage, type Language } from './i18n';
 import {
@@ -51,6 +51,7 @@ import {
   type Group,
   type Kdbx,
 } from './kdbx';
+import { forgetLegacySecrets } from './legacy';
 import { EntryList } from './list';
 import { matches, sortEntries, SORT_KEYS, sortLabel } from './search';
 import {
@@ -186,7 +187,7 @@ const details = new Details(el('details'), el('details-placeholder'), {
     activeUuid = null;
     refresh();
   },
-  generator: (anchor, onUse) => generatorAt(anchor, t('generator', 'Use'), onUse),
+  generator: (anchor, onUse, entry) => generatorAt(anchor, t('generator', 'Use'), onUse, entry),
   editingChanged: (editing) => document.body.classList.toggle('editing', editing),
   confirmDiscard: () => confirmAsk(t('dialog', 'Discard changes?'), t('dialog', 'The edits to this entry will be lost.'), t('dialog', 'Discard')),
 });
@@ -314,6 +315,7 @@ async function lock(reason: 'manual' | 'idle' = 'manual'): Promise<void> {
   window.clearTimeout(saveTimer);
   db = null;
   setMasterPassword(null);
+  forgetLegacySecrets();
   dirty = false;
   activeUuid = null;
   details.show(null);
@@ -816,6 +818,13 @@ function openSettings(anchor: HTMLElement): void {
     saveSettings(settings);
     if (settings.autosave && dirty) scheduleAutosave();
   });
+  const legacy = h('input', { type: 'checkbox' });
+  legacy.checked = settings.showLegacy;
+  legacy.addEventListener('change', () => {
+    settings.showLegacy = legacy.checked;
+    saveSettings(settings);
+    if (!legacy.checked) forgetLegacySecrets();
+  });
   const row = (label: string, control: HTMLElement): HTMLElement => h('label', { class: 'settings-row' }, h('span', { text: label }), control);
   const languages: [Settings['language'], string][] = [['auto', t('settings', 'System')], ...(Object.entries(LANGUAGES) as [Language, string][])];
   const themes: Theme[] = ['system', 'light', 'dark'];
@@ -855,6 +864,8 @@ function openSettings(anchor: HTMLElement): void {
         ? t('settings', 'Autosave works when the file was opened with write access.')
         : t('settings', 'This browser cannot write files in place, so saving downloads a copy.'),
     }),
+    h('label', { class: 'settings-row settings-row--check' }, legacy, h('span', { text: t('settings', 'Show legacy password algorithms') })),
+    h('p', { class: 'settings-note', text: t('settings', 'The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.') }),
   );
   popover(anchor, panel);
 }
@@ -890,7 +901,7 @@ function setTheme(theme: Theme): void {
   saveSettings(settings);
 }
 
-function generatorAt(anchor: HTMLElement, useLabel: string, onUse: (password: string) => void): void {
+function generatorAt(anchor: HTMLElement, useLabel: string, onUse: (password: string) => void, entry?: GeneratorEntry): void {
   openGenerator({
     anchor,
     options: settings.generator,
@@ -898,8 +909,20 @@ function generatorAt(anchor: HTMLElement, useLabel: string, onUse: (password: st
       settings.generator = options;
       saveSettings(settings);
     },
+    kind: settings.generatorKind,
+    onKind: (kind) => {
+      settings.generatorKind = kind;
+      saveSettings(settings);
+    },
+    legacy: settings.showLegacy,
+    usesMaster: { ...settings.legacyUsesMaster },
+    onUsesMaster: (kind, uses) => {
+      settings.legacyUsesMaster = { ...settings.legacyUsesMaster, [kind]: uses };
+      saveSettings(settings);
+    },
     useLabel,
     onUse,
+    entry,
   });
 }
 

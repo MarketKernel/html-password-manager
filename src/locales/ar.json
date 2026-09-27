@@ -131,7 +131,40 @@
     "Allow look-alike characters": "السماح بالأحرف المتشابهة",
     "Another one": "كلمة أخرى",
     "Use": "استخدام",
-    "Copy": "نسخ"
+    "Copy": "نسخ",
+    "Random": "عشوائية",
+    "Kind of password": "نوع كلمة المرور",
+    "User name: {user}, from the entry": "اسم المستخدم: {user}، من الإدخال",
+    "Master key": "المفتاح الرئيسي",
+    "Identifier": "المعرّف",
+    "Primary key": "المفتاح الأساسي",
+    "Secondary key": "المفتاح الثانوي",
+    "Compute the primary key": "احسب المفتاح الأساسي",
+    "Tied to the identifier: kept apart from the master key, it can be typed in here directly.": "مرتبط بالمعرّف: يُحفظ بعيدًا عن المفتاح الرئيسي، ويمكن كتابته هنا مباشرة.",
+    "Result": "النتيجة",
+    "Primary secret phrase": "العبارة السرية الأساسية",
+    "Key length": "طول المفتاح",
+    "Signature: compare it with the one the program showed": "التوقيع: قارنه بالتوقيع الذي كان يعرضه البرنامج",
+    "Key": "المفتاح",
+    "Secondary secret phrase": "العبارة السرية الثانوية",
+    "Password version": "إصدار كلمة المرور",
+    "Password length": "طول كلمة المرور",
+    "Compute the key": "احسب المفتاح",
+    "Primary protection": "الحماية الأساسية",
+    "Secondary protection": "الحماية الثانوية",
+    "Digits are always included": "الأرقام مضمّنة دائمًا",
+    "Remember until the database locks": "تذكّرها حتى تُقفل قاعدة البيانات",
+    "Kept in the memory of this page only, never written to disk; locking the database forgets it.": "تُحفظ في ذاكرة هذه الصفحة فقط ولا تُكتب على القرص أبدًا؛ قفل قاعدة البيانات يمحوها.",
+    "Use the database's master password": "استخدم كلمة المرور الرئيسية لقاعدة البيانات",
+    "The database's master password": "كلمة المرور الرئيسية لقاعدة البيانات",
+    "The password this database was unlocked with is the master key: nothing to type or to keep": "كلمة المرور التي فُتحت بها قاعدة البيانات هي المفتاح الرئيسي: لا شيء لكتابته أو حفظه",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "مشتقة من كلمة المرور التي فُتحت بها قاعدة البيانات؛ ألغِ التحديد للاشتقاق من كلمة مرور رئيسية أخرى",
+    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "مع كلمة مرور رئيسية أخرى تُدرج النتيجة ككلمة مرور مخزنة عادية: لن يتمكن الإدخال من حسابها مجددًا.",
+    "Enter the master password to derive from": "أدخل كلمة المرور الرئيسية التي يُشتق منها",
+    "Derived v3": "مشتقة v3",
+    "Derived v2": "مشتقة v2",
+    "Derived v1": "مشتقة v1",
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "كلمة المرور التي فُتحت بها قاعدة البيانات هي العبارة السرية الأساسية: لا شيء لكتابته أو حفظه"
   },
   "gate": {
     "KeePass database": "قاعدة بيانات KeePass",
@@ -289,7 +322,9 @@
     "Autosave works when the file was opened with write access.": "يعمل الحفظ التلقائي عندما يكون الملف مفتوحًا بصلاحية الكتابة.",
     "This browser cannot write files in place, so saving downloads a copy.": "لا يستطيع هذا المتصفح الكتابة في الملفات مباشرة، لذا يؤدي الحفظ إلى تنزيل نسخة.",
     "Light": "فاتحة",
-    "Dark": "داكنة"
+    "Dark": "داكنة",
+    "Show legacy password algorithms": "إظهار خوارزميات كلمات المرور القديمة",
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "عندها يقدّم المولّد أيضًا المشتقتين v2 وv1، وهما حاسبتا برنامجين قديمين، لاستعادة كلمات المرور التي أُنشئت بهما."
   },
   "password": {
     "Show password": "إظهار كلمة المرور",
@@ -328,8 +363,6 @@
     "Pick at least one character set": "اختر مجموعة أحرف واحدة على الأقل",
     "The database has no master password to derive passwords from": "ليس لقاعدة البيانات كلمة مرور رئيسية تُشتق منها كلمات المرور",
     "Derived · {site} · version {version}": "مشتقة · {site} · الإصدار {version}",
-    "Stored": "مخزّنة",
-    "Derived": "مشتقة",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "تُحسب من كلمة المرور الرئيسية والموقع واسم المستخدم والإصدار: يمكن استعادتها دون الملف",
     "Needs a master password, and this database opens with a key file alone": "تحتاج إلى كلمة مرور رئيسية، وقاعدة البيانات هذه تُفتح بملف مفتاح فقط",
     "Version": "الإصدار",
@@ -337,6 +370,8 @@
     "Nothing but these settings is saved; the password is computed each time.": "لا يُحفظ سوى هذه الإعدادات؛ وتُحسب كلمة المرور في كل مرة.",
     "Enter the website: the password is derived from its domain": "أدخل الموقع الإلكتروني: كلمة المرور تُشتق من نطاقه",
     "Site: {site}, from the website": "الموقع: {site}، من الموقع الإلكتروني",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "تغيّرت كلمة المرور الرئيسية أو الموقع الإلكتروني أو اسم المستخدم منذ حفظ كلمة المرور هذه، فهي الآن كلمة مرور مختلفة."
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "تغيّرت كلمة المرور الرئيسية أو الموقع الإلكتروني أو اسم المستخدم منذ حفظ كلمة المرور هذه، فهي الآن كلمة مرور مختلفة.",
+    "Store this password": "خزّن كلمة المرور هذه",
+    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "احتفظ بكلمة المرور نفسها في الملف: لن تتغير بعد الآن مع كلمة المرور الرئيسية أو الموقع الإلكتروني أو اسم المستخدم"
   }
 }

@@ -123,7 +123,40 @@
     "Allow look-alike characters": "ملتے جلتے حروف کی اجازت دیں",
     "Another one": "ایک اور",
     "Use": "استعمال کریں",
-    "Copy": "کاپی کریں"
+    "Copy": "کاپی کریں",
+    "Random": "بے ترتیب",
+    "Kind of password": "پاس ورڈ کی قسم",
+    "User name: {user}, from the entry": "صارف نام: {user}، اندراج سے",
+    "Master key": "ماسٹر کلید",
+    "Identifier": "شناخت کنندہ",
+    "Primary key": "بنیادی کلید",
+    "Secondary key": "ثانوی کلید",
+    "Compute the primary key": "بنیادی کلید کا حساب لگائیں",
+    "Tied to the identifier: kept apart from the master key, it can be typed in here directly.": "شناخت کنندہ سے منسلک: ماسٹر کلید سے الگ رکھی جاتی ہے، اسے یہاں براہ راست لکھا جا سکتا ہے۔",
+    "Result": "نتیجہ",
+    "Primary secret phrase": "بنیادی خفیہ فقرہ",
+    "Key length": "کلید کی لمبائی",
+    "Signature: compare it with the one the program showed": "دستخط: اسے اس سے ملائیں جو پروگرام دکھاتا تھا",
+    "Key": "کلید",
+    "Secondary secret phrase": "ثانوی خفیہ فقرہ",
+    "Password version": "پاس ورڈ کا ورژن",
+    "Password length": "پاس ورڈ کی لمبائی",
+    "Compute the key": "کلید کا حساب لگائیں",
+    "Primary protection": "بنیادی تحفظ",
+    "Secondary protection": "ثانوی تحفظ",
+    "Digits are always included": "ہندسے ہمیشہ شامل رہتے ہیں",
+    "Remember until the database locks": "ڈیٹا بیس لاک ہونے تک یاد رکھیں",
+    "Kept in the memory of this page only, never written to disk; locking the database forgets it.": "صرف اس صفحے کی میموری میں رکھا جاتا ہے، کبھی ڈسک پر نہیں لکھا جاتا؛ ڈیٹا بیس لاک کرنے سے مٹ جاتا ہے۔",
+    "Use the database's master password": "ڈیٹا بیس کا ماسٹر پاس ورڈ استعمال کریں",
+    "The database's master password": "ڈیٹا بیس کا ماسٹر پاس ورڈ",
+    "The password this database was unlocked with is the master key: nothing to type or to keep": "جس پاس ورڈ سے یہ ڈیٹا بیس کھولا گیا وہی ماسٹر کلید ہے: نہ کچھ لکھنا ہے نہ یاد رکھنا",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "اس پاس ورڈ سے اخذ شدہ جس سے یہ ڈیٹا بیس کھولا گیا؛ کسی دوسرے ماسٹر پاس ورڈ سے بنانے کے لیے نشان ہٹائیں",
+    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "دوسرے ماسٹر پاس ورڈ کے ساتھ نتیجہ عام محفوظ پاس ورڈ کے طور پر ڈالا جاتا ہے: اندراج اسے دوبارہ حساب نہیں کر سکتا۔",
+    "Enter the master password to derive from": "وہ ماسٹر پاس ورڈ درج کریں جس سے اخذ کرنا ہے",
+    "Derived v3": "اخذ شدہ v3",
+    "Derived v2": "اخذ شدہ v2",
+    "Derived v1": "اخذ شدہ v1",
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "جس پاس ورڈ سے یہ ڈیٹا بیس کھولا گیا وہی بنیادی خفیہ فقرہ ہے: نہ کچھ لکھنا ہے نہ یاد رکھنا"
   },
   "gate": {
     "KeePass database": "KeePass ڈیٹا بیس",
@@ -265,7 +298,9 @@
     "Autosave works when the file was opened with write access.": "خودکار محفوظ کاری تب کام کرتی ہے جب فائل لکھنے کی اجازت کے ساتھ کھولی گئی ہو۔",
     "This browser cannot write files in place, so saving downloads a copy.": "یہ براؤزر فائلوں میں براہ راست نہیں لکھ سکتا، اس لیے محفوظ کرنے پر ایک کاپی ڈاؤن لوڈ ہوتی ہے۔",
     "Light": "روشن",
-    "Dark": "تاریک"
+    "Dark": "تاریک",
+    "Show legacy password algorithms": "پرانے پاس ورڈ الگورتھم دکھائیں",
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "پھر جنریٹر اخذ شدہ v2 اور v1 بھی پیش کرتا ہے — دو پرانے پروگراموں کے کیلکولیٹر، ان سے بنے پاس ورڈ واپس حاصل کرنے کے لیے۔"
   },
   "password": {
     "Show password": "پاس ورڈ دکھائیں",
@@ -304,8 +339,6 @@
     "Pick at least one character set": "کم از کم ایک حروف کا مجموعہ منتخب کریں",
     "The database has no master password to derive passwords from": "ڈیٹا بیس میں کوئی ماسٹر پاس ورڈ نہیں جس سے پاس ورڈ اخذ کیے جائیں",
     "Derived · {site} · version {version}": "اخذ شدہ · {site} · ورژن {version}",
-    "Stored": "محفوظ شدہ",
-    "Derived": "اخذ شدہ",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "ماسٹر پاس ورڈ، سائٹ، صارف نام اور ورژن سے حساب کیا جاتا ہے: فائل کے بغیر بھی بحال ہو سکتا ہے",
     "Needs a master password, and this database opens with a key file alone": "ماسٹر پاس ورڈ درکار ہے، اور یہ ڈیٹا بیس صرف کلیدی فائل سے کھلتا ہے",
     "Version": "ورژن",
@@ -313,6 +346,8 @@
     "Nothing but these settings is saved; the password is computed each time.": "صرف یہ ترتیبات محفوظ ہوتی ہیں؛ پاس ورڈ ہر بار حساب کیا جاتا ہے۔",
     "Enter the website: the password is derived from its domain": "ویب سائٹ درج کریں: پاس ورڈ اس کے ڈومین سے اخذ ہوتا ہے",
     "Site: {site}, from the website": "سائٹ: {site}، ویب سائٹ سے",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "یہ پاس ورڈ محفوظ ہونے کے بعد ماسٹر پاس ورڈ، ویب سائٹ یا صارف نام بدل گیا ہے، اس لیے اب یہ دوسرا پاس ورڈ ہے۔"
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "یہ پاس ورڈ محفوظ ہونے کے بعد ماسٹر پاس ورڈ، ویب سائٹ یا صارف نام بدل گیا ہے، اس لیے اب یہ دوسرا پاس ورڈ ہے۔",
+    "Store this password": "یہ پاس ورڈ محفوظ کریں",
+    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "پاس ورڈ کو ہی فائل میں رکھیں: یہ اب ماسٹر پاس ورڈ، ویب سائٹ یا صارف نام کے ساتھ نہیں بدلے گا"
   }
 }

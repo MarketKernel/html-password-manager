@@ -125,7 +125,40 @@
     "Allow look-alike characters": "Permitir caracteres parecidos",
     "Another one": "Generar otra",
     "Use": "Usar",
-    "Copy": "Copiar"
+    "Copy": "Copiar",
+    "Random": "Aleatoria",
+    "Kind of password": "Tipo de contraseña",
+    "User name: {user}, from the entry": "Usuario: {user}, de la entrada",
+    "Master key": "Clave maestra",
+    "Identifier": "Identificador",
+    "Primary key": "Clave primaria",
+    "Secondary key": "Clave secundaria",
+    "Compute the primary key": "Calcular la clave primaria",
+    "Tied to the identifier: kept apart from the master key, it can be typed in here directly.": "Ligada al identificador: se guarda aparte de la clave maestra y puede escribirse aquí directamente.",
+    "Result": "Resultado",
+    "Primary secret phrase": "Frase secreta primaria",
+    "Key length": "Longitud de la clave",
+    "Signature: compare it with the one the program showed": "Firma: compárela con la que mostraba el programa",
+    "Key": "Clave",
+    "Secondary secret phrase": "Frase secreta secundaria",
+    "Password version": "Versión de la contraseña",
+    "Password length": "Longitud de la contraseña",
+    "Compute the key": "Calcular la clave",
+    "Primary protection": "Protección primaria",
+    "Secondary protection": "Protección secundaria",
+    "Digits are always included": "Los dígitos siempre se incluyen",
+    "Remember until the database locks": "Recordar hasta que se bloquee la base",
+    "Kept in the memory of this page only, never written to disk; locking the database forgets it.": "Se guarda solo en la memoria de esta página y nunca se escribe en el disco; bloquear la base la olvida.",
+    "Use the database's master password": "Usar la contraseña maestra de la base",
+    "The database's master password": "Contraseña maestra de la base",
+    "The password this database was unlocked with is the master key: nothing to type or to keep": "La contraseña con la que se abrió esta base es la clave maestra: no hay nada que escribir ni guardar",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "Se deriva de la contraseña con la que se abrió esta base; desmarque para derivar de otra contraseña maestra",
+    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "Con otra contraseña maestra el resultado se guarda como una contraseña normal: la entrada no podría volver a calcularla.",
+    "Enter the master password to derive from": "Escriba la contraseña maestra de la que derivar",
+    "Derived v3": "Derivada v3",
+    "Derived v2": "Derivada v2",
+    "Derived v1": "Derivada v1",
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "La contraseña con la que se abrió esta base es la frase secreta primaria: no hay nada que escribir ni guardar"
   },
   "gate": {
     "KeePass database": "Base de datos de KeePass",
@@ -271,7 +304,9 @@
     "Autosave works when the file was opened with write access.": "El guardado automático funciona cuando el archivo se abrió con permiso de escritura.",
     "This browser cannot write files in place, so saving downloads a copy.": "Este navegador no puede sobrescribir archivos, así que al guardar se descarga una copia.",
     "Light": "Claro",
-    "Dark": "Oscuro"
+    "Dark": "Oscuro",
+    "Show legacy password algorithms": "Mostrar los algoritmos de contraseñas antiguos",
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "El generador ofrece además las derivadas v2 y v1, las calculadoras de dos programas antiguos, para recuperar las contraseñas hechas con ellos."
   },
   "password": {
     "Show password": "Mostrar contraseña",
@@ -310,8 +345,6 @@
     "Pick at least one character set": "Elige al menos un conjunto de caracteres",
     "The database has no master password to derive passwords from": "La base de datos no tiene una contraseña maestra de la que derivar contraseñas",
     "Derived · {site} · version {version}": "Derivada · {site} · versión {version}",
-    "Stored": "Guardada",
-    "Derived": "Derivada",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "Se calcula a partir de la contraseña maestra, el sitio, el nombre de usuario y la versión: se puede recuperar sin el archivo",
     "Needs a master password, and this database opens with a key file alone": "Necesita una contraseña maestra, y esta base de datos se abre solo con un archivo de clave",
     "Version": "Versión",
@@ -319,6 +352,8 @@
     "Nothing but these settings is saved; the password is computed each time.": "Solo se guarda esta configuración; la contraseña se calcula cada vez.",
     "Enter the website: the password is derived from its domain": "Indica el sitio web: la contraseña se deriva de su dominio",
     "Site: {site}, from the website": "Sitio: {site}, del sitio web",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "La contraseña maestra, el sitio web o el nombre de usuario han cambiado desde que se guardó esta contraseña, así que ahora es otra contraseña."
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "La contraseña maestra, el sitio web o el nombre de usuario han cambiado desde que se guardó esta contraseña, así que ahora es otra contraseña.",
+    "Store this password": "Guardar esta contraseña",
+    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "Guardar la propia contraseña en el archivo: ya no cambiará con la contraseña maestra, el sitio web ni el usuario"
   }
 }

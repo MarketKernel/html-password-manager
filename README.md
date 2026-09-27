@@ -66,11 +66,17 @@ copy of the database.
 - **Recycle bin**: deleting moves to the bin; from there — restore or delete for good.
 - **Search** across title, user name, website, notes, tags, custom fields and attachment
   names; every word of the query must match.
-- **Password generator**: length, character sets, look-alike characters, entropy estimate.
+- **Password generator** (the dice, `⌘G`) makes a password of the kind picked in its list,
+  newest derivation first; the last choice is remembered:
+  - **Derived v3** — in an entry it keeps only the rules for computing the password from the
+    master password, the site, the user name and a version — see
+    "[Derived passwords](#derived-passwords)";
+  - **Derived v2** and **Derived v1** — the calculators of two older programs (legacy 2 and
+    legacy 1), listed when Settings → "Show legacy password algorithms" is on — see
+    "[Legacy algorithms](#legacy-algorithms)";
+  - **Random** — length, character sets, look-alike characters, entropy estimate.
+
   Strength meter for typed passwords.
-- **Derived passwords**: instead of a stored password, an entry can keep only the rules for
-  computing it from the master password, the site, the user name and a version — see
-  "[Derived passwords](#derived-passwords)".
 - **Database**: rename, change the master password and key file, save a copy.
 - **Languages**: English, 中文, हिन्दी, Español, Français, العربية, বাংলা, Português, Русский,
   اردو — the ten most spoken. Chosen in Settings, or taken from the browser; Arabic and Urdu
@@ -80,8 +86,8 @@ copy of the database.
 
 ## Derived passwords
 
-In edit mode the password is either **Stored** (an ordinary password kept in the file) or
-**Derived**: computed each time from
+A password is either stored (an ordinary password kept in the file) or **derived**: computed
+each time from
 
 - the master password of the database (the key file, if any, is left out),
 - the site — the domain of the entry's website (`https://www.github.com/login` → `github.com`),
@@ -95,6 +101,17 @@ password on any machine. To recover one, create a new database with the same mas
 and a derived entry with the same website, user name and version. The defaults are 20
 characters, all four character sets, no look-alikes; entries with other requirements need
 those requirements remembered as well.
+
+To make an entry's password derived, open the generator from the password field in edit mode,
+pick **Derived v3** and press **Use**. The editor then shows the derived password with its
+version and requirements; **Store this password** turns it back into a stored one with the
+same value, and any other kind from the generator replaces it. From the toolbar the generator
+takes the website and the user name as inputs and copies the result.
+
+"Use the database's master password" is ticked each time the generator opens. Untick it to
+derive from another master password, typed there and kept nowhere — to recover a password
+made in another database, say. Such a result is put in as an ordinary stored password: a
+derived entry is always computed from its own database's master password.
 
 The site and the user name are the entry's own fields, not copies: editing the website to
 another domain makes another password, and the editor shows the new one at once. The
@@ -220,6 +237,60 @@ The same entropy with 12 characters and no symbols gives `yaM6VJaJFYUQ` (the che
 The master password is kept XOR-masked in memory while the database is open, along with the
 entropy and passwords computed so far; locking drops them all.
 
+## Legacy algorithms
+
+Two older Windows programs computed passwords from secret phrases; **Derived v1** (legacy 1)
+and **Derived v2** (legacy 2) in the generator repeat them exactly, so the passwords made with them can be
+recovered. They are calculators: nothing typed into them is saved, the phrases are gone when
+the generator closes, and **Use** puts the result into the entry as an ordinary stored
+password. Settings → "Show legacy password algorithms" makes them appear.
+
+Opened from an entry, both suggest the identifier: a user name that already names its site
+(`mail@site.com`) as it is, otherwise the user name, `@` and the site without `www.`
+(`dmytro@github.com`); it can be changed. Each phrase — the master key and the secondary key,
+the primary and the secondary secret phrase — has its own "Remember until the database locks"
+box: a ticked one is kept in the page's memory, XOR-masked, and filled in next time; with the
+first phrase kept, the key is computed at once. Both can also take the database's own master
+password — the one it was unlocked with — as their first phrase, legacy 1's master key or
+legacy 2's primary secret phrase ("Use the database's master password", remembered in the
+settings for each of them): that field and its box are then off. Nothing of it is
+written to disk; locking,
+closing the database or turning the legacy algorithms off forgets them all. The code is
+`src/legacy.ts`; `npm test` checks it against vectors computed by the original .NET programs.
+
+**Legacy 1** — master key, identifier, primary key, secondary key, result:
+
+```
+short(bytes) = Base64(bytes) without "=", "/", "+", first 10 characters
+primary key  = short(SHA-1 applied 1 000 000 times to UTF-8(master key ‖ identifier))
+result       = short(SHA-1(UTF-8(primary key ‖ secondary key)))
+```
+
+The primary key is bound to the identifier and can be kept apart (on paper), so the master key
+need not be typed anywhere: it can be entered directly. The secondary key keeps a stolen note
+useless on its own.
+
+**Legacy 2** (Password.Generator 1.0) — primary protection: identifier, primary secret phrase,
+key length, character sets; secondary protection: the key, secondary secret phrase, password
+version, password length, character sets:
+
+```
+digest(a, b, v, n) = SHA-1 applied n times to UTF-8(a) ‖ UTF-8(b) ‖ (v > 0 ? u32le(v) : nothing)
+key                = select(digest(identifier, primary phrase, 1, 100 000), key length + 2)
+password           = select(digest(key, secondary phrase, version, 1), password length + 2)
+```
+
+`select` reads the digest as five little-endian u32, sets the top bit of each, writes it in
+base N of the alphabet — `!#$%&'()+,-.` (if chosen), digits (always), A–Z, a–z (if chosen) —
+least significant digit first, keeps 5 characters of each and cuts to the length (1–18). The
+first two characters are a signature to compare by eye with the one the program showed; the
+rest is the key or the password. The key's version is always 1: the program has no field for
+it. Identifier `1`, phrase `1`, length 10, digits and letters give the key `E8 8pgYm9fZha`.
+
+Both are far weaker than version 3: a guess at the phrases costs an attacker a few SHA-1 runs
+instead of an Argon2id run over 64 MiB, and a Legacy 1 result is 10 characters, about 60 bits.
+Use them to recover old passwords, not for new ones.
+
 ## Keyboard shortcuts
 
 | Action | Keys |
@@ -292,7 +363,8 @@ src/details.ts      one entry: reading, editing on a draft, history, attachments
 src/search.ts       search, sorting, safe links
 src/generator.ts    password generator and strength estimate
 src/derived.ts      derived passwords: generator 3, the site of a website, the stored JSON, the session's master password
-src/genpanel.ts     the generator popover
+src/legacy.ts       the legacy algorithms: legacy 1 and legacy 2
+src/genpanel.ts     the generator popover: random, version 3, legacy 1 and 2
 src/otp.ts          TOTP (RFC 6238) and the ways secrets are stored
 src/clipboard.ts    copying with a timed wipe
 src/avatar.ts       entry icons: custom icons from the database or a coloured letter
@@ -300,7 +372,7 @@ src/settings.ts     localStorage: language, theme, zoom, panels, lock and clipbo
 src/i18n.ts         t()/tn(), the language list, translating the page's markup
 src/locales/        one dictionary per language
 src/ui.ts           dialogs, context menu, popovers, toasts, icons
-tools/              tests: .kdbx round trips, generator and TOTP, derived passwords, dictionaries, the page in headless Chrome
+tools/              tests: .kdbx round trips, generator and TOTP, derived passwords, legacy algorithms, dictionaries, the page in headless Chrome
 vendor/icon.svg     the icon
 docs/               working notes (not under git)
 build/              the build output

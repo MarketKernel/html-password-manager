@@ -150,7 +150,8 @@ export function specProblem(spec: DerivedSpec): string | null {
   return storedProblem(spec);
 }
 
-function storedProblem(spec: DerivedSpec): string | null {
+/** What is wrong with the settings alone, the website aside, or null. */
+export function storedProblem(spec: DerivedSpec): string | null {
   if (!Number.isInteger(spec.version) || spec.version < 1 || spec.version > VERSION_MAX) {
     return t('derived', 'The version is a whole number from 1 to {max}', { max: VERSION_MAX });
   }
@@ -316,6 +317,11 @@ export function setMasterPassword(password: string | null): void {
   master = password ? ProtectedValue.fromString(password) : null;
   entropies.clear();
   passwords.clear();
+}
+
+/** The master password the database was unlocked with, for legacy 1's "use the database's master password". */
+export function sessionMasterPassword(): string | null {
+  return master?.getText() ?? null;
 }
 
 export function hasMasterPassword(): boolean {

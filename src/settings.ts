@@ -1,10 +1,12 @@
 /** Language, theme, zoom, panel and security preferences, remembered in localStorage between sessions. */
 
-import { GENERATOR_DEFAULTS, LENGTH_MAX, LENGTH_MIN, type GeneratorOptions } from './generator';
+import { GENERATOR_DEFAULTS, GENERATOR_KINDS, LENGTH_MAX, LENGTH_MIN, type GeneratorKind, type GeneratorOptions } from './generator';
 import { detectLanguage, isLanguage, type Language } from './i18n';
 import type { SortKey } from './search';
 
 export type Theme = 'system' | 'light' | 'dark';
+
+export type LegacyUsesMaster = Record<'legacy1' | 'legacy2', boolean>;
 
 export interface Settings {
   /** 'auto' follows the browser's languages. */
@@ -25,6 +27,12 @@ export interface Settings {
   /** Write the file shortly after every change, when it can be written in place. */
   autosave: boolean;
   generator: GeneratorOptions;
+  /** The kind of password the generator opens with. */
+  generatorKind: GeneratorKind;
+  /** The generator offers the legacy algorithms, legacy 1 and legacy 2. */
+  showLegacy: boolean;
+  /** Legacy 1 takes the database's master password as its master key, legacy 2 as its primary secret phrase. */
+  legacyUsesMaster: LegacyUsesMaster;
   /** Collapsed groups, by UUID. */
   collapsed: string[];
   /** The recycle bin's deleted groups are shown; folded unless asked. */
@@ -51,6 +59,9 @@ const DEFAULTS: Settings = {
   clipboardSeconds: 30,
   autosave: true,
   generator: { ...GENERATOR_DEFAULTS },
+  generatorKind: 'v3',
+  showLegacy: false,
+  legacyUsesMaster: { legacy1: false, legacy2: false },
   collapsed: [],
   binOpen: false,
 };
@@ -74,6 +85,9 @@ export function loadSettings(): Settings {
         ? Number(stored.clipboardSeconds)
         : DEFAULTS.clipboardSeconds,
       generator,
+      generatorKind: GENERATOR_KINDS.includes(stored.generatorKind as GeneratorKind) ? (stored.generatorKind as GeneratorKind) : DEFAULTS.generatorKind,
+      showLegacy: stored.showLegacy === true,
+      legacyUsesMaster: usesMasterOf(stored.legacyUsesMaster),
       collapsed: Array.isArray(stored.collapsed) ? stored.collapsed : [],
       binOpen: stored.binOpen === true,
     };
@@ -88,6 +102,13 @@ export function saveSettings(settings: Settings): void {
   } catch {
     /* private mode or a full quota — the manager works either way */
   }
+}
+
+/** Once a single flag for legacy 1 alone. */
+function usesMasterOf(value: unknown): LegacyUsesMaster {
+  if (typeof value === 'boolean') return { legacy1: value, legacy2: false };
+  const flags = (value ?? {}) as Partial<LegacyUsesMaster>;
+  return { legacy1: flags.legacy1 === true, legacy2: flags.legacy2 === true };
 }
 
 function clampWidth(value: unknown, fallback: number, min: number, max: number): number {

@@ -18,6 +18,16 @@ export interface GeneratorOptions {
   ambiguous: boolean;
 }
 
+/** What the generator makes: a derived password — version 3, or legacy 2 and 1 of older programs — or a random one. */
+export type GeneratorKind = 'v3' | 'legacy2' | 'legacy1' | 'random';
+/** In the order the generator lists them. */
+export const GENERATOR_KINDS: readonly GeneratorKind[] = ['v3', 'legacy2', 'legacy1', 'random'];
+
+/** Offered only when the settings allow the legacy algorithms. */
+export function isLegacy(kind: GeneratorKind): boolean {
+  return kind === 'legacy1' || kind === 'legacy2';
+}
+
 export const GENERATOR_DEFAULTS: GeneratorOptions = {
   length: 20,
   upper: true,

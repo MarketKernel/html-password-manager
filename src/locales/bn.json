@@ -123,7 +123,40 @@
     "Allow look-alike characters": "দেখতে একই রকম অক্ষর অনুমোদন করুন",
     "Another one": "আরেকটি",
     "Use": "ব্যবহার করুন",
-    "Copy": "কপি"
+    "Copy": "কপি",
+    "Random": "এলোমেলো",
+    "Kind of password": "পাসওয়ার্ডের ধরন",
+    "User name: {user}, from the entry": "ব্যবহারকারীর নাম: {user}, এন্ট্রি থেকে",
+    "Master key": "মাস্টার কী",
+    "Identifier": "শনাক্তকারী",
+    "Primary key": "প্রাথমিক কী",
+    "Secondary key": "মাধ্যমিক কী",
+    "Compute the primary key": "প্রাথমিক কী গণনা করুন",
+    "Tied to the identifier: kept apart from the master key, it can be typed in here directly.": "শনাক্তকারীর সাথে যুক্ত: মাস্টার কী থেকে আলাদা রাখা হয়, এটি এখানে সরাসরি লেখা যায়।",
+    "Result": "ফলাফল",
+    "Primary secret phrase": "প্রাথমিক গোপন বাক্যাংশ",
+    "Key length": "কীর দৈর্ঘ্য",
+    "Signature: compare it with the one the program showed": "স্বাক্ষর: প্রোগ্রাম যেটি দেখাত তার সাথে মিলিয়ে নিন",
+    "Key": "কী",
+    "Secondary secret phrase": "মাধ্যমিক গোপন বাক্যাংশ",
+    "Password version": "পাসওয়ার্ডের সংস্করণ",
+    "Password length": "পাসওয়ার্ডের দৈর্ঘ্য",
+    "Compute the key": "কী গণনা করুন",
+    "Primary protection": "প্রাথমিক সুরক্ষা",
+    "Secondary protection": "মাধ্যমিক সুরক্ষা",
+    "Digits are always included": "সংখ্যা সবসময় অন্তর্ভুক্ত থাকে",
+    "Remember until the database locks": "ডেটাবেস লক না হওয়া পর্যন্ত মনে রাখুন",
+    "Kept in the memory of this page only, never written to disk; locking the database forgets it.": "শুধু এই পেজের মেমরিতে রাখা হয়, কখনো ডিস্কে লেখা হয় না; ডেটাবেস লক করলে মুছে যায়।",
+    "Use the database's master password": "ডেটাবেসের মাস্টার পাসওয়ার্ড ব্যবহার করুন",
+    "The database's master password": "ডেটাবেসের মাস্টার পাসওয়ার্ড",
+    "The password this database was unlocked with is the master key: nothing to type or to keep": "যে পাসওয়ার্ডে এই ডেটাবেস খোলা হয়েছে, সেটিই মাস্টার কী: কিছু লিখতে বা মনে রাখতে হবে না",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "যে পাসওয়ার্ডে এই ডেটাবেস খোলা হয়েছে তা থেকে উদ্ভূত; অন্য মাস্টার পাসওয়ার্ড থেকে তৈরি করতে টিক সরান",
+    "With another master password the result is put in as an ordinary stored password: the entry could not compute it again.": "অন্য মাস্টার পাসওয়ার্ডে ফলাফলটি সাধারণ সংরক্ষিত পাসওয়ার্ড হিসেবে বসানো হয়: এন্ট্রি এটি আবার গণনা করতে পারত না।",
+    "Enter the master password to derive from": "যে মাস্টার পাসওয়ার্ড থেকে তৈরি করবেন তা লিখুন",
+    "Derived v3": "উদ্ভূত v3",
+    "Derived v2": "উদ্ভূত v2",
+    "Derived v1": "উদ্ভূত v1",
+    "The password this database was unlocked with is the primary secret phrase: nothing to type or to keep": "যে পাসওয়ার্ডে এই ডেটাবেস খোলা হয়েছে, সেটিই প্রাথমিক গোপন বাক্যাংশ: কিছু লিখতে বা মনে রাখতে হবে না"
   },
   "gate": {
     "KeePass database": "KeePass ডেটাবেস",
@@ -265,7 +298,9 @@
     "Autosave works when the file was opened with write access.": "ফাইলটি লেখার অনুমতিসহ খোলা হলে স্বয়ংক্রিয় সংরক্ষণ কাজ করে।",
     "This browser cannot write files in place, so saving downloads a copy.": "এই ব্রাউজার সরাসরি ফাইলে লিখতে পারে না, তাই সংরক্ষণ করলে একটি কপি ডাউনলোড হয়।",
     "Light": "হালকা",
-    "Dark": "গাঢ়"
+    "Dark": "গাঢ়",
+    "Show legacy password algorithms": "পুরনো পাসওয়ার্ড অ্যালগরিদম দেখান",
+    "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "তখন জেনারেটর উদ্ভূত v2 ও v1-ও দেয় — দুটি পুরনো প্রোগ্রামের ক্যালকুলেটর, সেগুলো দিয়ে তৈরি পাসওয়ার্ড ফিরে পেতে।"
   },
   "password": {
     "Show password": "পাসওয়ার্ড দেখান",
@@ -304,8 +339,6 @@
     "Pick at least one character set": "অন্তত একটি অক্ষর-সেট বেছে নিন",
     "The database has no master password to derive passwords from": "ডেটাবেসে এমন কোনো মাস্টার পাসওয়ার্ড নেই যা থেকে পাসওয়ার্ড তৈরি করা যায়",
     "Derived · {site} · version {version}": "উদ্ভূত · {site} · সংস্করণ {version}",
-    "Stored": "সংরক্ষিত",
-    "Derived": "উদ্ভূত",
     "Computed from the master password, the site, the user name and the version: it can be recovered without the file": "মাস্টার পাসওয়ার্ড, সাইট, ব্যবহারকারীর নাম ও সংস্করণ থেকে গণনা করা হয়: ফাইল ছাড়াই পুনরুদ্ধার করা যায়",
     "Needs a master password, and this database opens with a key file alone": "মাস্টার পাসওয়ার্ড দরকার, আর এই ডেটাবেস শুধু কী ফাইল দিয়ে খোলে",
     "Version": "সংস্করণ",
@@ -313,6 +346,8 @@
     "Nothing but these settings is saved; the password is computed each time.": "শুধু এই সেটিংস সংরক্ষিত হয়; পাসওয়ার্ড প্রতিবার গণনা করা হয়।",
     "Enter the website: the password is derived from its domain": "ওয়েবসাইট লিখুন: পাসওয়ার্ড এর ডোমেইন থেকে তৈরি হয়",
     "Site: {site}, from the website": "সাইট: {site}, ওয়েবসাইট থেকে",
-    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "এই পাসওয়ার্ড সংরক্ষণের পর মাস্টার পাসওয়ার্ড, ওয়েবসাইট বা ব্যবহারকারীর নাম বদলেছে, তাই এখন এটি অন্য পাসওয়ার্ড।"
+    "The master password, the website or the user name has changed since this password was saved, so it is a different password now.": "এই পাসওয়ার্ড সংরক্ষণের পর মাস্টার পাসওয়ার্ড, ওয়েবসাইট বা ব্যবহারকারীর নাম বদলেছে, তাই এখন এটি অন্য পাসওয়ার্ড।",
+    "Store this password": "এই পাসওয়ার্ড সংরক্ষণ করুন",
+    "Keep the password itself in the file: it no longer changes with the master password, the website or the user name": "পাসওয়ার্ডটিই ফাইলে রাখুন: এটি আর মাস্টার পাসওয়ার্ড, ওয়েবসাইট বা ব্যবহারকারীর নামের সাথে বদলাবে না"
   }
 }

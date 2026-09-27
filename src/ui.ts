@@ -369,6 +369,9 @@ export function popover(anchor: HTMLElement, content: HTMLElement, onClose?: () 
     panel.style.top = `${top}px`;
   };
   place();
+  // Content that grows or shrinks, such as the generator switching kinds, keeps the panel in view.
+  const resized = new ResizeObserver(place);
+  resized.observe(panel);
 
   const onDown = (event: Event): void => {
     if (event.target instanceof Node && (panel.contains(event.target) || anchor.contains(event.target))) return;
@@ -385,6 +388,7 @@ export function popover(anchor: HTMLElement, content: HTMLElement, onClose?: () 
     if (!open) return;
     open = false;
     panel.remove();
+    resized.disconnect();
     document.removeEventListener('mousedown', onDown, true);
     document.removeEventListener('keydown', onKey, true);
     window.removeEventListener('resize', place);

@@ -7,6 +7,7 @@ build/
 # Reference sources and local notes, kept locally only
 keeweb-master/
 docs/Task.md
+private/
 
 # Real password databases and key files — never commit them.
 # tools/fixtures/ holds the sample database the tests open.
