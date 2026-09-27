@@ -132,6 +132,9 @@ async function until(expr, timeout = 8000) {
 }
 
 const MOD = process.platform === 'darwin' ? 4 : 2;
+// Headless Chrome on a Linux runner (GitHub's) finds no mouse and reports (hover: none),
+// so the page takes it for a touch screen; the checks that need a mouse are skipped there.
+const MOUSE = await evaluate(`matchMedia('(hover: hover)').matches`);
 const KEYS = {
   Enter: { code: 'Enter', windowsVirtualKeyCode: 13, text: '\r' },
   Escape: { code: 'Escape', windowsVirtualKeyCode: 27 },
@@ -705,7 +708,8 @@ try {
   await pickLanguage('ru');
   check('ru: lang attribute', await evaluate(`document.documentElement.lang`), 'ru');
   check('ru: settings panel redrawn', await text('.settings-title'), 'Настройки');
-  check('ru: markup translated', [await text('.toolbar-label'), await evaluate(`document.querySelector('#lock').title`), await evaluate(`document.querySelector('#search').placeholder`)], ['Новая запись', 'Заблокировать (⌘L)', 'Поиск (⌘F)']);
+  check('ru: markup translated', [await text('.toolbar-label'), await evaluate(`document.querySelector('#lock').title`)], ['Новая запись', 'Заблокировать (⌘L)']);
+  if (MOUSE) check('ru: search placeholder', await evaluate(`document.querySelector('#search').placeholder`), 'Поиск (⌘F)');
   check('ru: sidebar', await text('.tree-item--all .tree-label'), 'Все записи');
   check('ru: list title', await text('#list-title'), 'Все записи');
   check('ru: entry fields', await fieldValue('Имя пользователя'), 'Michael321');
@@ -897,7 +901,8 @@ try {
   await sleep(200);
   check('phone → computer: three panes', [await shown('.sidebar'), await shown('.list-pane'), await shown('.details-pane')], [1, 1, 1]);
   check('phone → computer: no phone classes, no steps left', await until(`document.body.className === '' && history.state === null`), true);
-  check('phone → computer: the toolbar', await Promise.all(['#toggle-sidebar', '#generator', '#settings', '#lock', '#more', '#back', '.tree-more'].map(shown)), [1, 1, 1, 1, 0, 0, 0]);
+  check('phone → computer: the toolbar', await Promise.all(['#toggle-sidebar', '#generator', '#settings', '#lock', '#more', '#back'].map(shown)), [1, 1, 1, 1, 0, 0]);
+  if (MOUSE) check('phone → computer: no ⋯ on the groups', await shown('.tree-more'), 0);
 
   /* -------------------------------------------------------------- *
    * Writing in place. The native pickers cannot be driven headless, so
