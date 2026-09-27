@@ -4,9 +4,13 @@
  * Styles, kdbxweb, the Argon2 WebAssembly (hash-wasm keeps it as base64 inside
  * its JS), the icon and the compiled TypeScript are all inlined, so the result
  * opens from a file:// URL with no network access and no sibling files.
+ *
+ * Beside it goes build/pages/: the same page as an installable PWA for GitHub
+ * Pages — a manifest, icons and a service worker that keeps it offline.
  */
 import { build } from 'esbuild';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -66,6 +70,75 @@ function assertSelfContained(html) {
   }
 }
 
+const PWA_ICONS = ['icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
+
+/**
+ * The page's CSP forbids every fetch; the installed app needs its manifest, its
+ * service worker and its icons, all from its own origin. connect-src stays 'none',
+ * so the page itself still reaches nothing.
+ */
+function allowPwa(html) {
+  const pattern = /(http-equiv="Content-Security-Policy" content=")([^"]*)/;
+  if (!pattern.test(html)) throw new Error('The Content-Security-Policy meta tag is missing');
+  return html.replace(pattern, (_, attr, policy) => {
+    const directives = new Map(policy.split(';').map((d) => d.trim().split(/\s+/)).map(([name, ...sources]) => [name, sources]));
+    if (!directives.has('img-src')) throw new Error('The Content-Security-Policy has no img-src');
+    directives.get('img-src').push("'self'");
+    directives.set('manifest-src', ["'self'"]);
+    directives.set('worker-src', ["'self'"]);
+    return attr + [...directives].map(([name, sources]) => [name, ...sources].join(' ')).join('; ');
+  });
+}
+
+/**
+ * build/pages/: the page plus what makes it installable. Every path is
+ * relative, so it works under a project site's /<repo>/ prefix.
+ */
+async function buildPages(html) {
+  const dir = at('build', 'pages');
+  const head = [
+    '<link rel="manifest" href="manifest.webmanifest">',
+    '<link rel="apple-touch-icon" href="apple-touch-icon.png">',
+    '<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">',
+    '<meta name="theme-color" content="#17181c" media="(prefers-color-scheme: dark)">',
+    '<meta name="apple-mobile-web-app-capable" content="yes">',
+    "<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>",
+  ].join('\n');
+  const page = allowPwa(html).replace('</head>', () => `${head}\n</head>`);
+  const version = createHash('sha256').update(page).digest('hex').slice(0, 12);
+
+  const manifest = {
+    name: 'HTML Password Manager',
+    short_name: 'Passwords',
+    description: 'A KeePass (.kdbx) password manager that works offline',
+    id: './',
+    start_url: './',
+    scope: './',
+    display: 'standalone',
+    background_color: '#fbfbfa',
+    theme_color: '#6c4ee6',
+    icons: [
+      { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml' },
+      { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+    ],
+  };
+
+  await rm(dir, { recursive: true, force: true });
+  await mkdir(dir, { recursive: true });
+  const worker = (await readFile(at('src/sw.js'), 'utf8')).replaceAll('__VERSION__', version);
+  await Promise.all([
+    writeFile(join(dir, 'index.html'), page, 'utf8'),
+    writeFile(join(dir, 'sw.js'), worker, 'utf8'),
+    writeFile(join(dir, 'manifest.webmanifest'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8'),
+    // Without it Pages runs the files through Jekyll, which is only wasted time here.
+    writeFile(join(dir, '.nojekyll'), '', 'utf8'),
+    ...PWA_ICONS.map((name) => copyFile(at('vendor', name), join(dir, name))),
+  ]);
+  console.log(`build/pages/ — PWA for GitHub Pages (cache ${version})`);
+}
+
 async function buildOnce() {
   const [template, styles, icon, appJs] = await Promise.all([
     readFile(at('src/template.html'), 'utf8'),
@@ -91,6 +164,7 @@ async function buildOnce() {
     `build/password-manager.html — ${kb(Buffer.byteLength(html, 'utf8'))} KB ` +
       `(code ${kb(appJs.length)} KB, styles ${kb(styles.length)} KB)`,
   );
+  await buildPages(html);
 }
 
 await buildOnce();

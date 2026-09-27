@@ -1,6 +1,7 @@
 /**
  * Drives the built page in headless Chrome: unlocking Database.kdbx, browsing,
- * searching, editing, deleting, saving and locking.
+ * searching, editing, deleting, saving and locking; then the PWA of build/pages/
+ * offline, from its service worker.
  *
  * Needs `npm run build` first and a local Chrome (or `CHROME=/path/to/chrome`).
  * The File System Access API is switched off, so the page takes the read-only
@@ -15,10 +16,11 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, extname, join } from 'node:path';
 import { checker, load, root } from './load.mjs';
 
 const APP = join(root, 'build', 'password-manager.html');
+const PAGES = join(root, 'build', 'pages');
 const DB = join(root, 'tools', 'fixtures', 'Database.kdbx');
 const PASSWORD = 'Тестовый пароль';
 const shotsAt = process.argv.indexOf('--shots');
@@ -50,9 +52,26 @@ const { check, done } = checker();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const html = await readFile(APP);
-const server = createServer((req, res) => {
-  res.setHeader('content-type', 'text/html; charset=utf-8');
-  res.end(html);
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml' };
+let pagesDown = false;
+// /pages/… is build/pages/, any other path the single file.
+const server = createServer(async (req, res) => {
+  const path = new URL(req.url, 'http://localhost').pathname;
+  if (!path.startsWith('/pages/')) {
+    res.setHeader('content-type', 'text/html; charset=utf-8');
+    res.end(html);
+    return;
+  }
+  if (pagesDown) return req.socket.destroy();
+  const name = path.endsWith('/') ? 'index.html' : basename(path);
+  try {
+    const body = await readFile(join(PAGES, name));
+    res.setHeader('content-type', TYPES[extname(name)] ?? 'application/octet-stream');
+    res.end(body);
+  } catch {
+    res.statusCode = 404;
+    res.end();
+  }
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const port = server.address().port;
@@ -773,6 +792,21 @@ try {
   const freshDb = await K.openDatabase(fresh.buffer.slice(fresh.byteOffset, fresh.byteOffset + fresh.byteLength), ' новый пароль ', null);
   check('new db: spaces kept, decrypts with Argon2id', K.describeFormat(freshDb), 'KDBX 4.0 · AES-256 · Argon2id');
   console.log(`  Argon2id save in the browser: ${argonMs} ms`);
+
+  // The PWA: its CSP lets in the manifest and the service worker, which keeps it offline
+  await send('Page.navigate', { url: `http://127.0.0.1:${port}/pages/` });
+  check('pwa: service worker in control', await until(`navigator.serviceWorker.controller !== null`), true);
+  check('pwa: gate shown', await visible('#gate-pick'), true);
+  check('pwa: manifest parsed', (await send('Page.getAppManifest')).errors, []);
+  check('pwa: installable', (await send('Page.getInstallabilityErrors')).installabilityErrors, []);
+  pagesDown = true;
+  await send('Page.reload');
+  check('pwa: offline', await until(`document.readyState === 'complete' && !!document.querySelector('#gate-pick')?.getClientRects().length`), true);
+  await click('#open-file');
+  await type(PASSWORD);
+  await press('Enter');
+  check('pwa: offline unlock', await until(`!document.querySelector('#app').hidden`), true);
+  pagesDown = false;
 
   check('no page errors', errors, []);
 } finally {

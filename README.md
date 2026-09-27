@@ -4,6 +4,13 @@ A password manager for KeePass databases (`.kdbx`) — in the spirit of KeeWeb, 
 contained in one standalone HTML file. No network is used: the database is decrypted inside
 the page and saved straight back to disk.
 
+**[Online version](https://marketkernel.github.io/html-password-manager/)** — the same page
+as a PWA (Progressive Web App): it can be installed into the system and then runs as a
+separate app, with its own window and icon, and works offline. On a computer, in Chrome,
+Edge and Arc, use the install button in the address bar; on Android, Chrome's ⋮ menu →
+Install app; on iOS, Share → Add to Home Screen, in Safari or in Chrome. The database stays
+on your disk there too — see "[GitHub Pages](#github-pages)".
+
 ![html-password-manager: groups, entries and an entry with a derived password](docs/password-manager.jpg)
 
 ## How to use
@@ -17,7 +24,8 @@ In Chrome, Edge and Arc the file is opened through the File System Access API: c
 written back into the same file, a moment after each edit if autosave is on, and the file
 is offered again on the next visit — only its handle is remembered, never its contents or
 the password. In Safari and Firefox the file opens read-only, and Save downloads an updated
-copy of the database.
+copy of the database — and so it does on phones: Chrome on Android has no File System
+Access, and every browser on iOS, Chrome included, runs on Safari's engine.
 
 "New database" creates an empty KDBX 4 database encrypted with AES-256 and Argon2id
 (64 MiB, 10 passes — KeePassXC's defaults, about half a second in a browser).
@@ -26,7 +34,8 @@ copy of the database.
 
 - **Nothing leaves the page.** A Content-Security-Policy in the file forbids every network
   request, form submission and outside resource; the build fails if the policy or an
-  external reference goes missing.
+  external reference goes missing. The PWA's copy lets in three things more, all from its
+  own origin: the manifest, the service worker and the icons — `connect-src` stays `'none'`.
 - The format code is [kdbxweb](https://github.com/keeweb/kdbxweb), the library KeeWeb is
   built on; Argon2 is [hash-wasm](https://github.com/Daninet/hash-wasm)'s WebAssembly, which
   is embedded in the file too.
@@ -345,9 +354,32 @@ npm run i18n       # strings each dictionary lacks or no longer needs
 `build.mjs` bundles `src/main.ts` with esbuild into an IIFE and substitutes it, along with
 the styles and the icon (a data URI), into `src/template.html`. kdbxweb's fallbacks for
 Node (`crypto`, `@xmldom/xmldom`) are replaced with empty stubs — a browser has `crypto.subtle`
-and `DOMParser`. The result is `build/password-manager.html`, around 400 KB, a quarter of it the dictionaries.
+and `DOMParser`. The result is `build/password-manager.html`, around 500 KB, a quarter of it the dictionaries.
+
+The same run writes `build/pages/`: that page as an installable PWA — `index.html` with a
+manifest link and a service worker registration, `manifest.webmanifest`, the icons and
+`sw.js`, which caches the page so it opens offline. `build/password-manager.html` itself
+stays a single file with no external references.
 
 `tools/fixtures/Database.kdbx` is a sample database for the tests; its password is `Тестовый пароль`.
+
+## GitHub Pages
+
+`.github/workflows/pages.yml` builds and tests every push to `main` and deploys
+`build/pages/` to GitHub Pages (Settings → Pages → Source: GitHub Actions), at
+<https://marketkernel.github.io/html-password-manager/>. Files open the same way as in the
+single file; the recent files, settings and remembered handles belong to that address, apart
+from those of a copy opened from disk.
+
+Each deploy changes the cache name in `sw.js`, so the browser picks up the new version by
+itself; an open window switches to it on its next reload. That is also the trade-off: an
+installed PWA runs whatever the last deploy put there, while a downloaded file stays the
+version it is. For a version fixed on disk, take `password-manager-<tag>.html` from a
+release and compare it with `SHA256SUMS.txt`.
+
+`npm run test:browser` opens `build/pages/` as well: the service worker takes the page over,
+Chrome finds the manifest installable, and with the server gone the page still loads and
+unlocks the sample database.
 
 ## Layout
 
@@ -373,9 +405,10 @@ src/i18n.ts         t()/tn(), the language list, translating the page's markup
 src/locales/        one dictionary per language
 src/ui.ts           dialogs, context menu, popovers, toasts, icons
 tools/              tests: .kdbx round trips, generator and TOTP, derived passwords, legacy algorithms, dictionaries, the page in headless Chrome
-vendor/icon.svg     the icon
+src/sw.js           the service worker of the Pages build
+vendor/             the icon, and its PNG sizes for the PWA
 docs/               working notes (not under git)
-build/              the build output
+build/              the build output; build/pages/ is the PWA for GitHub Pages
 ```
 
 ## Limitations
