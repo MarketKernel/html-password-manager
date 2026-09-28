@@ -1,12 +1,12 @@
 /**
  * Phones: one screen at a time.
  *
- * Up to 760px wide the entry list and the entry take the window in turn, the
- * group panel slides in over the list, and menus and popovers rise from the
- * bottom as sheets. Each of these layers puts a step into the browser's
- * history, so the system's back button — or a swipe — closes the one on top,
- * as it does in any app. On a wider window nothing here does anything: no
- * class is set and no history is written.
+ * Up to 900px wide — a phone, or a tablet held upright — the entry list and
+ * the entry take the window in turn, the group panel slides in over the list,
+ * and menus and popovers rise from the bottom as sheets. Each of these layers
+ * puts a step into the browser's history, so the system's back button — or a
+ * swipe — closes the one on top, as it does in any app. On a wider window
+ * nothing here does anything: no class is set and no history is written.
  *
  * Nothing runs on import: the Node tests load modules that import this one.
  */
@@ -20,7 +20,7 @@ export interface ScreensHost {
   hasEntry(): boolean;
 }
 
-const NARROW = '(max-width: 760px)';
+const NARROW = '(max-width: 900px)';
 
 const matches = (query: string): boolean => typeof matchMedia === 'function' && matchMedia(query).matches;
 

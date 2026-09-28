@@ -33,8 +33,8 @@ hands the copy to the share sheet instead — see "[On a phone](#on-a-phone)".
 
 ### On a phone
 
-Up to 760 pixels wide — a phone held upright — the page shows one thing at a time. The
-entry list fills the screen; a tap opens an entry on a screen of its own, and ‹ in the
+Up to 900 pixels wide — a phone, or a tablet held upright — the page shows one thing at a
+time. The entry list fills the screen; a tap opens an entry on a screen of its own, and ‹ in the
 toolbar, the system's back button or a swipe back return to the list. An edit is kept on the
 way back, as picking another entry keeps it on a computer; a new entry left empty is dropped.
 ☰ slides the groups, tags and recycle bin in over the list. Menus, the generator and the
