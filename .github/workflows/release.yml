@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    name: Build single-file password manager
+    name: Build the single file and the extension
     runs-on: ubuntu-latest
     env:
       RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
@@ -33,6 +33,16 @@ jobs:
           node-version: 20
           cache: npm
 
+      # The version lives in package.json only; `npm version x.y.z` writes it and makes the tag.
+      - name: Check that the tag is package.json's version
+        shell: bash
+        run: |
+          VERSION="v$(node -p "require('./package.json').version")"
+          if [ "$VERSION" != "$RELEASE_TAG" ]; then
+            echo "::error::The tag is $RELEASE_TAG but package.json has $VERSION"
+            exit 1
+          fi
+
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
@@ -44,8 +54,10 @@ jobs:
         run: |
           mkdir -p dist
           cp build/password-manager.html "dist/password-manager-$RELEASE_TAG.html"
+          # The extension for the Chrome Web Store; its manifest has package.json's version.
+          cp build/password-manager-extension-*.zip "dist/password-manager-extension-$RELEASE_TAG.zip"
           # Computed from dist, or the sums file would hold a path, not a file name.
-          ( cd dist && shasum -a 256 ./*.html > SHA256SUMS.txt )
+          ( cd dist && shasum -a 256 ./*.html ./*.zip > SHA256SUMS.txt )
           cat dist/SHA256SUMS.txt
 
       - name: Upload build artifact

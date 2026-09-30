@@ -79,7 +79,8 @@
     "Groups": "群组",
     "Tags": "标签",
     "(unnamed)": "（未命名）",
-    "More": "更多"
+    "More": "更多",
+    "For this site": "当前网站"
   },
   "menu": {
     "Restore": "恢复",
@@ -180,7 +181,8 @@
     "Unlock": "解锁",
     "Caps Lock is on": "Caps Lock 已开启",
     "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "在此设备上文件以只读方式打开：保存时会把数据库的更新副本交给共享菜单，在其中选择“存储到‘文件’”即可覆盖原文件。",
-    "On this device the file opens read-only: Save downloads an updated copy of the database.": "在此设备上文件以只读方式打开：保存时会下载数据库的更新副本。"
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "在此设备上文件以只读方式打开：保存时会下载数据库的更新副本。",
+    "Version {version}": "版本 {version}"
   },
   "status": {
     "{count} entries": {
@@ -191,7 +193,8 @@
     "read-only, saving downloads a copy": "只读，保存时将下载副本",
     "Unsaved changes": "有未保存的更改",
     "Saved": "已保存",
-    "read-only, saving shares a copy": "只读，保存时将共享副本"
+    "read-only, saving shares a copy": "只读，保存时将共享副本",
+    "saving asks for write access": "保存时会请求写入权限"
   },
   "database": {
     "General": "常规",
@@ -214,7 +217,10 @@
     "Last modified": "最后修改时间",
     "Created": "创建时间",
     "Pick an entry on the left, or create a new one.": "在左侧选择一个条目，或新建一个。",
-    "Sort": "排序"
+    "Sort": "排序",
+    "No entries for {site}": "没有 {site} 的条目",
+    "The tab shows no website": "标签页中没有打开网站",
+    "New password for {site}": "为 {site} 新建密码"
   },
   "toast": {
     "\"{name}\" restored": "已恢复“{name}”",
@@ -277,7 +283,7 @@
     "Close": "关闭"
   },
   "app": {
-    "Password manager": "密码管理器"
+    "Deterministic Password": "Deterministic Password"
   },
   "settings": {
     "System": "跟随系统",
@@ -297,7 +303,8 @@
     "Dark": "深色",
     "Show legacy password algorithms": "显示旧版密码算法",
     "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "生成器还会提供推导 v2 和 v1——两个旧程序的计算器，用来找回用它们生成的密码。",
-    "This browser cannot write files in place, so saving shares a copy.": "此浏览器无法直接写入文件，因此保存时会共享副本。"
+    "This browser cannot write files in place, so saving shares a copy.": "此浏览器无法直接写入文件，因此保存时会共享副本。",
+    "Version {version}": "版本 {version}"
   },
   "password": {
     "Show password": "显示密码",
@@ -338,5 +345,31 @@
     "Enter the user name: the password is derived from it too": "请输入用户名：密码也由它推导",
     "Site": "网站",
     "Site: {site}": "网站：{site}"
+  },
+  "extension": {
+    "Fill": "填充",
+    "Fill the user name and password into the tab": "将用户名和密码填入标签页",
+    "The tab does not show {site}": "标签页显示的不是 {site}",
+    "Click the extension's icon on this tab first": "请先在此标签页上点击扩展程序的图标",
+    "Nothing can be filled on this page": "此页面上没有可填充的内容",
+    "Not filled: the page is not secure (http), and the entry is for https": "未填充：页面不安全（http），而该条目用于 https",
+    "\"{title}\" is for {entry}, but the tab shows {tab}. Fill it in only if you trust {tab}.": "“{title}”用于 {entry}，但标签页显示的是 {tab}。只有信任 {tab} 时才填充。",
+    "\"{title}\" has no website. Fill it into {tab}?": "“{title}”没有网站。要填入 {tab} 吗？",
+    "Fill into another site?": "填入其他网站？",
+    "Fill anyway": "仍然填充",
+    "Not filled: {reason}": "未填充：{reason}",
+    "the extension did not answer": "扩展程序没有响应",
+    "No login fields on this page": "此页面上没有登录字段",
+    "Filled into {site}": "已填入 {site}"
+  },
+  "manifest": {
+    "Deterministic Password": "Deterministic Password",
+    "Computes passwords from your master password, so losing the file is no longer scary. KeePass (.kdbx) compatible. Offline.": "根据主密码计算密码，丢失文件不再可怕。兼容 KeePass (.kdbx)。离线运行。"
+  },
+  "popup": {
+    "Search all entries": "搜索所有条目",
+    "Full mode": "完整模式",
+    "Search finds an entry to copy from.": "搜索可找到要复制的条目。",
+    "Open the database in full mode once: then it unlocks here with the master password alone.": "先在完整模式中打开一次数据库：之后在这里只需主密码即可解锁。"
   }
 }

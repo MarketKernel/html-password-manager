@@ -80,7 +80,8 @@
     "Groups": "گروپس",
     "Tags": "ٹیگز",
     "(unnamed)": "(بے نام)",
-    "More": "مزید"
+    "More": "مزید",
+    "For this site": "اس سائٹ کے لیے"
   },
   "menu": {
     "Restore": "بحال کریں",
@@ -182,7 +183,8 @@
     "Unlock": "ان لاک کریں",
     "Caps Lock is on": "Caps Lock آن ہے",
     "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "اس ڈیوائس پر فائل صرف پڑھنے کے لیے کھلتی ہے: محفوظ کرنے پر تازہ کاپی شیئر مینو کو دی جاتی ہے، جہاں \"فائلز میں محفوظ کریں\" اسے اصل فائل کی جگہ رکھ سکتا ہے۔",
-    "On this device the file opens read-only: Save downloads an updated copy of the database.": "اس ڈیوائس پر فائل صرف پڑھنے کے لیے کھلتی ہے: محفوظ کرنے پر ڈیٹا بیس کی تازہ کاپی ڈاؤن لوڈ ہو جاتی ہے۔"
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "اس ڈیوائس پر فائل صرف پڑھنے کے لیے کھلتی ہے: محفوظ کرنے پر ڈیٹا بیس کی تازہ کاپی ڈاؤن لوڈ ہو جاتی ہے۔",
+    "Version {version}": "ورژن {version}"
   },
   "status": {
     "{count} entries": {
@@ -194,7 +196,8 @@
     "read-only, saving downloads a copy": "صرف پڑھنے کے لیے، محفوظ کرنے پر کاپی ڈاؤن لوڈ ہوتی ہے",
     "Unsaved changes": "غیر محفوظ تبدیلیاں",
     "Saved": "محفوظ ہو گیا",
-    "read-only, saving shares a copy": "صرف پڑھنے کے لیے، محفوظ کرنے پر کاپی شیئر ہوتی ہے"
+    "read-only, saving shares a copy": "صرف پڑھنے کے لیے، محفوظ کرنے پر کاپی شیئر ہوتی ہے",
+    "saving asks for write access": "محفوظ کرتے وقت لکھنے کی اجازت مانگی جائے گی"
   },
   "database": {
     "General": "عمومی",
@@ -217,7 +220,10 @@
     "Last modified": "آخری ترمیم",
     "Created": "تاریخ تخلیق",
     "Pick an entry on the left, or create a new one.": "فہرست سے کوئی اندراج منتخب کریں، یا نیا بنائیں۔",
-    "Sort": "ترتیب"
+    "Sort": "ترتیب",
+    "No entries for {site}": "{site} کے لیے کوئی اندراج نہیں",
+    "The tab shows no website": "ٹیب میں کوئی ویب سائٹ نہیں کھلی",
+    "New password for {site}": "{site} کے لیے نیا پاس ورڈ"
   },
   "toast": {
     "\"{name}\" restored": "\"{name}\" بحال ہو گیا",
@@ -282,7 +288,7 @@
     "Close": "بند کریں"
   },
   "app": {
-    "Password manager": "پاس ورڈ مینیجر"
+    "Deterministic Password": "Deterministic Password"
   },
   "settings": {
     "System": "سسٹم",
@@ -302,7 +308,8 @@
     "Dark": "تاریک",
     "Show legacy password algorithms": "پرانے پاس ورڈ الگورتھم دکھائیں",
     "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "پھر جنریٹر اخذ شدہ v2 اور v1 بھی پیش کرتا ہے — دو پرانے پروگراموں کے کیلکولیٹر، ان سے بنے پاس ورڈ واپس حاصل کرنے کے لیے۔",
-    "This browser cannot write files in place, so saving shares a copy.": "یہ براؤزر فائلوں میں براہ راست نہیں لکھ سکتا، اس لیے محفوظ کرنے پر ایک کاپی شیئر ہوتی ہے۔"
+    "This browser cannot write files in place, so saving shares a copy.": "یہ براؤزر فائلوں میں براہ راست نہیں لکھ سکتا، اس لیے محفوظ کرنے پر ایک کاپی شیئر ہوتی ہے۔",
+    "Version {version}": "ورژن {version}"
   },
   "password": {
     "Show password": "پاس ورڈ دکھائیں",
@@ -343,5 +350,31 @@
     "Enter the user name: the password is derived from it too": "صارف نام درج کریں: پاس ورڈ اس سے بھی اخذ ہوتا ہے",
     "Site": "سائٹ",
     "Site: {site}": "سائٹ: {site}"
+  },
+  "extension": {
+    "Fill": "بھریں",
+    "Fill the user name and password into the tab": "ٹیب میں صارف نام اور پاس ورڈ بھریں",
+    "The tab does not show {site}": "ٹیب میں {site} نہیں کھلی",
+    "Click the extension's icon on this tab first": "پہلے اس ٹیب پر ایکسٹینشن کے آئیکن پر کلک کریں",
+    "Nothing can be filled on this page": "اس صفحے پر بھرنے کو کچھ نہیں",
+    "Not filled: the page is not secure (http), and the entry is for https": "نہیں بھرا گیا: صفحہ محفوظ نہیں (http)، اور اندراج https کے لیے ہے",
+    "\"{title}\" is for {entry}, but the tab shows {tab}. Fill it in only if you trust {tab}.": "\"{title}\" {entry} کے لیے ہے، مگر ٹیب میں {tab} کھلی ہے۔ صرف اسی صورت بھریں کہ آپ کو {tab} پر اعتبار ہو۔",
+    "\"{title}\" has no website. Fill it into {tab}?": "\"{title}\" کی کوئی ویب سائٹ نہیں۔ اسے {tab} میں بھریں؟",
+    "Fill into another site?": "کسی اور سائٹ میں بھریں؟",
+    "Fill anyway": "پھر بھی بھریں",
+    "Not filled: {reason}": "نہیں بھرا گیا: {reason}",
+    "the extension did not answer": "ایکسٹینشن نے جواب نہیں دیا",
+    "No login fields on this page": "اس صفحے پر لاگ ان کے خانے نہیں",
+    "Filled into {site}": "{site} میں بھر دیا گیا"
+  },
+  "manifest": {
+    "Deterministic Password": "Deterministic Password",
+    "Computes passwords from your master password, so losing the file is no longer scary. KeePass (.kdbx) compatible. Offline.": "ماسٹر پاس ورڈ سے پاس ورڈ حساب کرتا ہے، اس لیے فائل کھونے کا ڈر نہیں۔ KeePass (.kdbx) کے ساتھ ہم آہنگ۔ آف لائن۔"
+  },
+  "popup": {
+    "Search all entries": "تمام اندراجات میں تلاش کریں",
+    "Full mode": "مکمل موڈ",
+    "Search finds an entry to copy from.": "تلاش سے وہ اندراج ملتا ہے جس سے کاپی کرنا ہو۔",
+    "Open the database in full mode once: then it unlocks here with the master password alone.": "ڈیٹا بیس کو ایک بار مکمل موڈ میں کھولیں: پھر یہ یہاں صرف ماسٹر پاس ورڈ سے کھل جائے گا۔"
   }
 }

@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- The extension's offscreen document (src/extension/offscreen.ts): no window, only the open database until it locks. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>Deterministic Password</title>
+</head>
+<body>
+<script src="offscreen.js"></script>
+</body>
+</html>

@@ -10,9 +10,9 @@ docs/Task.md
 private/
 
 # Real password databases and key files — never commit them.
-# tools/fixtures/ holds the sample database the tests open.
+# tests/fixtures/ holds the sample database the tests open.
 *.kdbx
-!/tools/fixtures/*.kdbx
+!/tests/fixtures/*.kdbx
 *.kdbx.bak
 *.kdbx.tmp
 *.key

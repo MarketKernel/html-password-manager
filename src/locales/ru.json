@@ -1,6 +1,6 @@
 {
   "app": {
-    "Password manager": "Менеджер паролей"
+    "Deterministic Password": "Deterministic Password"
   },
   "gate": {
     "KeePass · one file · offline": "KeePass · один файл · офлайн",
@@ -24,7 +24,8 @@
     "Unlocking…": "Открываю…",
     "This browser opens the file read-only: Save downloads an updated copy of the database. Chrome, Edge and Arc save changes straight back into the file.": "Этот браузер открывает файл только для чтения: «Сохранить» скачивает обновлённую копию базы. Chrome, Edge и Arc сохраняют изменения прямо в файл.",
     "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "На этом устройстве файл открывается только для чтения: «Сохранить» передаёт обновлённую копию в меню «Поделиться», где «Сохранить в Файлы» может записать её поверх исходного файла.",
-    "On this device the file opens read-only: Save downloads an updated copy of the database.": "На этом устройстве файл открывается только для чтения: «Сохранить» скачивает обновлённую копию базы."
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "На этом устройстве файл открывается только для чтения: «Сохранить» скачивает обновлённую копию базы.",
+    "Version {version}": "Версия {version}"
   },
   "password": {
     "Show password": "Показать пароль",
@@ -58,7 +59,8 @@
     "Groups": "Группы",
     "Tags": "Метки",
     "(unnamed)": "(без названия)",
-    "More": "Ещё"
+    "More": "Ещё",
+    "For this site": "Для этого сайта"
   },
   "list": {
     "Expired": "Истёк срок",
@@ -75,7 +77,10 @@
     "Last modified": "Дата изменения",
     "Created": "Дата создания",
     "Pick an entry on the left, or create a new one.": "Выберите запись слева или создайте новую.",
-    "Sort": "Сортировка"
+    "Sort": "Сортировка",
+    "No entries for {site}": "Для {site} записей нет",
+    "The tab shows no website": "Во вкладке не открыт сайт",
+    "New password for {site}": "Новый пароль для {site}"
   },
   "entry": {
     "Restore": "Восстановить",
@@ -234,7 +239,8 @@
     "read-only, saving downloads a copy": "только чтение, сохранение скачивает копию",
     "Unsaved changes": "Есть несохранённые изменения",
     "Saved": "Сохранено",
-    "read-only, saving shares a copy": "только чтение, сохранение отправляет копию"
+    "read-only, saving shares a copy": "только чтение, сохранение отправляет копию",
+    "saving asks for write access": "при сохранении спросит доступ на запись"
   },
   "database": {
     "General": "Общее",
@@ -326,7 +332,8 @@
     "Dark": "Тёмная",
     "Show legacy password algorithms": "Показывать устаревшие алгоритмы вычисления паролей",
     "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "Тогда генератор предлагает ещё вычисляемые v2 и v1 — калькуляторы двух старых программ, чтобы восстановить сделанные ими пароли.",
-    "This browser cannot write files in place, so saving shares a copy.": "Этот браузер не умеет записывать файлы на место, поэтому сохранение отправляет копию через «Поделиться»."
+    "This browser cannot write files in place, so saving shares a copy.": "Этот браузер не умеет записывать файлы на место, поэтому сохранение отправляет копию через «Поделиться».",
+    "Version {version}": "Версия {version}"
   },
   "errors": {
     "The browser refused to copy": "Браузер не разрешил копирование",
@@ -353,5 +360,31 @@
     "Enter the user name: the password is derived from it too": "Укажите имя пользователя: пароль вычисляется и из него",
     "Site": "Сайт",
     "Site: {site}": "Сайт: {site}"
+  },
+  "extension": {
+    "Fill": "Заполнить",
+    "Fill the user name and password into the tab": "Вписать имя пользователя и пароль во вкладку",
+    "The tab does not show {site}": "Во вкладке открыт не {site}",
+    "Click the extension's icon on this tab first": "Сначала нажмите на значок расширения на этой вкладке",
+    "Nothing can be filled on this page": "На этой странице нечего заполнять",
+    "Not filled: the page is not secure (http), and the entry is for https": "Не заполнено: страница открыта без защиты (http), а запись — для https",
+    "\"{title}\" is for {entry}, but the tab shows {tab}. Fill it in only if you trust {tab}.": "«{title}» — для {entry}, а во вкладке открыт {tab}. Заполняйте, только если доверяете {tab}.",
+    "\"{title}\" has no website. Fill it into {tab}?": "У «{title}» нет сайта. Заполнить на {tab}?",
+    "Fill into another site?": "Заполнить на другом сайте?",
+    "Fill anyway": "Всё равно заполнить",
+    "Not filled: {reason}": "Не заполнено: {reason}",
+    "the extension did not answer": "расширение не ответило",
+    "No login fields on this page": "На странице нет полей для входа",
+    "Filled into {site}": "Заполнено на {site}"
+  },
+  "manifest": {
+    "Deterministic Password": "Deterministic Password",
+    "Computes passwords from your master password, so losing the file is no longer scary. KeePass (.kdbx) compatible. Offline.": "Вычисляет пароли из мастер-пароля, поэтому потерять файл больше не страшно. Совместим с KeePass (.kdbx). Офлайн."
+  },
+  "popup": {
+    "Search all entries": "Искать во всех записях",
+    "Full mode": "Полный режим",
+    "Search finds an entry to copy from.": "Поиск найдёт запись, чтобы скопировать из неё.",
+    "Open the database in full mode once: then it unlocks here with the master password alone.": "Один раз откройте базу в полном режиме — дальше она открывается здесь одним мастер-паролем."
   }
 }

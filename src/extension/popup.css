@@ -1,0 +1,110 @@
+/* ------------------------------------------------------------------ *
+ * The toolbar icon's popup, over the page's styles: Chrome sizes a popup
+ * by its content, up to 800 × 600, so it has a width and a height of its own.
+ * ------------------------------------------------------------------ */
+
+html:has(> body.popup-page), body.popup-page { height: auto; }
+body.popup-page { width: 360px; overflow: hidden; }
+
+.popup {
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+  max-height: 560px;
+}
+
+.popup-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 8px 10px 6px 14px;
+  color: var(--muted);
+}
+.popup-head > svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.popup-head .icon-button { margin-inline-start: auto; }
+.popup-site {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.popup-search { max-width: none; margin: 0 12px 8px; }
+
+.popup-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior-y: contain; }
+
+.popup-entries { list-style: none; margin: 0; padding: 0 6px 6px; }
+.popup-entry {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 9px;
+  padding-inline-end: 4px;
+}
+.popup-entry:hover { background: var(--panel); }
+.popup-entry-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  text-align: start;
+}
+button.popup-entry-main { cursor: pointer; }
+button.popup-entry-main:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.popup-entry-text { display: flex; flex-direction: column; min-width: 0; }
+.popup-entry-title, .popup-entry-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.popup-entry-title { font-weight: 550; }
+.popup-entry-sub { color: var(--muted); font-size: 12.5px; }
+.popup-entry-sub:empty { display: none; }
+.popup-entry .icon-button svg { width: 18px; height: 18px; }
+
+.popup-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 24px;
+  color: var(--muted);
+  text-align: center;
+}
+.popup-empty p { margin: 0; line-height: 1.45; }
+.popup-empty .button { white-space: normal; }
+
+.popup-unlock { padding: 12px 20px 4px; }
+.popup-unlock .unlock-field { margin: 14px 0 12px; }
+.popup-unlock .unlock-input { font-size: 15px; padding-block: 10px; }
+.popup-file {
+  max-width: 100%;
+  font-size: 20px;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+select.popup-file {
+  border: 1px solid var(--edge);
+  border-radius: 9px;
+  background: var(--panel);
+  padding: 4px 8px;
+  font-size: 17px;
+}
+.popup-unlock .gate-error { margin-top: 8px; text-align: center; }
+
+.popup-foot {
+  display: flex;
+  justify-content: center;
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--edge-soft);
+}
+.popup-full { display: inline-flex; align-items: center; gap: 6px; }
+.popup-full svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.popup-page .toast { bottom: 62px; }

@@ -2,7 +2,8 @@
 
 A password manager for KeePass databases (`.kdbx`) — in the spirit of KeeWeb, but entirely
 contained in one standalone HTML file. No network is used: the database is decrypted inside
-the page and saved straight back to disk.
+the page and saved straight back to disk. The same page is also a
+[Chrome extension](#chrome-extension) that fills logins into the tab beside it.
 
 **[Online version](https://marketkernel.github.io/html-password-manager/)** — the same page
 as a PWA (Progressive Web App): it can be installed into the system and then runs as a
@@ -52,6 +53,84 @@ downloads the copy.
 
 Wider, and on a tablet, the three panes stay as they are on a computer; a touch screen of any
 size gets larger buttons and the ⋯ beside the groups.
+
+## Chrome extension
+
+`npm run build` also writes `build/extension/`: the same app as a Chrome extension, and
+`build/password-manager-extension-<version>.zip` of it for the Chrome Web Store. Until it is
+there: `chrome://extensions` → Developer mode → Load unpacked → `build/extension`.
+
+The toolbar icon opens a compact popup: the entries for the tab's site, a click on one to
+fill it in, buttons to copy its user name, password or one-time code, and a search through the
+whole database. **Full mode** at its bottom opens the app in Chrome's side panel, beside the
+page — in the phone layout, since a panel is narrow — where it stays across tabs. Everything
+works there as in the file; what the extension adds is filling logins in:
+
+- **The popup** unlocks with the master password alone the file the panel opened last: the
+  panel chooses files and key files, and makes every change. On a site with no entry, its
+  **New password** opens the panel on the generator, as Fill in the menu does.
+- **Fill** in a page's context menu (a right click on the page or in a field) fills the user
+  name and the password of the entry for the tab's site — or its one-time code, on the step
+  of a sign-in that asks for one. With one entry for the site it fills at once, the panel
+  open or not; with several, with none, or with the database locked, it opens the panel to
+  pick one, to make a password, or to unlock — and goes on from there. A sign-in in two steps
+  (Google, Microsoft) takes the user name on the first and the password on the second: the
+  entry picked for the tab is remembered. An entry's **Fill** button in the panel fills that
+  entry into the tab.
+- **The database stays open** when the panel closes, until it locks: after the idle time of
+  the settings, when the computer's screen locks, from the panel, from the popup, or from
+  **Lock** in the toolbar icon's menu. Opened again, the panel takes it up without the
+  password, and the popup shows it at once.
+- **For this site**, at the top of the group panel, lists the entries of the tab's site, and
+  the list opens on it; it follows the tab.
+- **A new password for a page.** On a site with no entry, Fill opens the Derived v3 generator
+  with the tab's site and the user name typed on the page. Its Fill button fills the password
+  in — both fields of a registration form — and keeps it as an ordinary entry.
+
+An entry fits a tab when its website names the tab's site exactly: both addresses go through
+`siteOf()` of generator 3 — no scheme, port, path or `www.`, IDN in punycode. `google.com`
+does not fit `accounts.google.com`, nor `mail.site.com` `site.com`. An entry with `https://`,
+or with no scheme, is never filled into an `http://` page: a site used over http needs
+`http://` in its website. Entries in the recycle bin are not offered, and an entry picked by
+hand for another site is filled only after a warning that names both.
+
+**How it is made.** The panel is the page itself: `panel.html`, its script in `panel.js`, as
+Manifest V3 wants. On every unlock and save it hands the file and its key — the password in
+a `ProtectedValue`, the key file — to an offscreen document, which keeps them, and a
+read-only copy of the database decrypted from them, in memory until the lock; locking closes
+it, and the key goes with it. Nothing is written anywhere. The service worker has the menus.
+A click on Fill can open the panel only before anything is awaited, so the worker has to know
+at once whether it can fill: it keeps the websites of the entries — no names, no passwords —
+as the offscreen document sends them, and the offscreen document keeps it running. The
+popup (`popup.html`, `popup.js`) decrypts nothing: it asks the offscreen document for the
+titles and user names that fit the tab, then for the one entry clicked; locked, it reads the
+recent file and hands it, with the password, to that document to open.
+
+**What reaches a page.**
+
+- Only what a click asks for, and only one entry's values. No content script runs anywhere:
+  at a click, `chrome.scripting.executeScript` first asks every frame of the tab where it is
+  and which login fields it has, sending no values; then only the frames of the entry's site
+  get them, and the function checks its own address again before it types. A frame of
+  another site on the same page gets nothing.
+- Only fields a person can see are filled: shown, enabled, writable, of some size, inside
+  the window. A field hidden as a trap stays empty.
+- The values are set from the extension's isolated world, past any setter a page puts on its
+  inputs, and `input` and `change` events tell React, Vue or Angular.
+- The master password, other entries and the list of sites never go to a page.
+
+**Permissions.** `activeTab` rather than every site: a click on the icon or on Fill gives the
+extension that one tab. So the panel opens from the popup or the menu, never by Chrome's own
+setting (`openPanelOnActionClick`): a panel opened that way gets no tab at all. Fill in the panel on a tab it was not given asks once for the entry's
+site (`optional_host_permissions`). `contextMenus`, `scripting` and `sidePanel` for the above,
+`offscreen` for the document, `idle` for the screen lock, `clipboardWrite` to wipe a copied
+secret with the panel closed. There is no `externally_connectable`: the extension's parts talk
+over `chrome.runtime`, and each takes messages only from the extension's own pages. Its pages
+have `connect-src 'none'`, as the file does; the build checks that, and that no page has an
+inline script or an outside address.
+
+One difference from the file: opened again, the panel writes the database in place only if
+Chrome still allows it; otherwise the status bar says so, and the first Save asks.
 
 ## Security
 
@@ -159,7 +238,7 @@ passwords in the file as they are; only what the generator computes from then on
 
 Everything below is frozen: changing any constant would make every password made with it
 impossible to compute again. A future generator would come as a new kind in the list and leave
-this one as it is. The code is `src/derived.ts`; `npm test` checks it against fixed vectors
+this one as it is. The code is `src/core/derived.ts`; `npm test` checks it against fixed vectors
 and against an independent implementation written from this description with Node's own
 `crypto`. The primitives are standard — SHA-256, HMAC-SHA-256, Argon2id — so the algorithm
 can be rebuilt in any language.
@@ -271,7 +350,7 @@ legacy 2's primary secret phrase ("Use the database's master password", remember
 settings for each of them): that field and its box are then off. Nothing of it is
 written to disk; locking,
 closing the database or turning the legacy algorithms off forgets them all. The code is
-`src/legacy.ts`; `npm test` checks it against vectors computed by the original .NET programs.
+`src/core/legacy.ts`; `npm test` checks it against vectors computed by the original .NET programs.
 
 **Legacy 1** — master key, identifier, primary key, secondary key, result:
 
@@ -343,6 +422,15 @@ plural category of the language (`Intl.PluralRules`), keyed by the English plura
 used; `npm test` checks that every translation keeps the English placeholders and has all
 plural forms.
 
+What Chrome shows of the extension itself — its name and description, the toolbar button's
+title — follows the browser's language rather than the panel's, through `chrome.i18n`. Those
+texts are the English ones in `src/extension/manifest.json`, translated in the same
+dictionaries under the context `manifest`; the build writes them to
+`_locales/<code>/messages.json` and puts `__MSG_appName__` and the like into the manifest.
+Chrome has codes of its own and ignores the rest: `pt` becomes `pt_BR` and `pt_PT`, `zh`
+becomes `zh_CN`, and Urdu has none, so there Chrome names the extension in English. The build
+stops at a name over 75 characters or a description over 132.
+
 ## Build
 
 ```sh
@@ -351,13 +439,13 @@ npm install
 npm run build      # -> build/password-manager.html
 npm run watch      # rebuild on changes in src/
 npm run typecheck  # tsc --noEmit
-npm test           # opening, editing and saving .kdbx files, the generator, TOTP, derived passwords, the dictionaries
-npm run test:browser  # the built page in headless Chrome
+npm test           # opening, editing and saving .kdbx files, the generator, TOTP, derived passwords, matching tabs, the dictionaries
+npm run test:browser  # the built page and the extension in headless Chrome
 npm run i18n       # strings each dictionary lacks or no longer needs
 ```
 
-`build.mjs` bundles `src/main.ts` with esbuild into an IIFE and substitutes it, along with
-the styles and the icon (a data URI), into `src/template.html`. kdbxweb's fallbacks for
+`build.mjs` bundles `src/app/main.ts` with esbuild into an IIFE and substitutes it, along with
+the styles and the icon (a data URI), into `src/app/template.html`. kdbxweb's fallbacks for
 Node (`crypto`, `@xmldom/xmldom`) are replaced with empty stubs — a browser has `crypto.subtle`
 and `DOMParser`. The result is `build/password-manager.html`, around 500 KB, a quarter of it the dictionaries.
 
@@ -366,7 +454,45 @@ manifest link and a service worker registration, `manifest.webmanifest`, the ico
 `sw.js`, which caches the page so it opens offline. `build/password-manager.html` itself
 stays a single file with no external references.
 
-`tools/fixtures/Database.kdbx` is a sample database for the tests; its password is `Тестовый пароль`.
+And `build/extension/`: `panel.html` is the template with its script in `panel.js` — the same
+`src/app/main.ts`, with `src/extension/extension.ts` in the place of `src/app/platform.ts`, whose hooks do nothing
+in the file — beside `popup.html` (with the page's styles and `popup.css`) and `popup.js`,
+`background.js`, `offscreen.html` and `offscreen.js`, the icons and
+`manifest.json`, whose version is `package.json`'s. `build/password-manager-extension-<version>.zip`
+holds the same files, with fixed dates: the same sources give the same bytes.
+
+`tests/extension.mjs` loads that extension into headless Chrome through the DevTools
+protocol (`Extensions.loadUnpacked` over a pipe; `--load-extension` is gone from Chrome
+since version 137) and fills test sites on a local server: a plain form, a React-like one, a
+sign-in in three steps with a one-time code, frames of the site's own and of another site,
+fields hidden as traps, an http page for an https entry, a registration filled with a Derived
+v3 password — with the panel closed, and after the lock; and the popup, which unlocks, fills,
+searches, copies and locks. A context menu cannot be clicked from
+DevTools, so the test fires the worker's `onClicked` itself; with no real click Chrome grants no
+`activeTab`, so the copy under test may reach the test sites, `*.test`, as host permissions.
+The toolbar icon can be clicked from DevTools (`Extensions.triggerAction`): a Chrome of its own,
+with the extension as built, checks that the click gives the popup the tab. Headless Chrome 153
+crashes on that click, whatever the extension, and the check is then skipped; Chrome for Testing
+runs it (`CHROME=/path/to/chrome-for-testing npm run test:browser`).
+
+`tests/fixtures/Database.kdbx` is a sample database for the tests; its password is `Тестовый пароль`.
+
+## Versions and releases
+
+The version is written in one place, `package.json`. The build puts it into the page (the
+line under the gate, the bottom of the settings), into the extension's `manifest.json` and
+into the PWA's cache name. A build of the commit tagged `v<version>` shows it as it is; any
+other adds its commit, `0.8.0+1a2b3c4`, so a page from `main` on GitHub Pages is not taken
+for the release. Chrome's `version` holds numbers only, so there the commit goes into
+`version_name`.
+
+```sh
+npm version minor           # 0.7.2 -> 0.8.0: package.json, package-lock.json, a commit and the tag v0.8.0
+git push --follow-tags      # the tag starts .github/workflows/release.yml
+```
+
+The release workflow stops if the tag and `package.json` disagree, then attaches
+`password-manager-<tag>.html`, `password-manager-extension-<tag>.zip` and `SHA256SUMS.txt`.
 
 ## GitHub Pages
 
@@ -389,38 +515,55 @@ unlocks the sample database.
 ## Layout
 
 ```
-src/template.html   markup with the __STYLES__/__APP__/__ICON__ placeholders, the CSP
-src/styles.css      palette, light and dark themes, three panes; a phone's one screen at a time
-src/main.ts         the gate, unlocking, saving, locking, toolbar, shortcuts, settings
-src/kdbx.ts         kdbxweb + Argon2: open, save, create; fields, groups, recycle bin
-src/files.ts        File System Access API, drag-and-drop, file input; recent files
-src/groups.ts       the group tree, tags and recycle bin in the left panel
-src/list.ts         the entry list
-src/details.ts      one entry: reading, editing on a draft, history, attachments, TOTP
-src/search.ts       search, sorting, safe links
-src/generator.ts    password generator and strength estimate
-src/derived.ts      derived passwords: generator 3, the site of a website or an e-mail address, the session's master password
-src/legacy.ts       the legacy algorithms: legacy 1 and legacy 2
-src/genpanel.ts     the generator popover: random, version 3, legacy 1 and 2
-src/otp.ts          TOTP (RFC 6238) and the ways secrets are stored
-src/clipboard.ts    copying with a timed wipe
-src/avatar.ts       entry icons: custom icons from the database or a coloured letter
-src/settings.ts     localStorage: language, theme, panels, lock and clipboard timers
-src/i18n.ts         t()/tn(), the language list, translating the page's markup
-src/locales/        one dictionary per language
-src/ui.ts           dialogs, context menu, popovers, toasts, icons; sheets on a phone
-src/screens.ts      the phone layout: the list or the entry, the group drawer, the back button
-tools/              tests: .kdbx round trips, generator and TOTP, derived passwords, legacy algorithms, dictionaries, the page in headless Chrome
-src/sw.js           the service worker of the Pages build
-vendor/             the icon, and its PNG sizes for the PWA
-docs/               working notes (not under git)
-build/              the build output; build/pages/ is the PWA for GitHub Pages
+src/core/             no DOM: the tests run it in Node
+  kdbx.ts             kdbxweb + Argon2: open, save, create; fields, groups, recycle bin
+  generator.ts        password generator and strength estimate
+  derived.ts          derived passwords: generator 3, the site of an e-mail address, the session's master password
+  site.ts             siteOf(): the site of a website, for generator 3 and for matching tabs
+  legacy.ts           the legacy algorithms: legacy 1 and legacy 2
+  otp.ts              TOTP (RFC 6238) and the ways secrets are stored
+  match.ts            which entries fit a tab
+  i18n.ts             t()/tn(), the language list, translating the page's markup
+src/app/              the page: the single file, the PWA and the extension's side panel
+  template.html       markup with the __STYLES__/__APP__/__ICON__ placeholders, the CSP; the extension's panel.html too
+  styles.css          palette, light and dark themes, three panes; a phone's one screen at a time
+  main.ts             the gate, unlocking, saving, locking, toolbar, shortcuts, settings
+  files.ts            File System Access API, drag-and-drop, file input; recent files
+  groups.ts           the group tree, tags and recycle bin in the left panel
+  list.ts             the entry list
+  details.ts          one entry: reading, editing on a draft, history, attachments, TOTP
+  search.ts           search, sorting, safe links
+  genpanel.ts         the generator popover: random, version 3, legacy 1 and 2
+  clipboard.ts        copying with a timed wipe
+  avatar.ts           entry icons: custom icons from the database or a coloured letter
+  settings.ts         localStorage: language, theme, panels, lock and clipboard timers
+  ui.ts               dialogs, context menu, popovers, toasts, icons; sheets on a phone
+  screens.ts          the phone layout: the list or the entry, the group drawer, the back button
+  platform.ts         what the page does beyond itself: nothing, in the file and the PWA
+src/extension/        the Chrome extension
+  manifest.json       its manifest; the build adds the version
+  extension.ts        platform.ts of the side panel: the offscreen document, the tab, Fill
+  popup.ts            the toolbar icon's popup (popup.html, popup.css): the site's entries, Full mode
+  background.ts       the service worker: the menus, the screen lock, filling a tab
+  offscreen.ts        the offscreen document (offscreen.html): the open database until the lock
+  fill.ts             the function put into a page: finds the login fields and fills them
+  messages.ts         how the extension's parts talk
+src/pwa/sw.js         the service worker of the Pages build
+src/locales/          one dictionary per language
+assets/               the icon; pwa/, its PNG sizes for the PWA; extension/, the extension's icon
+tests/                .kdbx round trips, generator and TOTP, derived passwords, legacy algorithms, matching tabs,
+                      dictionaries, the page and the extension in headless Chrome; fixtures/, the sample database
+tools/                load.mjs compiles src/ modules for the tests; i18n.mjs compares the dictionaries with the code
+docs/                 working notes (not under git)
+build/                the build output; build/pages/ is the PWA for GitHub Pages, build/extension/ the extension
 ```
 
 ## Limitations
 
 - KDBX 3.1 and 4.x are supported; Twofish-encrypted and KeePass 1 (`.kdb`) files are not.
-- No sync, browser extension, auto-type or merging of changed copies.
+- No sync, auto-type or merging of changed copies.
+- The extension is for Chrome only, and has no suggestions in the fields, no saving a password
+  when a form is sent, no keyboard shortcut, and one website per entry.
 - Only Chromium-based browsers can write the file in place.
 
 ## License

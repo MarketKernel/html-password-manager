@@ -80,7 +80,8 @@
     "Groups": "গ্রুপ",
     "Tags": "ট্যাগ",
     "(unnamed)": "(নামহীন)",
-    "More": "আরও"
+    "More": "আরও",
+    "For this site": "এই সাইটের জন্য"
   },
   "menu": {
     "Restore": "পুনরুদ্ধার করুন",
@@ -182,7 +183,8 @@
     "Unlock": "আনলক করুন",
     "Caps Lock is on": "Caps Lock চালু আছে",
     "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "এই ডিভাইসে ফাইলটি শুধু পড়ার জন্য খোলে: সংরক্ষণ করলে হালনাগাদ কপিটি শেয়ার মেনুতে যায়, সেখানে \"ফাইলে সংরক্ষণ করুন\" সেটিকে মূল ফাইলের জায়গায় রাখতে পারে।",
-    "On this device the file opens read-only: Save downloads an updated copy of the database.": "এই ডিভাইসে ফাইলটি শুধু পড়ার জন্য খোলে: সংরক্ষণ করলে ডেটাবেসের একটি হালনাগাদ কপি ডাউনলোড হয়।"
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "এই ডিভাইসে ফাইলটি শুধু পড়ার জন্য খোলে: সংরক্ষণ করলে ডেটাবেসের একটি হালনাগাদ কপি ডাউনলোড হয়।",
+    "Version {version}": "সংস্করণ {version}"
   },
   "status": {
     "{count} entries": {
@@ -194,7 +196,8 @@
     "read-only, saving downloads a copy": "শুধু পড়ার জন্য, সংরক্ষণ করলে একটি কপি ডাউনলোড হয়",
     "Unsaved changes": "অসংরক্ষিত পরিবর্তন",
     "Saved": "সংরক্ষিত",
-    "read-only, saving shares a copy": "শুধু পড়ার জন্য, সংরক্ষণ করলে একটি কপি শেয়ার হয়"
+    "read-only, saving shares a copy": "শুধু পড়ার জন্য, সংরক্ষণ করলে একটি কপি শেয়ার হয়",
+    "saving asks for write access": "সংরক্ষণের সময় লেখার অনুমতি চাওয়া হবে"
   },
   "database": {
     "General": "সাধারণ",
@@ -217,7 +220,10 @@
     "Last modified": "সর্বশেষ পরিবর্তন",
     "Created": "তৈরির তারিখ",
     "Pick an entry on the left, or create a new one.": "বাঁ দিক থেকে একটি এন্ট্রি বেছে নিন, অথবা নতুন একটি তৈরি করুন।",
-    "Sort": "সাজান"
+    "Sort": "সাজান",
+    "No entries for {site}": "{site}-এর জন্য কোনো এন্ট্রি নেই",
+    "The tab shows no website": "ট্যাবে কোনো ওয়েবসাইট খোলা নেই",
+    "New password for {site}": "{site}-এর জন্য নতুন পাসওয়ার্ড"
   },
   "toast": {
     "\"{name}\" restored": "\"{name}\" পুনরুদ্ধার করা হয়েছে",
@@ -282,7 +288,7 @@
     "Close": "বন্ধ করুন"
   },
   "app": {
-    "Password manager": "পাসওয়ার্ড ম্যানেজার"
+    "Deterministic Password": "Deterministic Password"
   },
   "settings": {
     "System": "সিস্টেম",
@@ -302,7 +308,8 @@
     "Dark": "গাঢ়",
     "Show legacy password algorithms": "পুরনো পাসওয়ার্ড অ্যালগরিদম দেখান",
     "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "তখন জেনারেটর উদ্ভূত v2 ও v1-ও দেয় — দুটি পুরনো প্রোগ্রামের ক্যালকুলেটর, সেগুলো দিয়ে তৈরি পাসওয়ার্ড ফিরে পেতে।",
-    "This browser cannot write files in place, so saving shares a copy.": "এই ব্রাউজার সরাসরি ফাইলে লিখতে পারে না, তাই সংরক্ষণ করলে একটি কপি শেয়ার হয়।"
+    "This browser cannot write files in place, so saving shares a copy.": "এই ব্রাউজার সরাসরি ফাইলে লিখতে পারে না, তাই সংরক্ষণ করলে একটি কপি শেয়ার হয়।",
+    "Version {version}": "সংস্করণ {version}"
   },
   "password": {
     "Show password": "পাসওয়ার্ড দেখান",
@@ -343,5 +350,31 @@
     "Enter the user name: the password is derived from it too": "ব্যবহারকারীর নাম লিখুন: পাসওয়ার্ড এটি থেকেও তৈরি হয়",
     "Site": "সাইট",
     "Site: {site}": "সাইট: {site}"
+  },
+  "extension": {
+    "Fill": "পূরণ করুন",
+    "Fill the user name and password into the tab": "ট্যাবে ব্যবহারকারীর নাম ও পাসওয়ার্ড পূরণ করুন",
+    "The tab does not show {site}": "ট্যাবে {site} খোলা নেই",
+    "Click the extension's icon on this tab first": "আগে এই ট্যাবে এক্সটেনশনের আইকনে ক্লিক করুন",
+    "Nothing can be filled on this page": "এই পৃষ্ঠায় পূরণ করার মতো কিছু নেই",
+    "Not filled: the page is not secure (http), and the entry is for https": "পূরণ হয়নি: পৃষ্ঠাটি নিরাপদ নয় (http), আর এন্ট্রিটি https-এর জন্য",
+    "\"{title}\" is for {entry}, but the tab shows {tab}. Fill it in only if you trust {tab}.": "\"{title}\" {entry}-এর জন্য, কিন্তু ট্যাবে {tab} খোলা। {tab}-কে বিশ্বাস করলে তবেই পূরণ করুন।",
+    "\"{title}\" has no website. Fill it into {tab}?": "\"{title}\"-এর কোনো ওয়েবসাইট নেই। {tab}-এ পূরণ করবেন?",
+    "Fill into another site?": "অন্য সাইটে পূরণ করবেন?",
+    "Fill anyway": "তবুও পূরণ করুন",
+    "Not filled: {reason}": "পূরণ হয়নি: {reason}",
+    "the extension did not answer": "এক্সটেনশন সাড়া দেয়নি",
+    "No login fields on this page": "এই পৃষ্ঠায় লগইনের কোনো ঘর নেই",
+    "Filled into {site}": "{site}-এ পূরণ করা হয়েছে"
+  },
+  "manifest": {
+    "Deterministic Password": "Deterministic Password",
+    "Computes passwords from your master password, so losing the file is no longer scary. KeePass (.kdbx) compatible. Offline.": "মাস্টার পাসওয়ার্ড থেকে পাসওয়ার্ড গণনা করে, তাই ফাইল হারানো আর ভয়ের নয়। KeePass (.kdbx)-এর সঙ্গে সামঞ্জস্যপূর্ণ। অফলাইন।"
+  },
+  "popup": {
+    "Search all entries": "সব এন্ট্রিতে খুঁজুন",
+    "Full mode": "পূর্ণ মোড",
+    "Search finds an entry to copy from.": "খোঁজে কপি করার মতো এন্ট্রি পাওয়া যায়।",
+    "Open the database in full mode once: then it unlocks here with the master password alone.": "ডেটাবেসটি একবার পূর্ণ মোডে খুলুন: তারপর এটি এখানে শুধু মাস্টার পাসওয়ার্ডেই খুলবে।"
   }
 }

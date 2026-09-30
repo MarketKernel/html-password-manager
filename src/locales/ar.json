@@ -84,7 +84,8 @@
     "Groups": "المجموعات",
     "Tags": "الوسوم",
     "(unnamed)": "(بلا اسم)",
-    "More": "المزيد"
+    "More": "المزيد",
+    "For this site": "لهذا الموقع"
   },
   "menu": {
     "Restore": "استعادة",
@@ -190,7 +191,8 @@
     "Unlock": "فتح القفل",
     "Caps Lock is on": "مفتاح Caps Lock مفعّل",
     "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "على هذا الجهاز يُفتح الملف للقراءة فقط: يسلّم الحفظ نسخة محدّثة إلى قائمة المشاركة، حيث يمكن لخيار «حفظ في الملفات» وضعها مكان الملف الأصلي.",
-    "On this device the file opens read-only: Save downloads an updated copy of the database.": "على هذا الجهاز يُفتح الملف للقراءة فقط: يؤدي الحفظ إلى تنزيل نسخة محدّثة من قاعدة البيانات."
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "على هذا الجهاز يُفتح الملف للقراءة فقط: يؤدي الحفظ إلى تنزيل نسخة محدّثة من قاعدة البيانات.",
+    "Version {version}": "الإصدار {version}"
   },
   "status": {
     "{count} entries": {
@@ -206,7 +208,8 @@
     "read-only, saving downloads a copy": "للقراءة فقط، والحفظ ينزّل نسخة",
     "Unsaved changes": "تغييرات غير محفوظة",
     "Saved": "تم الحفظ",
-    "read-only, saving shares a copy": "للقراءة فقط، والحفظ يشارك نسخة"
+    "read-only, saving shares a copy": "للقراءة فقط، والحفظ يشارك نسخة",
+    "saving asks for write access": "الحفظ يطلب إذن الكتابة"
   },
   "database": {
     "General": "عام",
@@ -229,7 +232,10 @@
     "Last modified": "آخر تعديل",
     "Created": "تاريخ الإنشاء",
     "Pick an entry on the left, or create a new one.": "اختر مدخلًا من القائمة، أو أنشئ مدخلًا جديدًا.",
-    "Sort": "ترتيب"
+    "Sort": "ترتيب",
+    "No entries for {site}": "لا توجد مدخلات لـ {site}",
+    "The tab shows no website": "علامة التبويب لا تعرض أي موقع",
+    "New password for {site}": "كلمة مرور جديدة لـ {site}"
   },
   "toast": {
     "\"{name}\" restored": "تمت استعادة «{name}»",
@@ -302,7 +308,7 @@
     "Close": "إغلاق"
   },
   "app": {
-    "Password manager": "مدير كلمات المرور"
+    "Deterministic Password": "Deterministic Password"
   },
   "settings": {
     "System": "النظام",
@@ -322,7 +328,8 @@
     "Dark": "داكنة",
     "Show legacy password algorithms": "إظهار خوارزميات كلمات المرور القديمة",
     "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "عندها يقدّم المولّد أيضًا المشتقتين v2 وv1، وهما حاسبتا برنامجين قديمين، لاستعادة كلمات المرور التي أُنشئت بهما.",
-    "This browser cannot write files in place, so saving shares a copy.": "لا يستطيع هذا المتصفح الكتابة في الملفات مباشرة، لذا يؤدي الحفظ إلى مشاركة نسخة."
+    "This browser cannot write files in place, so saving shares a copy.": "لا يستطيع هذا المتصفح الكتابة في الملفات مباشرة، لذا يؤدي الحفظ إلى مشاركة نسخة.",
+    "Version {version}": "الإصدار {version}"
   },
   "password": {
     "Show password": "إظهار كلمة المرور",
@@ -363,5 +370,31 @@
     "Enter the user name: the password is derived from it too": "أدخل اسم المستخدم: كلمة المرور تُشتق منه أيضًا",
     "Site": "الموقع",
     "Site: {site}": "الموقع: {site}"
+  },
+  "extension": {
+    "Fill": "ملء",
+    "Fill the user name and password into the tab": "يملأ اسم المستخدم وكلمة المرور في علامة التبويب",
+    "The tab does not show {site}": "علامة التبويب لا تعرض {site}",
+    "Click the extension's icon on this tab first": "انقر أولًا على أيقونة الإضافة في علامة التبويب هذه",
+    "Nothing can be filled on this page": "لا يوجد ما يُملأ في هذه الصفحة",
+    "Not filled: the page is not secure (http), and the entry is for https": "لم يتم الملء: الصفحة غير آمنة (http)، والمدخل مخصّص لـ https",
+    "\"{title}\" is for {entry}, but the tab shows {tab}. Fill it in only if you trust {tab}.": "«{title}» مخصّص لـ {entry}، لكن علامة التبويب تعرض {tab}. لا تملأه إلا إذا كنت تثق في {tab}.",
+    "\"{title}\" has no website. Fill it into {tab}?": "«{title}» بلا موقع. هل تملؤه في {tab}؟",
+    "Fill into another site?": "الملء في موقع آخر؟",
+    "Fill anyway": "الملء على أي حال",
+    "Not filled: {reason}": "لم يتم الملء: {reason}",
+    "the extension did not answer": "لم تستجب الإضافة",
+    "No login fields on this page": "لا توجد حقول تسجيل دخول في هذه الصفحة",
+    "Filled into {site}": "تم الملء في {site}"
+  },
+  "manifest": {
+    "Deterministic Password": "Deterministic Password",
+    "Computes passwords from your master password, so losing the file is no longer scary. KeePass (.kdbx) compatible. Offline.": "يحسب كلمات المرور من كلمة المرور الرئيسية، فلم يعد فقدان الملف مخيفًا. متوافق مع KeePass (.kdbx). يعمل دون اتصال."
+  },
+  "popup": {
+    "Search all entries": "البحث في كل الإدخالات",
+    "Full mode": "الوضع الكامل",
+    "Search finds an entry to copy from.": "يجد البحث إدخالًا للنسخ منه.",
+    "Open the database in full mode once: then it unlocks here with the master password alone.": "افتح قاعدة البيانات مرة واحدة في الوضع الكامل: بعدها تُفتح هنا بكلمة المرور الرئيسية وحدها."
   }
 }

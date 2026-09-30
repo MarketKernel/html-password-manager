@@ -19,7 +19,8 @@ jobs:
       - run: npm test
       - run: npm run build
 
-      # ubuntu-latest ships Chrome at /usr/bin/google-chrome, where tools/test-app.mjs looks.
+      # ubuntu-latest ships Chrome at /usr/bin/google-chrome, where tests/app.mjs and
+      # tests/extension.mjs look; the extension is loaded over the DevTools pipe.
       - run: npm run test:browser
 
       # The single HTML file must not pull anything off the network.
@@ -33,4 +34,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: html-password-manager
-          path: build/password-manager.html
+          path: |
+            build/password-manager.html
+            build/password-manager-extension-*.zip

@@ -81,7 +81,8 @@
     "Groups": "Grupos",
     "Tags": "Etiquetas",
     "(unnamed)": "(sem nome)",
-    "More": "Mais"
+    "More": "Mais",
+    "For this site": "Para este site"
   },
   "menu": {
     "Restore": "Restaurar",
@@ -184,7 +185,8 @@
     "Unlock": "Desbloquear",
     "Caps Lock is on": "Caps Lock está ativado",
     "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "Neste dispositivo o arquivo abre somente para leitura: Salvar entrega uma cópia atualizada ao menu Compartilhar, onde \"Salvar em Arquivos\" pode substituir o original.",
-    "On this device the file opens read-only: Save downloads an updated copy of the database.": "Neste dispositivo o arquivo abre somente para leitura: Salvar baixa uma cópia atualizada do banco de dados."
+    "On this device the file opens read-only: Save downloads an updated copy of the database.": "Neste dispositivo o arquivo abre somente para leitura: Salvar baixa uma cópia atualizada do banco de dados.",
+    "Version {version}": "Versão {version}"
   },
   "status": {
     "{count} entries": {
@@ -197,7 +199,8 @@
     "read-only, saving downloads a copy": "somente leitura, salvar baixa uma cópia",
     "Unsaved changes": "Alterações não salvas",
     "Saved": "Salvo",
-    "read-only, saving shares a copy": "somente leitura, salvar compartilha uma cópia"
+    "read-only, saving shares a copy": "somente leitura, salvar compartilha uma cópia",
+    "saving asks for write access": "salvar pede permissão de escrita"
   },
   "database": {
     "General": "Geral",
@@ -220,7 +223,10 @@
     "Last modified": "Última modificação",
     "Created": "Data de criação",
     "Pick an entry on the left, or create a new one.": "Escolha uma entrada à esquerda ou crie uma nova.",
-    "Sort": "Ordenar"
+    "Sort": "Ordenar",
+    "No entries for {site}": "Nenhuma entrada para {site}",
+    "The tab shows no website": "A aba não mostra nenhum site",
+    "New password for {site}": "Nova senha para {site}"
   },
   "toast": {
     "\"{name}\" restored": "Restaurado: “{name}”",
@@ -287,7 +293,7 @@
     "Close": "Fechar"
   },
   "app": {
-    "Password manager": "Gerenciador de senhas"
+    "Deterministic Password": "Deterministic Password"
   },
   "settings": {
     "System": "Sistema",
@@ -307,7 +313,8 @@
     "Dark": "Escuro",
     "Show legacy password algorithms": "Mostrar os algoritmos de senha antigos",
     "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "O gerador passa a oferecer também as derivadas v2 e v1, as calculadoras de dois programas antigos, para recuperar as senhas feitas com eles.",
-    "This browser cannot write files in place, so saving shares a copy.": "Este navegador não consegue sobrescrever arquivos, então salvar compartilha uma cópia."
+    "This browser cannot write files in place, so saving shares a copy.": "Este navegador não consegue sobrescrever arquivos, então salvar compartilha uma cópia.",
+    "Version {version}": "Versão {version}"
   },
   "password": {
     "Show password": "Mostrar senha",
@@ -348,5 +355,31 @@
     "Enter the user name: the password is derived from it too": "Informe o usuário: a senha também é derivada dele",
     "Site": "Site",
     "Site: {site}": "Site: {site}"
+  },
+  "extension": {
+    "Fill": "Preencher",
+    "Fill the user name and password into the tab": "Preenche o nome de usuário e a senha na aba",
+    "The tab does not show {site}": "A aba não mostra {site}",
+    "Click the extension's icon on this tab first": "Clique primeiro no ícone da extensão nesta aba",
+    "Nothing can be filled on this page": "Não há nada para preencher nesta página",
+    "Not filled: the page is not secure (http), and the entry is for https": "Não preenchido: a página não é segura (http) e a entrada é para https",
+    "\"{title}\" is for {entry}, but the tab shows {tab}. Fill it in only if you trust {tab}.": "“{title}” é para {entry}, mas a aba mostra {tab}. Preencha somente se confiar em {tab}.",
+    "\"{title}\" has no website. Fill it into {tab}?": "“{title}” não tem site. Preencher em {tab}?",
+    "Fill into another site?": "Preencher em outro site?",
+    "Fill anyway": "Preencher mesmo assim",
+    "Not filled: {reason}": "Não preenchido: {reason}",
+    "the extension did not answer": "a extensão não respondeu",
+    "No login fields on this page": "Não há campos de login nesta página",
+    "Filled into {site}": "Preenchido em {site}"
+  },
+  "manifest": {
+    "Deterministic Password": "Deterministic Password",
+    "Computes passwords from your master password, so losing the file is no longer scary. KeePass (.kdbx) compatible. Offline.": "Calcula as senhas a partir da senha mestra: perder o arquivo já não assusta. Compatível com KeePass (.kdbx). Offline."
+  },
+  "popup": {
+    "Search all entries": "Pesquisar em todas as entradas",
+    "Full mode": "Modo completo",
+    "Search finds an entry to copy from.": "A pesquisa encontra uma entrada para copiar.",
+    "Open the database in full mode once: then it unlocks here with the master password alone.": "Abra o banco uma vez no modo completo: depois ele se desbloqueia aqui só com a senha mestra."
   }
 }

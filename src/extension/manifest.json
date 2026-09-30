@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Deterministic Password",
+  "description": "Computes passwords from your master password, so losing the file is no longer scary. KeePass (.kdbx) compatible. Offline.",
+  "minimum_chrome_version": "116",
+  "action": { "default_title": "Deterministic Password", "default_popup": "popup.html" },
+  "side_panel": { "default_path": "panel.html" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["sidePanel", "activeTab", "scripting", "contextMenus", "idle", "offscreen", "clipboardWrite"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'"
+  },
+  "icons": { "16": "icon-16.png", "32": "icon-32.png", "48": "icon-48.png", "128": "icon-128.png" }
+}
