@@ -1,6 +1,6 @@
 {
   "name": "html-password-manager",
-  "version": "0.7.3",
+  "version": "0.8.1",
   "private": true,
   "description": "A KeePass (.kdbx) password manager — one standalone HTML file, a PWA and a Chrome extension",
   "license": "MIT",
