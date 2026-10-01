@@ -141,7 +141,7 @@
     "Result": "Resultado",
     "Primary secret phrase": "Frase secreta primaria",
     "Key length": "Longitud de la clave",
-    "Signature: compare it with the one the program showed": "Firma: compárela con la que mostraba el programa",
+    "Signature: compare it with the one the program showed": "Firma: compárala con la que mostraba el programa",
     "Key": "Clave",
     "Secondary secret phrase": "Frase secreta secundaria",
     "Password version": "Versión de la contraseña",
@@ -155,8 +155,8 @@
     "Use the database's master password": "Usar la contraseña maestra de la base",
     "The database's master password": "Contraseña maestra de la base",
     "The password this database was unlocked with is the master key: nothing to type or to keep": "La contraseña con la que se abrió esta base es la clave maestra: no hay nada que escribir ni guardar",
-    "Derived from the password this database was unlocked with; untick to derive from another master password": "Se deriva de la contraseña con la que se abrió esta base; desmarque para derivar de otra contraseña maestra",
-    "Enter the master password to derive from": "Escriba la contraseña maestra de la que derivar",
+    "Derived from the password this database was unlocked with; untick to derive from another master password": "Se deriva de la contraseña con la que se abrió esta base; desmarca para derivar de otra contraseña maestra",
+    "Enter the master password to derive from": "Escribe la contraseña maestra de la que derivar",
     "Derived v3": "Derivada v3",
     "Derived v2": "Derivada v2",
     "Derived v1": "Derivada v1",
@@ -380,6 +380,6 @@
     "Search all entries": "Buscar en todas las entradas",
     "Full mode": "Modo completo",
     "Search finds an entry to copy from.": "La búsqueda encuentra una entrada de la que copiar.",
-    "Open the database in full mode once: then it unlocks here with the master password alone.": "Abra la base una vez en modo completo: después se desbloquea aquí solo con la contraseña maestra."
+    "Open the database in full mode once: then it unlocks here with the master password alone.": "Abre la base una vez en modo completo: después se desbloquea aquí solo con la contraseña maestra."
   }
 }

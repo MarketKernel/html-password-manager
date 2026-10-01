@@ -495,6 +495,8 @@ npm run typecheck  # tsc --noEmit
 npm test           # abrir, editar e salvar arquivos .kdbx, o gerador, TOTP, senhas derivadas, correspondência de abas, os dicionários
 npm run test:browser  # a página compilada e a extensão no Chrome headless
 npm run i18n       # strings que faltam em cada dicionário ou que ele não usa mais
+npm run check      # typecheck, test, build e test:browser em sequência
+npm run shots -- shots/after  # build e depois capturas das telas principais em shots/after
 ```
 
 `build.mjs` empacota `src/app/main.ts` com o esbuild em um IIFE e o insere, junto com os estilos e

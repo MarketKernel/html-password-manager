@@ -269,6 +269,8 @@ npm run typecheck  # tsc --noEmit
 npm test           # 打开、编辑和保存 .kdbx 文件，生成器、TOTP、推导密码、标签页匹配、词典
 npm run test:browser  # 在 headless Chrome 中测试构建出的页面和扩展程序
 npm run i18n       # 各词典缺少或不再需要的字符串
+npm run check      # 依次运行 typecheck、test、build 和 test:browser
+npm run shots -- shots/after  # 先构建，再把主要界面的截图保存到 shots/after
 ```
 
 `build.mjs` 使用 esbuild 将 `src/app/main.ts` 打包为 IIFE，并将其连同样式和图标（data URI）一起替换进 `src/app/template.html`。kdbxweb 针对 Node 的后备依赖（`crypto`、`@xmldom/xmldom`）被替换为空桩——浏览器自带 `crypto.subtle` 和 `DOMParser`。结果是 `build/password-manager.html`，约 500 KB，其中四分之一是词典。

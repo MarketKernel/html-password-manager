@@ -476,6 +476,8 @@ npm run typecheck  # tsc --noEmit
 npm test           # .kdbx ফাইল খোলা, সম্পাদনা ও সংরক্ষণ, জেনারেটর, TOTP, উদ্ভূত পাসওয়ার্ড, ট্যাব মেলানো, অভিধান
 npm run test:browser  # headless Chrome-এ বিল্ড করা পেজ ও এক্সটেনশন
 npm run i18n       # প্রতিটি অভিধানে যে স্ট্রিং নেই বা যেগুলোর আর দরকার নেই
+npm run check      # typecheck, test, build ও test:browser পরপর
+npm run shots -- shots/after  # build, তারপর প্রধান স্ক্রিনগুলোর স্ক্রিনশট shots/after-এ
 ```
 
 `build.mjs` esbuild দিয়ে `src/app/main.ts`-কে একটি IIFE-তে বান্ডল করে এবং স্টাইল ও আইকনসহ

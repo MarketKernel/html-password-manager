@@ -503,6 +503,8 @@ npm run typecheck  # tsc --noEmit
 npm test           # открытие, правка и сохранение .kdbx, генератор, TOTP, вычисляемые пароли, подбор вкладок, словари
 npm run test:browser  # собранная страница и расширение в headless Chrome
 npm run i18n       # строки, которых не хватает каждому словарю или которые ему больше не нужны
+npm run check      # typecheck, test, build и test:browser подряд
+npm run shots -- shots/after  # сборка, затем скриншоты основных экранов в shots/after
 ```
 
 `build.mjs` собирает `src/app/main.ts` с помощью esbuild в IIFE и подставляет его вместе со

@@ -18,7 +18,7 @@ private/
 *.key
 *.keyx
 
-# Screenshots from `npm run test:browser -- --shots <dir>`
+# Screenshots from `npm run shots -- <dir>`
 shots/
 screenshots/
 
@@ -29,6 +29,10 @@ yarn-debug.log*
 yarn-error.log*
 .npm/
 *.tsbuildinfo
+
+# Claude Code: instructions, skills, agents, hooks and settings, kept locally only
+CLAUDE.md
+.claude/
 
 # Editors and IDEs
 .vscode/*

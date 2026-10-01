@@ -269,6 +269,8 @@ npm run typecheck  # tsc --noEmit
 npm test           # .kdbx ファイルの読み込み・編集・保存、パスワード生成、TOTP、導出パスワード、タブとの照合、辞書
 npm run test:browser  # ビルドしたページと拡張機能をヘッドレス Chrome で
 npm run i18n       # 各辞書に足りない文字列、不要になった文字列
+npm run check      # typecheck、test、build、test:browser を順に
+npm run shots -- shots/after  # ビルドしてから主な画面のスクリーンショットを shots/after に
 ```
 
 `build.mjs` は esbuild で `src/app/main.ts` を IIFE にバンドルし、スタイルとアイコン (data URI) とともに `src/app/template.html` に埋め込みます。kdbxweb の Node 向けフォールバック (`crypto`、`@xmldom/xmldom`) は空のスタブに置き換えられます。ブラウザには `crypto.subtle` と `DOMParser` があるからです。出力は `build/password-manager.html` で、約 500 KB、そのうち 4 分の 1 が辞書です。

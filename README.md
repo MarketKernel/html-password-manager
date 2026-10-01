@@ -482,6 +482,8 @@ npm run typecheck  # tsc --noEmit
 npm test           # opening, editing and saving .kdbx files, the generator, TOTP, derived passwords, matching tabs, the dictionaries
 npm run test:browser  # the built page and the extension in headless Chrome
 npm run i18n       # strings each dictionary lacks or no longer needs
+npm run check      # typecheck, test, build and test:browser in a row
+npm run shots -- shots/after  # build, then screenshots of the main screens into shots/after
 ```
 
 `build.mjs` bundles `src/app/main.ts` with esbuild into an IIFE and substitutes it, along with
