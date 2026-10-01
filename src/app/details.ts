@@ -11,7 +11,7 @@ import { entryAvatar } from './avatar';
 import { download } from './files';
 import { strength } from '../core/generator';
 import type { GeneratorEntry } from './genpanel';
-import { dateFormat, t, tn } from '../core/i18n';
+import { dateFormat, language, t, tn } from '../core/i18n';
 import {
   addAttachment,
   binaryBytes,
@@ -445,7 +445,9 @@ export class Details {
   }
 
   private copyButton(value: string, label: string): HTMLElement {
-    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Copy {what}', { what: label.toLowerCase() }) }, icon(ICONS.copy));
+    // "Copy password" — but German capitalises nouns, and Turkish lowercases İ and I its own way.
+    const what = language() === 'de' ? label : label.toLocaleLowerCase(language());
+    const copy = h('button', { type: 'button', class: 'icon-button icon-button--small', title: t('entry', 'Copy {what}', { what }) }, icon(ICONS.copy));
     copy.addEventListener('click', () => this.host.copy(value, label));
     return copy;
   }

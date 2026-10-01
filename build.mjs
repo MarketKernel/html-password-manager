@@ -270,7 +270,10 @@ function assertExtension(files, manifest) {
  * Urdu has none, so Chrome shows the extension's name in English — the panel
  * itself still speaks Urdu.
  */
-const CHROME_LOCALES = { ar: ['ar'], bn: ['bn'], es: ['es'], fr: ['fr'], hi: ['hi'], pt: ['pt_BR', 'pt_PT'], ru: ['ru'], ur: [], zh: ['zh_CN'] };
+const CHROME_LOCALES = {
+  ar: ['ar'], bn: ['bn'], de: ['de'], es: ['es'], fr: ['fr'], hi: ['hi'], id: ['id'], ja: ['ja'], mr: ['mr'],
+  pt: ['pt_BR', 'pt_PT'], ru: ['ru'], te: ['te'], tr: ['tr'], uk: ['uk'], ur: [], zh: ['zh_CN'],
+};
 
 /**
  * What Chrome shows of the extension itself — its name, description, the

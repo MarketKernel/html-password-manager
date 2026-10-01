@@ -67,11 +67,17 @@ check('russian plural: one', I.tn('status', '{count} entry', '{count} entries', 
 check('russian plural: few', I.tn('status', '{count} entry', '{count} entries', 3), entries.few.replace('{count}', '3'));
 check('russian plural: many', I.tn('status', '{count} entry', '{count} entries', 11), entries.many.replace('{count}', '11'));
 check('left to right', I.isRightToLeft(), false);
+I.setLanguage('uk');
+const ukEntries = all.uk.status['{count} entries'];
+check('ukrainian plural: one', I.tn('status', '{count} entry', '{count} entries', 1), ukEntries.one.replace('{count}', '1'));
+check('ukrainian plural: few', I.tn('status', '{count} entry', '{count} entries', 22), ukEntries.few.replace('{count}', '22'));
+check('ukrainian plural: many', I.tn('status', '{count} entry', '{count} entries', 5), ukEntries.many.replace('{count}', '5'));
 I.setLanguage('ar');
 check('arabic is right to left', I.isRightToLeft(), true);
 I.setLanguage('en');
-check('browser language', I.detectLanguage(['de-DE', 'pt-BR', 'en']), 'pt');
-check('browser language: none known', I.detectLanguage(['de', 'ja']), 'en');
-check('language names', Object.keys(I.LANGUAGES).length, 10);
+check('browser language', I.detectLanguage(['nl-NL', 'pt-BR', 'en']), 'pt');
+check('browser language: ukrainian', I.detectLanguage(['uk-UA', 'ru', 'en']), 'uk');
+check('browser language: none known', I.detectLanguage(['nl', 'sv']), 'en');
+check('language names', Object.keys(I.LANGUAGES).length, 17);
 
 done('i18n');

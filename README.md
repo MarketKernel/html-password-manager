@@ -1,9 +1,43 @@
 # html-password-manager
 
-A password manager for KeePass databases (`.kdbx`) — in the spirit of KeeWeb, but entirely
-contained in one standalone HTML file. No network is used: the database is decrypted inside
-the page and saved straight back to disk. The same page is also a
-[Chrome extension](#chrome-extension) that fills logins into the tab beside it.
+<!-- languages -->
+<h3 align="center">
+<b>🇬🇧 English</b> ·
+<a href="docs/readme/README.zh.md">🇨🇳 中文</a> ·
+<a href="docs/readme/README.hi.md">🇮🇳 हिन्दी</a> ·
+<a href="docs/readme/README.es.md">🇪🇸 Español</a> ·
+<a href="docs/readme/README.fr.md">🇫🇷 Français</a> ·
+<a href="docs/readme/README.ar.md">🇸🇦 العربية</a> ·
+<a href="docs/readme/README.bn.md">🇧🇩 বাংলা</a> ·
+<a href="docs/readme/README.pt.md">🇧🇷 Português</a> ·
+<a href="docs/readme/README.ru.md">🇷🇺 Русский</a> ·
+<a href="docs/readme/README.ur.md">🇵🇰 اردو</a> ·
+<a href="docs/readme/README.id.md">🇮🇩 Bahasa Indonesia</a> ·
+<a href="docs/readme/README.de.md">🇩🇪 Deutsch</a> ·
+<a href="docs/readme/README.ja.md">🇯🇵 日本語</a> ·
+<a href="docs/readme/README.mr.md">🇮🇳 मराठी</a> ·
+<a href="docs/readme/README.te.md">🇮🇳 తెలుగు</a> ·
+<a href="docs/readme/README.tr.md">🇹🇷 Türkçe</a> ·
+<a href="docs/readme/README.uk.md">🇺🇦 Українська</a>
+</h3>
+<!-- /languages -->
+
+**Deterministic Password** computes passwords instead of only storing them. A site's password
+is derived from your master password, the site, your user name and a version number, with
+Argon2id and HMAC-SHA-256. If the database file is lost, the same inputs give the same
+passwords again, on any computer — losing the file is no longer scary. To change a site's
+password, raise the version. How it works: "[Derived passwords](#derived-passwords)".
+
+It is also a full KeePass password manager: it opens, edits and saves ordinary `.kdbx` files
+(KDBX 4, AES-256, Argon2id), so the same database keeps working in KeePassXC, KeePass or
+KeeWeb. A derived password is stored in the entry like any other, and other KeePass apps
+show it the same way.
+
+Everything works offline: no account, no cloud, no network requests. The whole app is one
+standalone HTML file; the database is decrypted in the page's memory and saved straight back
+to disk, and the master password never leaves the page. The same page is also a
+[Chrome extension](#chrome-extension) that fills logins into the tab beside it —
+**[install it from the Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
 **[Online version](https://marketkernel.github.io/html-password-manager/)** — the same page
 as a PWA (Progressive Web App): it can be installed into the system and then runs as a
@@ -56,9 +90,11 @@ size gets larger buttons and the ⋯ beside the groups.
 
 ## Chrome extension
 
+**[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**
+
 `npm run build` also writes `build/extension/`: the same app as a Chrome extension, and
-`build/password-manager-extension-<version>.zip` of it for the Chrome Web Store. Until it is
-there: `chrome://extensions` → Developer mode → Load unpacked → `build/extension`.
+`build/password-manager-extension-<version>.zip` of it for the Chrome Web Store. To try a
+build of your own: `chrome://extensions` → Developer mode → Load unpacked → `build/extension`.
 
 The toolbar icon opens a compact popup: the entries for the tab's site, a click on one to
 fill it in, buttons to copy its user name, password or one-time code, and a search through the
@@ -135,8 +171,8 @@ Chrome still allows it; otherwise the status bar says so, and the first Save ask
 ## Security
 
 - **Nothing leaves the page.** A Content-Security-Policy in the file forbids every network
-  request, form submission and outside resource; the build fails if the policy or an
-  external reference goes missing. The PWA's copy lets in three things more, all from its
+  request, form submission and outside resource; the build fails if the policy goes missing
+  or an external reference creeps in. The PWA's copy lets in three things more, all from its
   own origin: the manifest, the service worker and the icons — `connect-src` stays `'none'`.
 - The format code is [kdbxweb](https://github.com/keeweb/kdbxweb), the library KeeWeb is
   built on; Argon2 is [hash-wasm](https://github.com/Daninet/hash-wasm)'s WebAssembly, which
@@ -190,8 +226,9 @@ Chrome still allows it; otherwise the status bar says so, and the first Save ask
   Strength meter for typed passwords.
 - **Database**: rename, change the master password and key file, save a copy.
 - **Languages**: English, 中文, हिन्दी, Español, Français, العربية, বাংলা, Português, Русский,
-  اردو — the ten most spoken. Chosen in Settings, or taken from the browser; Arabic and Urdu
-  lay the window out right to left.
+  اردو, Bahasa Indonesia, Deutsch, 日本語, मराठी, తెలుగు, Türkçe — the sixteen most spoken —
+  and Українська. Chosen in Settings, or taken from the browser; Arabic and Urdu lay the
+  window out right to left.
 - **Theme**: system, light, dark, in Settings. Language, theme, panel widths, sorting,
   generator options and collapsed groups are remembered.
 
@@ -431,6 +468,9 @@ Chrome has codes of its own and ignores the rest: `pt` becomes `pt_BR` and `pt_P
 becomes `zh_CN`, and Urdu has none, so there Chrome names the extension in English. The build
 stops at a name over 75 characters or a description over 132.
 
+This README is translated as well: `docs/readme/README.<code>.md`, one per language, with the
+list of languages at the top of each. A change here belongs in the translations too.
+
 ## Build
 
 ```sh
@@ -554,7 +594,7 @@ assets/               the icon; pwa/, its PNG sizes for the PWA; extension/, the
 tests/                .kdbx round trips, generator and TOTP, derived passwords, legacy algorithms, matching tabs,
                       dictionaries, the page and the extension in headless Chrome; fixtures/, the sample database
 tools/                load.mjs compiles src/ modules for the tests; i18n.mjs compares the dictionaries with the code
-docs/                 working notes (not under git)
+docs/                 the screenshot above; readme/, this README in the other languages; working notes (not under git)
 build/                the build output; build/pages/ is the PWA for GitHub Pages, build/extension/ the extension
 ```
 

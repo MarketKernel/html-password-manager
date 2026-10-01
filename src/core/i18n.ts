@@ -15,15 +15,22 @@
 
 import ar from '../locales/ar.json';
 import bn from '../locales/bn.json';
+import de from '../locales/de.json';
 import es from '../locales/es.json';
 import fr from '../locales/fr.json';
 import hi from '../locales/hi.json';
+import id from '../locales/id.json';
+import ja from '../locales/ja.json';
+import mr from '../locales/mr.json';
 import pt from '../locales/pt.json';
 import ru from '../locales/ru.json';
+import te from '../locales/te.json';
+import tr from '../locales/tr.json';
+import uk from '../locales/uk.json';
 import ur from '../locales/ur.json';
 import zh from '../locales/zh.json';
 
-/** The ten most spoken languages, each named in itself. */
+/** The sixteen most spoken languages and Ukrainian, each named in itself. */
 export const LANGUAGES = {
   en: 'English',
   zh: '中文',
@@ -35,6 +42,13 @@ export const LANGUAGES = {
   pt: 'Português',
   ru: 'Русский',
   ur: 'اردو',
+  id: 'Bahasa Indonesia',
+  de: 'Deutsch',
+  ja: '日本語',
+  mr: 'मराठी',
+  te: 'తెలుగు',
+  tr: 'Türkçe',
+  uk: 'Українська',
 } as const;
 
 export type Language = keyof typeof LANGUAGES;
@@ -42,7 +56,7 @@ export type Language = keyof typeof LANGUAGES;
 type Forms = Partial<Record<Intl.LDMLPluralRule, string>>;
 export type Dictionary = Record<string, Record<string, string | Forms>>;
 
-const DICTIONARIES: Partial<Record<Language, Dictionary>> = { ar, bn, es, fr, hi, pt, ru, ur, zh };
+const DICTIONARIES: Partial<Record<Language, Dictionary>> = { ar, bn, de, es, fr, hi, id, ja, mr, pt, ru, te, tr, uk, ur, zh };
 const RIGHT_TO_LEFT = new Set<Language>(['ar', 'ur']);
 
 let current: Language = 'en';
