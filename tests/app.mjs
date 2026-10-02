@@ -126,7 +126,13 @@ const level = (a, b) => evaluate(`(() => { const middle = (s) => { const r = doc
 async function until(expr, timeout = 8000) {
   const end = Date.now() + timeout;
   while (Date.now() < end) {
-    if (await evaluate(expr)) return true;
+    // A document going away in the middle of a reload or a navigation takes the evaluation
+    // with it; the next try runs in the new one.
+    try {
+      if (await evaluate(expr)) return true;
+    } catch (error) {
+      if (!/Inspected target navigated or closed|Cannot find context with specified id|Execution context was destroyed/.test(error.message)) throw error;
+    }
     await sleep(50);
   }
   return false;
