@@ -40,7 +40,7 @@ KeePass чи KeeWeb. Обчислений пароль зберігається 
 для входу у вкладці поруч, —
 **[встановіть його з Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[Онлайн-версія](https://marketkernel.github.io/html-password-manager/)** — та сама сторінка
+**[Онлайн-версія](https://password.marketkernel.com/)** — та сама сторінка
 як PWA (Progressive Web App): її можна встановити в систему, і тоді вона працює як окремий
 застосунок, із власним вікном і значком, а також без мережі. На комп’ютері в Chrome, Edge
 і Arc скористайтеся кнопкою встановлення в адресному рядку; на Android — меню ⋮ у Chrome →
@@ -552,7 +552,7 @@ Workflow релізу зупиняється, якщо тег і `package.json` 
 
 `.github/workflows/pages.yml` збирає й тестує кожен push у `main` і розгортає
 `build/pages/` на GitHub Pages (Settings → Pages → Source: GitHub Actions) за адресою
-<https://marketkernel.github.io/html-password-manager/>. Файли відкриваються так само, як в
+<https://password.marketkernel.com/>. Файли відкриваються так само, як в
 однофайловій версії; нещодавні файли, налаштування й запам’ятовані дескриптори належать цій
 адресі, окремо від тих, що має копія, відкрита з диска.
 

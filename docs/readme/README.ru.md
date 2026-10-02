@@ -39,7 +39,7 @@ HMAC-SHA-256. Если файл базы потерян, те же пароли 
 [расширение для Chrome](#расширение-для-chrome), которое заполняет логины во вкладке рядом, —
 **[установите его из Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[Онлайн-версия](https://marketkernel.github.io/html-password-manager/)** — та же страница
+**[Онлайн-версия](https://password.marketkernel.com/)** — та же страница
 в виде PWA (Progressive Web App): её можно установить в систему, и тогда она работает как
 отдельное приложение, со своим окном и значком, и без сети. На компьютере в Chrome, Edge и
 Arc нажмите кнопку установки в адресной строке; на Android — меню ⋮ в Chrome → «Установить
@@ -561,7 +561,7 @@ Workflow релиза останавливается, если тег и `packag
 
 `.github/workflows/pages.yml` собирает и тестирует каждый push в `main` и разворачивает
 `build/pages/` на GitHub Pages (Settings → Pages → Source: GitHub Actions) по адресу
-<https://marketkernel.github.io/html-password-manager/>. Файлы открываются так же, как в
+<https://password.marketkernel.com/>. Файлы открываются так же, как в
 едином файле; недавние файлы, настройки и запомненные дескрипторы принадлежат этому адресу —
 отдельно от тех, что у копии, открытой с диска.
 

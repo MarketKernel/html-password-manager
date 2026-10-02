@@ -39,7 +39,7 @@ HMAC-SHA-256 দিয়ে উদ্ভূত হয়। ডেটাবে�
 [Chrome এক্সটেনশন](#chrome-এক্সটেনশন)ও, যা পাশের ট্যাবে লগইন পূরণ করে —
 **[Chrome Web Store থেকে ইনস্টল করুন](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**।
 
-**[অনলাইন সংস্করণ](https://marketkernel.github.io/html-password-manager/)** — PWA (Progressive
+**[অনলাইন সংস্করণ](https://password.marketkernel.com/)** — PWA (Progressive
 Web App) হিসেবে একই পেজ: এটি সিস্টেমে ইনস্টল করা যায়, তারপর নিজস্ব উইন্ডো ও আইকনসহ আলাদা
 অ্যাপ হিসেবে চলে এবং অফলাইনেও কাজ করে। কম্পিউটারে Chrome, Edge ও Arc-এ অ্যাড্রেস বারের
 ইনস্টল বোতাম ব্যবহার করুন; Android-এ Chrome-এর ⋮ মেনু → অ্যাপ ইনস্টল করুন; iOS-এ Safari বা
@@ -534,7 +534,7 @@ git push --follow-tags      # ট্যাগটি .github/workflows/release.ym
 
 `.github/workflows/pages.yml` `main`-এ প্রতিটি push বিল্ড ও পরীক্ষা করে এবং `build/pages/`-কে
 GitHub Pages-এ ডিপ্লয় করে (Settings → Pages → Source: GitHub Actions), এই ঠিকানায়:
-<https://marketkernel.github.io/html-password-manager/>। ফাইল একক ফাইলের মতোই খোলে; সাম্প্রতিক
+<https://password.marketkernel.com/>। ফাইল একক ফাইলের মতোই খোলে; সাম্প্রতিক
 ফাইল, সেটিংস ও মনে রাখা হ্যান্ডেলগুলো সেই ঠিকানার নিজস্ব, ডিস্ক থেকে খোলা কপির গুলো থেকে আলাদা।
 
 প্রতিটি ডিপ্লয় `sw.js`-এ ক্যাশের নাম বদলায়, তাই ব্রাউজার নিজে থেকেই নতুন সংস্করণ নিয়ে নেয়; খোলা

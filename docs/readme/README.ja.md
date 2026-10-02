@@ -28,7 +28,7 @@
 
 すべてオフラインで動作します。アカウントもクラウドも不要で、ネットワークリクエストも一切ありません。アプリ全体が単体の HTML ファイル 1 つに収まっています。データベースはページのメモリ内で復号されてそのままディスクに保存され、マスターパスワードがページの外に出ることはありません。同じページは、隣のタブにログイン情報を入力する [Chrome 拡張機能](#chrome-拡張機能)としても動作します。**[Chrome ウェブストアからインストールできます](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**。
 
-**[オンライン版](https://marketkernel.github.io/html-password-manager/)** は、同じページを PWA (Progressive Web App) にしたものです。システムにインストールすると、専用のウィンドウとアイコンを持つ独立したアプリとして動作し、オフラインでも使えます。パソコンの Chrome、Edge、Arc ではアドレスバーのインストールボタンを、Android では Chrome の ⋮ メニュー →「アプリをインストール」を、iOS では Safari または Chrome で 共有 →「ホーム画面に追加」を使います。この場合もデータベースはディスク上に置かれたままです。「[GitHub Pages](#github-pages)」を参照してください。
+**[オンライン版](https://password.marketkernel.com/)** は、同じページを PWA (Progressive Web App) にしたものです。システムにインストールすると、専用のウィンドウとアイコンを持つ独立したアプリとして動作し、オフラインでも使えます。パソコンの Chrome、Edge、Arc ではアドレスバーのインストールボタンを、Android では Chrome の ⋮ メニュー →「アプリをインストール」を、iOS では Safari または Chrome で 共有 →「ホーム画面に追加」を使います。この場合もデータベースはディスク上に置かれたままです。「[GitHub Pages](#github-pages)」を参照してください。
 
 ![html-password-manager: グループ、エントリ、編集中のエントリ](../password-manager.jpg)
 
@@ -296,7 +296,7 @@ git push --follow-tags      # タグによって .github/workflows/release.yml �
 
 ## GitHub Pages
 
-`.github/workflows/pages.yml` は、`main` へのプッシュごとにビルドとテストを行い、`build/pages/` を GitHub Pages (Settings → Pages → Source: GitHub Actions) にデプロイします。公開先は <https://marketkernel.github.io/html-password-manager/> です。ファイルは単一ファイル版と同じ方法で開きます。最近使ったファイル、設定、記憶されたハンドルはそのアドレスに属し、ディスクから開いたコピーのものとは別になります。
+`.github/workflows/pages.yml` は、`main` へのプッシュごとにビルドとテストを行い、`build/pages/` を GitHub Pages (Settings → Pages → Source: GitHub Actions) にデプロイします。公開先は <https://password.marketkernel.com/> です。ファイルは単一ファイル版と同じ方法で開きます。最近使ったファイル、設定、記憶されたハンドルはそのアドレスに属し、ディスクから開いたコピーのものとは別になります。
 
 デプロイのたびに `sw.js` 内のキャッシュ名が変わるので、ブラウザは新しいバージョンを自動的に取得します。開いているウィンドウは、次に再読み込みしたときに新しいバージョンに切り替わります。これはトレードオフでもあります。インストールした PWA は最後のデプロイの内容で動作しますが、ダウンロードしたファイルはそのバージョンのままです。ディスク上でバージョンを固定したい場合は、リリースから `password-manager-<tag>.html` を取得し、`SHA256SUMS.txt` と照合してください。
 

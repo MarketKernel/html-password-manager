@@ -28,7 +28,7 @@
 
 一切都离线运行：无需账户，没有云端，也没有任何网络请求。整个应用就是一个独立的 HTML 文件；数据库在页面内存中解密，并直接保存回磁盘，主密码从不离开页面。同一个页面也是一个 [Chrome 扩展程序](#chrome-扩展程序)，可以把登录信息填入旁边的标签页——**[从 Chrome 应用商店安装](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**。
 
-**[在线版本](https://marketkernel.github.io/html-password-manager/)**——同一个页面的 PWA（Progressive Web App，渐进式 Web 应用）形式：它可以安装到系统中，之后作为独立的应用运行，拥有自己的窗口和图标，并且可以离线使用。在电脑上的 Chrome、Edge 和 Arc 中，使用地址栏中的安装按钮；在 Android 上，使用 Chrome 的 ⋮ 菜单 → 安装应用；在 iOS 上，在 Safari 或 Chrome 中使用共享 → 添加到主屏幕。在那里数据库同样保留在你的磁盘上——参见“[GitHub Pages](#github-pages)”。
+**[在线版本](https://password.marketkernel.com/)**——同一个页面的 PWA（Progressive Web App，渐进式 Web 应用）形式：它可以安装到系统中，之后作为独立的应用运行，拥有自己的窗口和图标，并且可以离线使用。在电脑上的 Chrome、Edge 和 Arc 中，使用地址栏中的安装按钮；在 Android 上，使用 Chrome 的 ⋮ 菜单 → 安装应用；在 iOS 上，在 Safari 或 Chrome 中使用共享 → 添加到主屏幕。在那里数据库同样保留在你的磁盘上——参见“[GitHub Pages](#github-pages)”。
 
 ![html-password-manager：群组、条目以及一个正在编辑的条目](../password-manager.jpg)
 
@@ -297,7 +297,7 @@ git push --follow-tags      # 该标签会启动 .github/workflows/release.yml
 ## GitHub Pages
 
 `.github/workflows/pages.yml` 会对每次推送到 `main` 的内容进行构建和测试，并将 `build/pages/` 部署到 GitHub Pages（Settings → Pages → Source: GitHub Actions），地址为
-<https://marketkernel.github.io/html-password-manager/>。文件的打开方式与单文件版相同；最近的文件、设置和记住的句柄属于该地址，与从磁盘打开的副本的那些相互独立。
+<https://password.marketkernel.com/>。文件的打开方式与单文件版相同；最近的文件、设置和记住的句柄属于该地址，与从磁盘打开的副本的那些相互独立。
 
 每次部署都会更改 `sw.js` 中的缓存名称，因此浏览器会自行获取新版本；已打开的窗口会在下次重新加载时切换到新版本。这也是一种取舍：已安装的 PWA 运行的是最近一次部署放在那里的版本，而下载的文件则始终是原来的版本。如需一个固定在磁盘上的版本，请从某个发布中获取 `password-manager-<tag>.html`，并用 `SHA256SUMS.txt` 进行核对。
 

@@ -40,7 +40,7 @@ KeePassXC, KeePass లేదా KeeWebలో కూడా పనిచేస్�
 [Chrome ఎక్స్‌టెన్షన్](#chrome-ఎక్స్టెన్షన్) కూడా, అది పక్కనే ఉన్న ట్యాబ్‌లో లాగిన్‌లను నింపుతుంది —
 **[Chrome Web Store నుండి ఇన్‌స్టాల్ చేయండి](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[ఆన్‌లైన్ వెర్షన్](https://marketkernel.github.io/html-password-manager/)** — అదే పేజీ
+**[ఆన్‌లైన్ వెర్షన్](https://password.marketkernel.com/)** — అదే పేజీ
 PWA (Progressive Web App) రూపంలో: దీన్ని సిస్టమ్‌లో ఇన్‌స్టాల్ చేయవచ్చు, అప్పుడు ఇది సొంత
 విండో, సొంత చిహ్నంతో ప్రత్యేక యాప్‌గా నడుస్తుంది, ఆఫ్‌లైన్‌లోనూ పనిచేస్తుంది. కంప్యూటర్‌లో,
 Chrome, Edge, Arcలలో అడ్రస్ బార్‌లోని ఇన్‌స్టాల్ బటన్‌ను ఉపయోగించండి; Androidలో, Chrome ⋮
@@ -567,7 +567,7 @@ git push --follow-tags      # the tag starts .github/workflows/release.yml
 
 `.github/workflows/pages.yml` `main`కు వచ్చే ప్రతి pushను బిల్డ్ చేసి పరీక్షిస్తుంది,
 `build/pages/`ను GitHub Pagesకు deploy చేస్తుంది (Settings → Pages → Source: GitHub Actions),
-<https://marketkernel.github.io/html-password-manager/> చిరునామాలో. ఫైల్‌లు ఒకే ఫైల్‌లో లాగే
+<https://password.marketkernel.com/> చిరునామాలో. ఫైల్‌లు ఒకే ఫైల్‌లో లాగే
 తెరుచుకుంటాయి; ఇటీవలి ఫైల్‌లు, సెట్టింగ్‌లు, గుర్తుంచుకున్న హ్యాండిల్‌లు ఆ చిరునామాకు చెందుతాయి,
 డిస్క్ నుండి తెరిచిన కాపీవాటికి వేరుగా.
 

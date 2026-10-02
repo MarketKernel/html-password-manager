@@ -39,7 +39,7 @@ langsung kembali ke disk, dan sandi utama tidak pernah meninggalkan halaman. Hal
 merupakan [ekstensi Chrome](#ekstensi-chrome) yang mengisikan data login ke tab di sebelahnya —
 **[pasang dari Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[Versi online](https://marketkernel.github.io/html-password-manager/)** — halaman yang sama
+**[Versi online](https://password.marketkernel.com/)** — halaman yang sama
 dalam bentuk PWA (Progressive Web App): dapat dipasang ke sistem lalu berjalan sebagai
 aplikasi terpisah, dengan jendela dan ikonnya sendiri, serta berfungsi secara offline. Di
 komputer, pada Chrome, Edge, dan Arc, gunakan tombol pasang di bilah alamat; di Android, menu ⋮
@@ -570,7 +570,7 @@ Workflow rilis berhenti jika tag dan `package.json` tidak sesuai, lalu melampirk
 
 `.github/workflows/pages.yml` membangun dan menguji setiap push ke `main` dan men-deploy
 `build/pages/` ke GitHub Pages (Settings → Pages → Source: GitHub Actions), di
-<https://marketkernel.github.io/html-password-manager/>. File dibuka dengan cara yang sama seperti
+<https://password.marketkernel.com/>. File dibuka dengan cara yang sama seperti
 di file tunggal; file terbaru, setelan, dan handle yang diingat menjadi milik alamat tersebut,
 terpisah dari milik salinan yang dibuka dari disk.
 

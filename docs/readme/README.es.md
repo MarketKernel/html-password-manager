@@ -40,7 +40,7 @@ también una [extensión para Chrome](#extensión-para-chrome) que rellena los i
 pestaña de al lado:
 **[instálala desde la Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[Versión en línea](https://marketkernel.github.io/html-password-manager/)**: la misma página
+**[Versión en línea](https://password.marketkernel.com/)**: la misma página
 como PWA (Progressive Web App). Se puede instalar en el sistema y entonces funciona como una
 aplicación aparte, con su propia ventana y su propio icono, y también sin conexión. En un ordenador,
 en Chrome, Edge y Arc, usa el botón de instalación de la barra de direcciones; en Android, el menú ⋮
@@ -557,7 +557,7 @@ El flujo de publicación se detiene si la etiqueta y `package.json` no coinciden
 
 `.github/workflows/pages.yml` compila y prueba cada push a `main` y despliega `build/pages/` en GitHub
 Pages (Settings → Pages → Source: GitHub Actions), en
-<https://marketkernel.github.io/html-password-manager/>. Los archivos se abren igual que en el archivo
+<https://password.marketkernel.com/>. Los archivos se abren igual que en el archivo
 único; los archivos recientes, los ajustes y los identificadores recordados pertenecen a esa dirección,
 separados de los de una copia abierta desde el disco.
 

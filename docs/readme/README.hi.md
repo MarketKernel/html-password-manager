@@ -39,7 +39,7 @@ Argon2id) खोलता, संपादित करता और सहे�
 बगल वाले टैब में लॉगिन भरता है —
 **[इसे Chrome Web Store से इंस्टॉल करें](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**।
 
-**[ऑनलाइन संस्करण](https://marketkernel.github.io/html-password-manager/)** — वही पेज
+**[ऑनलाइन संस्करण](https://password.marketkernel.com/)** — वही पेज
 PWA (Progressive Web App) के रूप में: इसे सिस्टम में इंस्टॉल किया जा सकता है, जिसके बाद यह अपनी
 विंडो और आइकन के साथ एक अलग ऐप की तरह चलता है और ऑफ़लाइन भी काम करता है। कंप्यूटर पर Chrome,
 Edge और Arc में एड्रेस बार का इंस्टॉल बटन इस्तेमाल करें; Android पर Chrome का ⋮ मेनू →
@@ -539,7 +539,7 @@ git push --follow-tags      # the tag starts .github/workflows/release.yml
 
 `.github/workflows/pages.yml` `main` पर हर push को बिल्ड और टेस्ट करता है और
 `build/pages/` को GitHub Pages पर तैनात करता है (Settings → Pages → Source: GitHub Actions),
-<https://marketkernel.github.io/html-password-manager/> पर। फ़ाइलें वैसे ही खुलती हैं जैसे
+<https://password.marketkernel.com/> पर। फ़ाइलें वैसे ही खुलती हैं जैसे
 अकेली फ़ाइल में; हाल की फ़ाइलें, सेटिंग्स और याद रखे गए हैंडल उसी पते के होते हैं, और डिस्क से खोली
 गई कॉपी वालों से अलग रहते हैं।
 

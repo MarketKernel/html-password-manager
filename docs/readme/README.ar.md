@@ -38,7 +38,7 @@ AES-256، Argon2id)، فتظل قاعدة البيانات نفسها تعمل �
 أبدًا. والصفحة نفسها هي أيضًا [إضافة لـ Chrome](#إضافة-chrome) تملأ بيانات تسجيل الدخول في علامة التبويب
 المجاورة لها — **[ثبّتها من Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[النسخة على الإنترنت](https://marketkernel.github.io/html-password-manager/)** — الصفحة نفسها
+**[النسخة على الإنترنت](https://password.marketkernel.com/)** — الصفحة نفسها
 بصيغة PWA (تطبيق ويب تقدّمي): يمكن تثبيتها في النظام فتعمل بعدها تطبيقًا مستقلًا، بنافذته
 وأيقونته، وتعمل دون اتصال. على الحاسوب، في Chrome وEdge وArc، استخدم زر التثبيت في شريط العناوين؛
 على Android، قائمة ⋮ في Chrome ← «تثبيت التطبيق»؛ على iOS، «مشاركة» ← «إضافة إلى الشاشة الرئيسية»،
@@ -508,7 +508,7 @@ git push --follow-tags      # the tag starts .github/workflows/release.yml
 
 يبني `.github/workflows/pages.yml` كل دفع (push) إلى `main` ويختبره، وينشر `build/pages/` على
 GitHub Pages ‏(Settings → Pages → Source: GitHub Actions)، على العنوان
-<https://marketkernel.github.io/html-password-manager/>. تُفتح الملفات بالطريقة نفسها كما في الملف
+<https://password.marketkernel.com/>. تُفتح الملفات بالطريقة نفسها كما في الملف
 الواحد؛ والملفات الأخيرة والإعدادات والمقابض المتذكَّرة تخص ذلك العنوان، بمعزل عن تلك الخاصة بنسخة
 مفتوحة من القرص.
 

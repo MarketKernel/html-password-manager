@@ -39,7 +39,7 @@ salvo diretamente de volta no disco, e a senha mestra nunca sai da página. A me
 também é uma [extensão para Chrome](#extensão-para-chrome) que preenche logins na aba ao lado —
 **[instale-a pela Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[Versão online](https://marketkernel.github.io/html-password-manager/)** — a mesma página
+**[Versão online](https://password.marketkernel.com/)** — a mesma página
 como PWA (Progressive Web App): ela pode ser instalada no sistema e então roda como um
 aplicativo separado, com janela e ícone próprios, e funciona offline. No computador, no Chrome,
 no Edge e no Arc, use o botão de instalação na barra de endereços; no Android, menu ⋮ do Chrome →
@@ -555,7 +555,7 @@ O workflow de lançamento para se a tag e o `package.json` não coincidirem e, e
 
 `.github/workflows/pages.yml` compila e testa cada push para `main` e publica `build/pages/` no
 GitHub Pages (Settings → Pages → Source: GitHub Actions), em
-<https://marketkernel.github.io/html-password-manager/>. Os arquivos abrem do mesmo jeito que no
+<https://password.marketkernel.com/>. Os arquivos abrem do mesmo jeito que no
 arquivo único; os arquivos recentes, as configurações e os identificadores lembrados pertencem a
 esse endereço, separados dos de uma cópia aberta do disco.
 

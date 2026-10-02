@@ -39,7 +39,7 @@ to disk, and the master password never leaves the page. The same page is also a
 [Chrome extension](#chrome-extension) that fills logins into the tab beside it —
 **[install it from the Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[Online version](https://marketkernel.github.io/html-password-manager/)** — the same page
+**[Online version](https://password.marketkernel.com/)** — the same page
 as a PWA (Progressive Web App): it can be installed into the system and then runs as a
 separate app, with its own window and icon, and works offline. On a computer, in Chrome,
 Edge and Arc, use the install button in the address bar; on Android, Chrome's ⋮ menu →
@@ -540,7 +540,7 @@ The release workflow stops if the tag and `package.json` disagree, then attaches
 
 `.github/workflows/pages.yml` builds and tests every push to `main` and deploys
 `build/pages/` to GitHub Pages (Settings → Pages → Source: GitHub Actions), at
-<https://marketkernel.github.io/html-password-manager/>. Files open the same way as in the
+<https://password.marketkernel.com/>. Files open the same way as in the
 single file; the recent files, settings and remembered handles belong to that address, apart
 from those of a copy opened from disk.
 

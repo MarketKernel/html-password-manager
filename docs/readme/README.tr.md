@@ -40,7 +40,7 @@ diske geri kaydedilir, ana parola ise sayfadan hiç çıkmaz. Aynı sayfa aynı 
 sekmede giriş bilgilerini dolduran bir [Chrome uzantısıdır](#chrome-uzantısı) —
 **[Chrome Web Mağazası'ndan yükleyin](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[Çevrimiçi sürüm](https://marketkernel.github.io/html-password-manager/)** — aynı sayfanın
+**[Çevrimiçi sürüm](https://password.marketkernel.com/)** — aynı sayfanın
 PWA (Progressive Web App) hâli: sisteme yüklenebilir, ardından kendi penceresi ve simgesiyle
 ayrı bir uygulama olarak çalışır ve çevrimdışı da işler. Bilgisayarda Chrome, Edge ve Arc'ta
 adres çubuğundaki yükleme düğmesini kullanın; Android'de Chrome'un ⋮ menüsü → Uygulamayı yükle;
@@ -573,7 +573,7 @@ dosyalarını ekler.
 
 `.github/workflows/pages.yml`, `main`'e yapılan her push'u derler ve test eder, ardından
 `build/pages/` klasörünü GitHub Pages'e (Settings → Pages → Source: GitHub Actions)
-<https://marketkernel.github.io/html-password-manager/> adresinde yayımlar. Dosyalar tek
+<https://password.marketkernel.com/> adresinde yayımlar. Dosyalar tek
 dosyadakiyle aynı şekilde açılır; son kullanılan dosyalar, ayarlar ve hatırlanan tanıtıcılar o
 adrese aittir ve diskten açılan bir kopyanınkilerden ayrıdır.
 

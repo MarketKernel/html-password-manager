@@ -41,7 +41,7 @@ Dieselbe Seite ist außerdem eine [Chrome-Erweiterung](#chrome-erweiterung), die
 Tab daneben ausfüllt —
 **[im Chrome Web Store installieren](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[Online-Version](https://marketkernel.github.io/html-password-manager/)** — dieselbe Seite
+**[Online-Version](https://password.marketkernel.com/)** — dieselbe Seite
 als PWA (Progressive Web App): Sie lässt sich im System installieren, läuft dann als eigene
 App mit eigenem Fenster und Symbol und funktioniert offline. Auf dem Computer verwenden Sie in
 Chrome, Edge und Arc die Installationsschaltfläche in der Adressleiste; auf Android das ⋮-Menü
@@ -589,7 +589,7 @@ Der Release-Workflow bricht ab, wenn Tag und `package.json` nicht übereinstimme
 
 `.github/workflows/pages.yml` baut und testet jeden Push auf `main` und stellt `build/pages/`
 auf GitHub Pages bereit (Settings → Pages → Source: GitHub Actions), unter
-<https://marketkernel.github.io/html-password-manager/>. Dateien öffnen sich genauso wie in der
+<https://password.marketkernel.com/>. Dateien öffnen sich genauso wie in der
 Einzeldatei; die zuletzt geöffneten Dateien, die Einstellungen und die gemerkten Handles gehören
 zu dieser Adresse, getrennt von denen einer vom Datenträger geöffneten Kopie.
 

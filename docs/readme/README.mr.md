@@ -39,7 +39,7 @@ KeeWeb मध्येही चालत राहतो. व्युत्प
 [Chrome एक्स्टेंशन](#chrome-एक्स्टेंशन) देखील आहे, जे शेजारच्या टॅबमध्ये लॉगिन भरते —
 **[Chrome Web Store मधून इन्स्टॉल करा](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[ऑनलाइन आवृत्ती](https://marketkernel.github.io/html-password-manager/)** — हेच पेज
+**[ऑनलाइन आवृत्ती](https://password.marketkernel.com/)** — हेच पेज
 PWA (Progressive Web App) म्हणून: ते सिस्टममध्ये इन्स्टॉल करता येते आणि मग स्वतःची विंडो
 व स्वतःचा आयकॉन असलेले स्वतंत्र ॲप म्हणून चालते, तसेच ऑफलाइनही काम करते. संगणकावर Chrome,
 Edge आणि Arc मध्ये ॲड्रेस बारमधील इन्स्टॉल बटण वापरा; Android वर Chrome चा ⋮ मेनू →
@@ -549,7 +549,7 @@ git push --follow-tags      # the tag starts .github/workflows/release.yml
 
 `.github/workflows/pages.yml` `main` वरील प्रत्येक push बिल्ड आणि टेस्ट करतो आणि
 `build/pages/` GitHub Pages वर डिप्लॉय करतो (Settings → Pages → Source: GitHub Actions),
-<https://marketkernel.github.io/html-password-manager/> या पत्त्यावर. फाइल एकल फाइलप्रमाणेच
+<https://password.marketkernel.com/> या पत्त्यावर. फाइल एकल फाइलप्रमाणेच
 उघडतात; अलीकडील फाइल, सेटिंग्ज आणि लक्षात ठेवलेले हँडल त्या पत्त्याचे असतात;
 डिस्कवरून उघडलेल्या प्रतीचे ते वेगळे असतात.
 

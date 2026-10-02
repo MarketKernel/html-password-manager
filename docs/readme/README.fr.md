@@ -42,7 +42,7 @@ La même page est aussi une [extension Chrome](#extension-chrome) qui remplit le
 dans l’onglet d’à côté —
 **[installez-la depuis le Chrome Web Store](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**.
 
-**[Version en ligne](https://marketkernel.github.io/html-password-manager/)** — la même page
+**[Version en ligne](https://password.marketkernel.com/)** — la même page
 en PWA (Progressive Web App) : elle peut être installée dans le système et fonctionne alors comme
 une application à part, avec sa propre fenêtre et sa propre icône, même hors ligne. Sur un
 ordinateur, dans Chrome, Edge et Arc, utilisez le bouton d’installation de la barre d’adresse ;
@@ -593,7 +593,7 @@ Le workflow de publication s’arrête si le tag et `package.json` ne concordent
 
 `.github/workflows/pages.yml` compile et teste chaque push sur `main` et déploie
 `build/pages/` sur GitHub Pages (Settings → Pages → Source: GitHub Actions), à l’adresse
-<https://marketkernel.github.io/html-password-manager/>. Les fichiers s’ouvrent de la même façon
+<https://password.marketkernel.com/>. Les fichiers s’ouvrent de la même façon
 que dans le fichier unique ; les fichiers récents, les paramètres et les descripteurs mémorisés
 appartiennent à cette adresse, séparément de ceux d’une copie ouverte depuis le disque.
 
