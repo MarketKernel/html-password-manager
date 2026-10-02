@@ -2,6 +2,7 @@
 
 import { GENERATOR_DEFAULTS, GENERATOR_KINDS, LENGTH_MAX, LENGTH_MIN, type GeneratorKind, type GeneratorOptions } from '../core/generator';
 import { detectLanguage, isLanguage, type Language } from '../core/i18n';
+import { REMEMBER_WITH, type RememberWith } from './remember';
 import type { SortKey } from './search';
 
 export type Theme = 'system' | 'light' | 'dark';
@@ -22,6 +23,8 @@ export interface Settings {
   lockMinutes: number;
   /** Clear a copied secret from the clipboard after this many seconds; 0 — never. */
   clipboardSeconds: number;
+  /** How a database remembered from now on is unlocked; one remembered already keeps its own way. */
+  rememberWith: RememberWith;
   /** Write the file shortly after every change, when it can be written in place. */
   autosave: boolean;
   generator: GeneratorOptions;
@@ -51,6 +54,7 @@ const DEFAULTS: Settings = {
   sort: 'title',
   lockMinutes: 15,
   clipboardSeconds: 30,
+  rememberWith: 'system',
   autosave: true,
   generator: { ...GENERATOR_DEFAULTS },
   generatorKind: 'v3',
@@ -77,6 +81,7 @@ export function loadSettings(): Settings {
       clipboardSeconds: CLIPBOARD_CHOICES.includes(Number(stored.clipboardSeconds))
         ? Number(stored.clipboardSeconds)
         : DEFAULTS.clipboardSeconds,
+      rememberWith: REMEMBER_WITH.includes(stored.rememberWith as RememberWith) ? (stored.rememberWith as RememberWith) : DEFAULTS.rememberWith,
       generator,
       generatorKind: GENERATOR_KINDS.includes(stored.generatorKind as GeneratorKind) ? (stored.generatorKind as GeneratorKind) : DEFAULTS.generatorKind,
       showLegacy: stored.showLegacy === true,

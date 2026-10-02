@@ -81,6 +81,8 @@ button.popup-entry-main:focus-visible { outline: 2px solid var(--accent); outlin
 .popup-unlock { padding: 12px 20px 4px; }
 .popup-unlock .unlock-field { margin: 14px 0 12px; }
 .popup-unlock .unlock-input { font-size: 15px; padding-block: 10px; }
+.popup-unlock .unlock-remembered { margin-top: 14px; }
+.popup-remember { margin: 0 0 12px; }
 .popup-file {
   max-width: 100%;
   font-size: 20px;

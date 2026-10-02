@@ -86,6 +86,11 @@ export async function changeCredentials(db: Kdbx, password: string, keyFile: Arr
 }
 
 /** A human sentence for whatever kdbxweb or the file system threw. */
+/** The password or the key file does not open the database. */
+export function isWrongKey(error: unknown): boolean {
+  return error instanceof kdbxweb.KdbxError && error.code === kdbxweb.Consts.ErrorCodes.InvalidKey;
+}
+
 export function describeError(error: unknown): string {
   if (error instanceof kdbxweb.KdbxError) {
     switch (error.code) {

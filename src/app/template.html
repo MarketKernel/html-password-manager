@@ -38,6 +38,8 @@
     <form id="unlock" class="unlock" autocomplete="off" hidden>
       <h1 id="unlock-name" class="unlock-name"></h1>
       <button id="unlock-change" class="link-button" type="button" data-i18n="gate">Choose another file</button>
+      <!-- A remembered database: main.ts shows this button, named after the way it was remembered. -->
+      <button id="unlock-remembered" class="button button--primary unlock-submit unlock-remembered" type="button" hidden></button>
       <label class="unlock-field">
         <span class="visually-hidden" data-i18n="gate">Master password</span>
         <!-- Not type=password: macOS forces a Latin layout there. main.ts masks it instead. -->
@@ -52,6 +54,7 @@
         <button id="key-file" class="link-button" type="button" data-i18n="gate">+ Key file</button>
         <span id="key-name" class="key-name" hidden></span>
         <button id="key-clear" class="link-button" type="button" data-i18n="gate" hidden>remove</button>
+        <label id="remember-row" class="unlock-remember" hidden><input id="remember" type="checkbox"> <span data-i18n="gate">Remember on this device</span></label>
       </div>
       <button id="unlock-button" class="button button--primary unlock-submit" type="submit"><span data-i18n="gate">Unlock</span> <span class="arrow">&rarr;</span></button>
       <p id="caps" class="gate-caps" data-i18n="gate" hidden>Caps Lock is on</p>

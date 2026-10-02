@@ -15,6 +15,19 @@
 import type { FillRequest, FrameReport } from './fill';
 import { HandleFile, recentFiles, type RecentFile } from '../app/files';
 import { copyText } from '../app/clipboard';
+import {
+  forget,
+  isCancelled,
+  notRememberedText,
+  recall,
+  recallFailedText,
+  RememberError,
+  remembered,
+  rememberWays,
+  settle,
+  settledText,
+  unlockLabel,
+} from '../app/remember';
 import { setLanguage, t } from '../core/i18n';
 import { fits, pageOf, type Page } from '../core/match';
 import { ensureOffscreen, mask, send, toBase64, type Credentials, type Listed, type Session } from './messages';
@@ -202,6 +215,7 @@ function renderUnlock(recent: RecentFile[]): void {
   if (heading instanceof HTMLSelectElement) {
     heading.addEventListener('change', () => {
       chosen = recent.find((file) => file.name === heading.value) ?? last;
+      void renderRemember();
       password.focus();
     });
   }
@@ -222,48 +236,124 @@ function renderUnlock(recent: RecentFile[]): void {
   for (const type of ['keydown', 'keyup'] as const) password.addEventListener(type, (event) => (caps.hidden = !event.getModifierState?.('CapsLock')));
   const submit = h('button', { type: 'submit', class: 'button button--primary unlock-submit', text: t('gate', 'Unlock') });
   const error = h('p', { class: 'gate-error', 'aria-live': 'polite' });
-  const form = h('form', { class: 'unlock popup-unlock', autocomplete: 'off' }, heading, h('label', { class: 'unlock-field' }, password, layer, badge, reveal), submit, caps, error);
+  // As on the panel's gate: the button of a remembered database, and the checkbox that remembers one.
+  const quick = h('button', { type: 'button', class: 'button button--primary unlock-submit unlock-remembered' });
+  quick.hidden = true;
+  const keep = h('input', { type: 'checkbox' });
+  const keepRow = h('label', { class: 'unlock-remember popup-remember' }, keep, h('span', { text: t('gate', 'Remember on this device') }));
+  keepRow.hidden = true;
+  let turn = 0;
+  const renderRemember = async (): Promise<void> => {
+    const mine = ++turn;
+    const [ways, way] = await Promise.all([rememberWays(), remembered(chosen.name)]);
+    if (mine !== turn) return;
+    keepRow.hidden = way === null && !ways.includes(settings.rememberWith);
+    keep.checked = way !== null;
+    quick.hidden = way === null;
+    if (way) quick.textContent = unlockLabel(way);
+    submit.classList.toggle('button--primary', quick.hidden);
+  };
+  const form = h('form', { class: 'unlock popup-unlock', autocomplete: 'off' }, heading, quick, h('label', { class: 'unlock-field' }, password, layer, badge, reveal), keepRow, submit, caps, error);
+  const parts: UnlockForm = { password, submit, quick, keep: () => !keepRow.hidden && keep.checked, error, form, renderRemember };
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    void unlock(chosen, password, submit, error, form);
+    void unlock(chosen, parts);
   });
+  quick.addEventListener('click', () => void unlockRemembered(chosen, parts));
   body.replaceChildren(form);
+  void renderRemember();
   password.focus();
 }
 
-async function unlock(recent: RecentFile, password: HTMLInputElement, submit: HTMLButtonElement, error: HTMLElement, form: HTMLElement): Promise<void> {
+interface UnlockForm {
+  password: HTMLInputElement;
+  submit: HTMLButtonElement;
+  quick: HTMLButtonElement;
+  /** The checkbox is shown and ticked. */
+  keep(): boolean;
+  error: HTMLElement;
+  form: HTMLElement;
+  renderRemember(): Promise<void>;
+}
+
+class WrongKey extends Error {}
+
+/**
+ * Gives the file and a password to the offscreen document to open: the password typed, or the
+ * remembered one — asked for after the file's permission, which needs the click.
+ */
+async function openIn(recent: RecentFile, password: () => Promise<string>): Promise<void> {
+  const file = new HandleFile(recent.handle);
+  // Asked in the click, before any slow work; Chrome's question may close the popup, and the next one needs none.
+  await file.ensureReadable();
+  const secret = await password();
+  const session: Session = { name: recent.name, data: toBase64(await file.read()), password: mask(secret), keyFile: null };
+  await ensureOffscreen();
+  const reply = await send<{ ok?: boolean; error?: string; wrongKey?: boolean }>('offscreen', { type: 'open', session });
+  if (!reply?.ok) throw reply?.wrongKey ? new WrongKey(t('errors', 'Wrong password or key file')) : new Error(reply?.error ?? t('extension', 'the extension did not answer'));
+  void send('offscreen', { type: 'settings', settings: { lockMinutes: settings.lockMinutes, clipboardSeconds: settings.clipboardSeconds } });
+  void send('panel', { type: 'unlocked' });
+}
+
+/** Busy while `run` goes, then the button as it was. */
+async function busy(button: HTMLButtonElement, run: () => Promise<void>): Promise<void> {
+  const label = button.textContent;
+  button.disabled = true;
+  button.textContent = t('gate', 'Unlocking…');
+  try {
+    await run();
+  } finally {
+    button.disabled = false;
+    button.textContent = label;
+  }
+}
+
+async function unlock(recent: RecentFile, parts: UnlockForm): Promise<void> {
+  const { password, error, form } = parts;
   error.textContent = '';
-  submit.disabled = true;
-  submit.textContent = t('gate', 'Unlocking…');
-  const fail = (message: string): void => {
-    error.textContent = message;
+  const typed = password.value;
+  const wanted = parts.keep();
+  try {
+    await busy(parts.submit, () => openIn(recent, async () => typed));
+  } catch (caught) {
+    error.textContent = caught instanceof Error ? caught.message : String(caught);
     form.classList.remove('shake');
     void form.offsetWidth;
     form.classList.add('shake');
     password.select();
-  };
+    return;
+  }
+  password.value = '';
   try {
-    const file = new HandleFile(recent.handle);
-    // Asked in the click, before any slow work; Chrome's question may close the popup, and the next one needs none.
-    await file.ensureReadable();
-    const session: Session = { name: recent.name, data: toBase64(await file.read()), password: mask(password.value), keyFile: null };
-    await ensureOffscreen();
-    const reply = await send<{ ok?: boolean; error?: string; wrongKey?: boolean }>('offscreen', { type: 'open', session });
-    if (!reply?.ok) {
-      fail(reply?.wrongKey ? t('errors', 'Wrong password or key file') : (reply?.error ?? t('extension', 'the extension did not answer')));
+    const outcome = await settle(recent.name, wanted, settings.rememberWith, typed);
+    if (outcome) toast(settledText(outcome));
+  } catch (caught) {
+    toast(notRememberedText(caught), 'error');
+  }
+  await show();
+  search.focus();
+}
+
+/** The button of a remembered database: its prompt, then the offscreen document opens the file. */
+async function unlockRemembered(recent: RecentFile, parts: UnlockForm): Promise<void> {
+  parts.error.textContent = '';
+  try {
+    await busy(parts.quick, () => openIn(recent, () => recall(recent.name)));
+  } catch (caught) {
+    // The prompt closed: nothing to say, the button stays.
+    if (isCancelled(caught)) return;
+    if (caught instanceof WrongKey || caught instanceof RememberError) {
+      await forget(recent.name);
+      parts.error.textContent = recallFailedText(caught instanceof WrongKey);
+      await parts.renderRemember();
+      parts.password.focus();
       return;
     }
-    password.value = '';
-    void send('offscreen', { type: 'settings', settings: { lockMinutes: settings.lockMinutes, clipboardSeconds: settings.clipboardSeconds } });
-    void send('panel', { type: 'unlocked' });
-    await show();
-    search.focus();
-  } catch (caught) {
-    fail(caught instanceof Error ? caught.message : String(caught));
-  } finally {
-    submit.disabled = false;
-    submit.textContent = t('gate', 'Unlock');
+    parts.error.textContent = caught instanceof Error ? caught.message : String(caught);
+    return;
   }
+  await show();
+  search.focus();
 }
 
 /* ------------------------------------------------------------------ *

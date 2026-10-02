@@ -17,6 +17,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { basename, extname, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { checker, load, root } from '../tools/load.mjs';
 
 const APP = join(root, 'build', 'password-manager.html');
@@ -827,7 +828,8 @@ try {
   check('phone: back closes a sheet first', await until(`!document.querySelector('.context-menu') && history.state === null`), true);
   await tap('#more');
   await tapNth('.context-item', 'Settings');
-  check('phone: the settings, as a sheet', await shown('.popover--sheet .settings-select'), 4);
+  // Language, theme, the lock, the clipboard, and how a remembered database unlocks.
+  check('phone: the settings, as a sheet', await shown('.popover--sheet .settings-select'), 5);
   await shot('7f-phone-settings');
   await evaluate(`history.back()`);
   check('phone: back closes the settings', await until(`!document.querySelector('.popover') && history.state === null`), true);
@@ -1005,6 +1007,179 @@ try {
   await press('Enter');
   check('pwa: offline unlock', await until(`!document.querySelector('#app').hidden`), true);
   pagesDown = false;
+
+  /* -------------------------------------------------------------- *
+   * Remembering a database on this device: never on file:, where every
+   * local page shares one origin; on localhost — a secure origin a passkey
+   * can name, which 127.0.0.1 is not — with a virtual authenticator that
+   * has PRF.
+   * -------------------------------------------------------------- */
+  const SYSTEM_LABEL = { darwin: 'Touch ID or the Mac password', win32: 'Windows Hello' }[process.platform] ?? 'The screen lock of this device';
+  const unlockAt = async (url) => {
+    await send('Page.navigate', { url });
+    await until(`document.readyState === 'complete' && !!document.querySelector('#gate-pick')?.getClientRects().length`);
+    await setFile('#file-picker', DB);
+    await until(`!document.querySelector('#unlock').hidden`);
+    await type(PASSWORD);
+    await press('Enter');
+    return until(`!document.querySelector('#app').hidden`);
+  };
+  const rememberChoice = () => evaluate(`(() => { const s = document.querySelector('[data-setting="remember"]'); return s && [s.value, [...s.options].map((o) => o.textContent)]; })()`);
+  check('remember, file: unlocked', await unlockAt(pathToFileURL(APP).href), true);
+  await click('#settings');
+  check('remember, file: not offered in the settings', await rememberChoice(), null);
+
+  await send('WebAuthn.enable');
+  const { authenticatorId } = await send('WebAuthn.addVirtualAuthenticator', {
+    options: { protocol: 'ctap2', transport: 'internal', hasResidentKey: true, hasUserVerification: true, isUserVerified: true, hasPrf: true, automaticPresenceSimulation: true },
+  });
+  check('remember: unlocked on localhost', await unlockAt(`http://localhost:${port}/`), true);
+  await click('#settings');
+  check('remember: every way, the system prompt with a password first and chosen', await rememberChoice(), [
+    'system',
+    [SYSTEM_LABEL, 'The system prompt, without a password', 'A passkey, with its PIN', 'A passkey, without its PIN', 'No prompt, only a click'],
+  ]);
+  check('remember: its note', await text('[data-setting="remember-note"]'), 'Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.');
+  check('remember: nothing remembered yet', await visible('[data-setting="remembered"]'), false);
+  await evaluate(`(() => { const s = document.querySelector('[data-setting="remember"]'); s.value = 'device'; s.dispatchEvent(new Event('change')); })()`);
+  check('remember: no prompt, with the warning', [(await rememberChoice())[0], await text('[data-setting="remember-note"]')], ['device', 'Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.']);
+  check('remember: the choice kept in the settings', await evaluate(`JSON.parse(localStorage.getItem('html-password-manager')).rememberWith`), 'device');
+
+  // The checkbox under the password, and the button of a remembered database
+  const UNLOCK_LABEL = { darwin: 'Unlock with Touch ID', win32: 'Unlock with Windows Hello' }[process.platform] ?? 'Unlock with the screen lock';
+  const records = () =>
+    evaluate(`new Promise((resolve, reject) => {
+      const open = indexedDB.open('html-password-manager-remember', 1);
+      open.onupgradeneeded = () => open.result.createObjectStore('remembered', { keyPath: 'name' });
+      open.onerror = () => reject(open.error);
+      open.onsuccess = () => {
+        const all = open.result.transaction('remembered').objectStore('remembered').getAll();
+        all.onsuccess = () => {
+          open.result.close();
+          const typed = ${JSON.stringify([PASSWORD, 'другой пароль'])};
+          resolve(all.result.map((r) => ({
+            name: r.name,
+            with: r.with,
+            verification: r.verification ?? null,
+            plain: [r.sealed.data, r.sealed.iv, r.salt, r.credential].filter(Boolean).some((b) => typed.some((p) => new TextDecoder().decode(b).includes(p))),
+          })));
+        };
+      };
+    })`);
+  // Remembering follows the unlock: it may take a moment, a passkey's prompt.
+  const recordsSoon = async () => {
+    for (let i = 0; i < 80; i += 1) {
+      const found = await records();
+      if (found.length) return found;
+      await sleep(100);
+    }
+    return [];
+  };
+  const passkeys = async () => (await send('WebAuthn.getCredentials', { authenticatorId })).credentials.length;
+  const lockNow = async () => {
+    await evaluate(`document.querySelector('.popover')?.dispatchEvent(new Event('dismiss'))`);
+    await press('l', MOD);
+    return until(`!document.querySelector('#unlock').hidden`);
+  };
+  /** The checkbox shown and ticked, the button's name (null when hidden), the password's button still the leading one. */
+  const gateState = () =>
+    evaluate(`(() => {
+      const button = document.querySelector('#unlock-remembered');
+      return [!document.querySelector('#remember-row').hidden, document.querySelector('#remember').checked, button.hidden ? null : button.textContent, document.querySelector('#unlock-button').classList.contains('button--primary')];
+    })()`);
+  const typeAndUnlock = async (tick, password = PASSWORD) => {
+    await until(`!document.querySelector('#remember-row').hidden`);
+    if ((await evaluate(`document.querySelector('#remember').checked`)) !== tick) await click('#remember');
+    await evaluate(`document.querySelector('#password').focus()`);
+    await type(password);
+    await press('Enter');
+    return until(`!document.querySelector('#app').hidden`);
+  };
+  const toastSaid = (message) => until(`document.querySelector('.toast.toast--shown')?.textContent === ${JSON.stringify(message)}`);
+  const pickWay = (way) => evaluate(`(() => { const s = document.querySelector('[data-setting="remember"]'); s.value = ${JSON.stringify(way)}; s.dispatchEvent(new Event('change')); })()`);
+
+  check('remember: locked', await lockNow(), true);
+  check('remember: the checkbox offered, not ticked; no button yet', (await until(`!document.querySelector('#remember-row').hidden`)) && (await gateState()), [true, false, null, true]);
+  check('remember: unticked — unlocked, nothing kept', [await typeAndUnlock(false), await records()], [true, []]);
+
+  // "No prompt, only a click": ticked, it is kept at once, sealed
+  await lockNow();
+  check('remember, device: unlocked', await typeAndUnlock(true), true);
+  check('remember, device: said so', await toastSaid('Remembered on this device'), true);
+  check('remember, device: kept, sealed, no passkey', [await recordsSoon(), await passkeys()], [[{ name: 'Database.kdbx', with: 'device', verification: null, plain: false }], 0]);
+  await lockNow();
+  check('remember, device: the button leads, the checkbox ticked', (await until(`!document.querySelector('#unlock-remembered').hidden`)) && (await gateState()), [true, true, 'Unlock without the password', false]);
+  await sleep(600);
+  check('remember, device: nothing opens by itself', await visible('#unlock'), true);
+  await click('#unlock-remembered');
+  check('remember, device: one click opens it, nothing typed', [await until(`!document.querySelector('#app').hidden`), await evaluate(`document.querySelector('#password').value`)], [true, '']);
+
+  // Unticked and unlocked with the password: forgotten
+  await lockNow();
+  await until(`!document.querySelector('#unlock-remembered').hidden`);
+  check('remember: unticked again — unlocked', await typeAndUnlock(false), true);
+  check('remember: forgotten, and said so', [await toastSaid('Forgotten on this device'), await records()], [true, []]);
+
+  // The system's prompt: a passkey, its PRF the key
+  await click('#settings');
+  await pickWay('system');
+  await lockNow();
+  check('remember, system: unlocked', await typeAndUnlock(true), true);
+  check('remember, system: a passkey made, the password sealed with its PRF', [await recordsSoon(), await passkeys()], [[{ name: 'Database.kdbx', with: 'system', verification: 'required', plain: false }], 1]);
+  await lockNow();
+  check('remember, system: the button names the prompt', (await until(`!document.querySelector('#unlock-remembered').hidden`)) && (await text('#unlock-remembered')), UNLOCK_LABEL);
+  await shot('2b-unlock-remembered');
+  // A prompt closed by hand is not tried here: a virtual authenticator that fails to verify the
+  // user leaves the request waiting rather than refusing it.
+  await click('#unlock-remembered');
+  check('remember, system: the prompt, then the database', await until(`!document.querySelector('#app').hidden`), true);
+
+  // Another database under the same file name: the remembered password does not open it, and is forgotten
+  const otherDir = await mkdtemp(join(tmpdir(), 'hpm-other-'));
+  await writeFile(join(otherDir, 'Database.kdbx'), Buffer.from(await K.saveDatabase(await K.createDatabase('Other', 'другой пароль', null))));
+  await lockNow();
+  await click('#unlock-change');
+  await setFile('#file-picker', join(otherDir, 'Database.kdbx'));
+  await until(`!document.querySelector('#unlock-remembered').hidden`);
+  await click('#unlock-remembered');
+  check(
+    'remember: another file of that name — said, forgotten, the password asked for',
+    [(await until(`document.querySelector('#gate-error').textContent !== ''`)) && (await text('#gate-error')), await records(), await visible('#unlock-remembered'), await evaluate(`document.activeElement?.id`)],
+    ['The remembered password no longer opens this database. Type the master password.', [], false, 'password'],
+  );
+
+  // A damaged record: forgotten too, with its own words
+  check('remember: that file remembered in turn', await typeAndUnlock(true, 'другой пароль'), true);
+  check('remember: its record', (await recordsSoon()).length, 1);
+  await lockNow();
+  await evaluate(`new Promise((resolve) => {
+    const open = indexedDB.open('html-password-manager-remember', 1);
+    open.onsuccess = () => {
+      const store = open.result.transaction('remembered', 'readwrite').objectStore('remembered');
+      const get = store.get('Database.kdbx');
+      get.onsuccess = () => {
+        const record = get.result;
+        record.sealed.data[0] ^= 1;
+        store.put(record).onsuccess = () => { open.result.close(); resolve(true); };
+      };
+    };
+  })`);
+  await until(`!document.querySelector('#unlock-remembered').hidden`);
+  await click('#unlock-remembered');
+  check(
+    'remember: a damaged record — said, forgotten',
+    [(await until(`document.querySelector('#gate-error').textContent !== ''`)) && (await text('#gate-error')), await records()],
+    ['The remembered password cannot be read any more. Type the master password.', []],
+  );
+
+  // Never with a key file
+  await setFile('#key-picker', DB);
+  check('remember: not with a key file', await until(`document.querySelector('#remember-row').hidden && document.querySelector('#unlock-remembered').hidden`), true);
+  await click('#key-clear');
+  check('remember: offered again without it', await until(`!document.querySelector('#remember-row').hidden`), true);
+  await rm(otherDir, { recursive: true, force: true });
+  await send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
+  await send('WebAuthn.disable');
 
   check('no page errors', errors, []);
 } finally {

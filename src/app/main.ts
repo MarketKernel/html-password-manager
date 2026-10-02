@@ -41,6 +41,7 @@ import {
   field,
   inRecycleBin,
   isInside,
+  isWrongKey,
   makeValue,
   openDatabase,
   recycleBin,
@@ -57,6 +58,23 @@ import { forgetLegacySecrets } from '../core/legacy';
 import { EntryList, type EmptyAction } from './list';
 import { entriesFor } from '../core/match';
 import { platform, type OpenState, type Resumed } from './platform';
+import {
+  forget,
+  forgetAll,
+  isCancelled,
+  notRememberedText,
+  recall,
+  recallFailedText,
+  RememberError,
+  remembered,
+  rememberedCount,
+  rememberWays,
+  settle,
+  settledText,
+  systemOf,
+  unlockLabel,
+  type RememberWith,
+} from './remember';
 import { back, bindScreens, closeDrawer, hideDetails, isDrawerOpen, isNarrow, isTouch, showDetails, toggleDrawer } from './screens';
 import { matches, sortEntries, SORT_KEYS, sortLabel } from './search';
 import {
@@ -102,6 +120,9 @@ const gatePick = el('gate-pick');
 const unlockForm = el<HTMLFormElement>('unlock');
 const passwordInput = el<HTMLInputElement>('password');
 const unlockButton = el<HTMLButtonElement>('unlock-button');
+const rememberedButton = el<HTMLButtonElement>('unlock-remembered');
+const rememberRow = el('remember-row');
+const rememberBox = el<HTMLInputElement>('remember');
 const gateError = el('gate-error');
 const filePicker = el<HTMLInputElement>('file-picker');
 const keyPicker = el<HTMLInputElement>('key-picker');
@@ -127,6 +148,11 @@ let lastActivity = Date.now();
 let askToWrite = false;
 /** "Fill" in the tab's context menu opened the panel on a locked database: it goes on once unlocked. */
 let fillPending = false;
+/** The ways of remembering a database this browser has here; none on file:. */
+let rememberHere: RememberWith[] = [];
+void rememberWays().then((ways) => (rememberHere = ways));
+/** Bumped by every redraw of the gate's remembering, so a slower one that started earlier gives way. */
+let rememberTurn = 0;
 
 /* ------------------------------------------------------------------ *
  * Views
@@ -265,35 +291,101 @@ function renderKeyFile(): void {
   name.textContent = keyFile ? `🔑 ${keyFile.name}` : '';
   el('key-clear').hidden = !keyFile;
   el('key-file').hidden = Boolean(keyFile);
+  void renderRemember();
+}
+
+/**
+ * The checkbox "Remember on this device", ticked when the database is remembered, and the
+ * button that opens it so. Neither is there for a database with a key file, nor where this
+ * page cannot remember one (file:); the checkbox is there only when the settings' way is.
+ */
+async function renderRemember(): Promise<void> {
+  const turn = ++rememberTurn;
+  const name = file?.name ?? '';
+  // Asked again each time: a security key plugged in, or a passkey provider switched on, changes the answer.
+  const [ways, way] = await Promise.all([rememberWays(), name ? remembered(name) : null]);
+  if (turn !== rememberTurn) return;
+  rememberHere = ways;
+  const offered = Boolean(name) && !keyFile && (way !== null || rememberHere.includes(settings.rememberWith));
+  rememberRow.hidden = !offered;
+  rememberBox.checked = offered && way !== null;
+  rememberedButton.hidden = !offered || way === null;
+  if (way) rememberedButton.textContent = unlockLabel(way);
+  // One button leads: the remembered way when there is one.
+  unlockButton.classList.toggle('button--primary', rememberedButton.hidden);
+}
+
+/**
+ * Opens the chosen file with a password: the one typed, or the remembered one. The password is
+ * asked for only after the file's permission, which needs the click that got us here — a
+ * passkey's prompt would outlast it. Throws what went wrong.
+ */
+async function openWith(button: HTMLButtonElement, password: () => Promise<string>): Promise<void> {
+  if (!file) return;
+  const opening = file;
+  gateError.textContent = '';
+  button.disabled = true;
+  const label = button.innerHTML;
+  button.textContent = t('gate', 'Unlocking…');
+  try {
+    if (opening instanceof HandleFile && !(await opening.ensureWritable())) await opening.ensureReadable();
+    const secret = await password();
+    const data = await opening.read();
+    // Let "Unlocking…" paint: the key derivation can hold the thread for a second.
+    await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+    const opened = await openDatabase(data, secret, keyFile?.data ?? null);
+    setMasterPassword(secret);
+    platform.opened({ name: opening.name, data, password: secret, keyFile });
+    clearPassword();
+    void rememberFile(opening);
+    enter(opened);
+  } finally {
+    button.disabled = false;
+    button.innerHTML = label;
+  }
 }
 
 async function unlock(): Promise<void> {
   if (!file) return;
-  gateError.textContent = '';
-  unlockButton.disabled = true;
-  const label = unlockButton.innerHTML;
-  unlockButton.textContent = t('gate', 'Unlocking…');
+  const name = file.name;
+  const typed = passwordInput.value;
+  const wanted = !rememberRow.hidden && rememberBox.checked;
   try {
-    // Permissions need the click that got us here, so they come before any slow work.
-    if (file instanceof HandleFile && !(await file.ensureWritable())) await file.ensureReadable();
-    const data = await file.read();
-    // Let "Unlocking…" paint: the key derivation can hold the thread for a second.
-    await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
-    const opened = await openDatabase(data, passwordInput.value, keyFile?.data ?? null);
-    setMasterPassword(passwordInput.value);
-    platform.opened({ name: file.name, data, password: passwordInput.value, keyFile });
-    clearPassword();
-    void rememberFile(file);
-    enter(opened);
+    await openWith(unlockButton, async () => typed);
   } catch (error) {
     gateError.textContent = describeError(error);
     unlockForm.classList.remove('shake');
     void unlockForm.offsetWidth;
     unlockForm.classList.add('shake');
     passwordInput.select();
-  } finally {
-    unlockButton.disabled = false;
-    unlockButton.innerHTML = label;
+    return;
+  }
+  if (rememberRow.hidden) return;
+  try {
+    const outcome = await settle(name, wanted, settings.rememberWith, typed);
+    if (outcome) toast(settledText(outcome));
+  } catch (error) {
+    toast(notRememberedText(error), 'error');
+  }
+}
+
+/** The button of a remembered database: its prompt, then the file opens. */
+async function unlockRemembered(): Promise<void> {
+  if (!file) return;
+  const name = file.name;
+  try {
+    await openWith(rememberedButton, () => recall(name));
+  } catch (error) {
+    // The prompt closed: nothing to say, the button stays.
+    if (isCancelled(error)) return;
+    if (isWrongKey(error) || error instanceof RememberError) {
+      await forget(name);
+      gateError.textContent = recallFailedText(isWrongKey(error));
+      await renderRemember();
+      passwordInput.focus();
+      return;
+    }
+    gateError.textContent = describeError(error);
   }
 }
 
@@ -925,6 +1017,7 @@ function openSettings(anchor: HTMLElement): void {
         platform.settings(settings);
       }),
     ),
+    ...rememberSettings(anchor, row),
     h('label', { class: 'settings-row settings-row--check' }, autosave, h('span', { text: t('settings', 'Save automatically after each change') })),
     h('p', {
       class: 'settings-note',
@@ -939,6 +1032,70 @@ function openSettings(anchor: HTMLElement): void {
     h('p', { class: 'settings-note settings-version', text: t('settings', 'Version {version}', { version: __APP_VERSION__ }) }),
   );
   popover(anchor, panel);
+}
+
+/** How a remembered database is unlocked, where this page can remember one at all. */
+function rememberSettings(anchor: HTMLElement, row: (label: string, control: HTMLElement) => HTMLElement): HTMLElement[] {
+  if (!rememberHere.length) return [];
+  const current = settings.rememberWith;
+  // A way chosen elsewhere that this browser lacks stays shown, with a note, rather than silently changed.
+  const ways = rememberHere.includes(current) ? rememberHere : [current, ...rememberHere];
+  const choice = selectBox(current, ways.map((way) => [way, rememberLabel(way)] as [RememberWith, string]), (way) => {
+    settings.rememberWith = way;
+    saveSettings(settings);
+    openSettings(anchor);
+  });
+  choice.dataset['setting'] = 'remember';
+  const note = h('p', { class: 'settings-note', 'data-setting': 'remember-note', text: rememberHere.includes(current) ? rememberNote(current) : t('settings', 'Not available in this browser: choose another way.') });
+  const remembered = h('p', { class: 'settings-note', 'data-setting': 'remembered' });
+  remembered.hidden = true;
+  void rememberedCount().then((count) => {
+    if (!count) return;
+    const forget = h('button', { type: 'button', class: 'link-button', text: t('settings', 'Forget all') });
+    forget.addEventListener('click', async () => {
+      await forgetAll();
+      toast(t('toast', 'Remembered passwords forgotten'));
+      openSettings(anchor);
+    });
+    remembered.replaceChildren(tn('settings', 'Remembered on this device: {count} database.', 'Remembered on this device: {count} databases.', count), ' ', forget);
+    remembered.hidden = false;
+  });
+  // The ways' names are long: the label goes above its list, which takes the whole width.
+  const line = row(t('settings', 'Unlock remembered databases with'), choice);
+  line.classList.add('settings-row--stacked');
+  return [line, note, remembered];
+}
+
+function rememberLabel(way: RememberWith): string {
+  switch (way) {
+    case 'system': {
+      const system = systemOf();
+      return system === 'mac' ? t('settings', 'Touch ID or the Mac password') : system === 'windows' ? t('settings', 'Windows Hello') : t('settings', 'The screen lock of this device');
+    }
+    case 'systemClick':
+      return t('settings', 'The system prompt, without a password');
+    case 'passkey':
+      return t('settings', 'A passkey, with its PIN');
+    case 'passkeyClick':
+      return t('settings', 'A passkey, without its PIN');
+    case 'device':
+      return t('settings', 'No prompt, only a click');
+  }
+}
+
+function rememberNote(way: RememberWith): string {
+  switch (way) {
+    case 'system':
+      return t('settings', 'Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.');
+    case 'systemClick':
+      return t('settings', 'Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.');
+    case 'passkey':
+      return t('settings', 'Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.');
+    case 'passkeyClick':
+      return t('settings', 'Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.');
+    case 'device':
+      return t('settings', 'Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.');
+  }
 }
 
 function themeLabel(theme: Theme): string {
@@ -1114,6 +1271,7 @@ el('unlock-change').addEventListener('click', () => {
   keyFile = null;
   showGate('pick');
 });
+rememberedButton.addEventListener('click', () => void unlockRemembered());
 unlockForm.addEventListener('submit', (event) => {
   event.preventDefault();
   void unlock();

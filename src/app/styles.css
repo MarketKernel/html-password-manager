@@ -356,6 +356,11 @@ button, input, textarea, select {
 .unlock-key { display: flex; align-items: center; gap: 10px; min-height: 26px; margin-bottom: 16px; }
 .key-name { color: var(--muted); }
 .unlock-submit { width: 100%; }
+.unlock-remembered { margin-top: 22px; }
+.unlock-remembered:not([hidden]) + .unlock-field { margin-top: 14px; }
+.unlock-key { flex-wrap: wrap; justify-content: center; }
+.unlock-remember { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; }
+.unlock-remember input { accent-color: var(--accent); margin: 0; }
 .shake { animation: shake 0.36s; }
 @keyframes shake {
   20%, 60% { transform: translateX(-7px); }
@@ -908,6 +913,8 @@ body.editing .entries, body.editing .tree { opacity: 0.75; }
 }
 .settings-row--check { justify-content: flex-start; cursor: pointer; }
 .settings-row--check input { accent-color: var(--accent); margin: 0; }
+.settings-row--stacked { flex-direction: column; align-items: stretch; gap: 6px; }
+.settings-row--stacked .settings-select { width: 100%; }
 .settings-select {
   border: 1px solid var(--edge);
   background: var(--panel);

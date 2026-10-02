@@ -181,9 +181,18 @@
     "Choose another file": "Choisir un autre fichier",
     "Master password": "Mot de passe principal",
     "+ Key file": "+ Fichier clé",
+    "Remember on this device": "Mémoriser sur cet appareil",
     "remove": "retirer",
     "Unlock": "Déverrouiller",
+    "Unlock with Touch ID": "Déverrouiller avec Touch ID",
+    "Unlock with Windows Hello": "Déverrouiller avec Windows Hello",
+    "Unlock with the screen lock": "Déverrouiller avec le verrouillage de l’écran",
+    "Unlock with the system prompt": "Déverrouiller avec l’invite du système",
+    "Unlock with a passkey": "Déverrouiller avec une clé d’accès",
+    "Unlock without the password": "Déverrouiller sans mot de passe",
     "Caps Lock is on": "Caps Lock est activé",
+    "The remembered password no longer opens this database. Type the master password.": "Le mot de passe mémorisé n’ouvre plus cette base de données. Saisissez le mot de passe principal.",
+    "The remembered password cannot be read any more. Type the master password.": "Le mot de passe mémorisé ne peut plus être lu. Saisissez le mot de passe principal.",
     "On this device the file opens read-only: Save hands an updated copy to the share sheet, where \"Save to Files\" can put it over the original.": "Sur cet appareil, le fichier s’ouvre en lecture seule : Enregistrer transmet une copie à jour au menu Partager, où « Enregistrer dans Fichiers » peut remplacer l’original.",
     "On this device the file opens read-only: Save downloads an updated copy of the database.": "Sur cet appareil, le fichier s’ouvre en lecture seule : Enregistrer télécharge une copie à jour de la base de données.",
     "Version {version}": "Version {version}"
@@ -241,7 +250,13 @@
     "Not saved: {reason}": "Non enregistré : {reason}",
     "Saved a copy as {name}": "Copie enregistrée sous {name}",
     "Master key changed": "Clé principale modifiée",
-    "{name} shared": "Partagé : {name}"
+    "{name} shared": "Partagé : {name}",
+    "Remembered passwords forgotten": "Mots de passe mémorisés oubliés",
+    "Remembered on this device": "Mémorisé sur cet appareil",
+    "Forgotten on this device": "Oublié sur cet appareil",
+    "Not remembered: the prompt was closed": "Non mémorisé : l’invite a été fermée",
+    "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "Non mémorisé : cette clé d’accès ne peut pas conserver le mot de passe. Choisissez un autre moyen dans les paramètres.",
+    "Not remembered": "Non mémorisé"
   },
   "dialog": {
     "Discard changes?": "Abandonner les modifications ?",
@@ -314,7 +329,27 @@
     "Show legacy password algorithms": "Afficher les anciens algorithmes de mots de passe",
     "The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.": "Le générateur propose alors aussi les dérivés v2 et v1, les calculatrices de deux anciens programmes, pour retrouver les mots de passe créés avec eux.",
     "This browser cannot write files in place, so saving shares a copy.": "Ce navigateur ne peut pas modifier les fichiers directement : l’enregistrement partage donc une copie.",
-    "Version {version}": "Version {version}"
+    "Version {version}": "Version {version}",
+    "Not available in this browser: choose another way.": "Non disponible dans ce navigateur : choisissez un autre moyen.",
+    "Forget all": "Tout oublier",
+    "Remembered on this device: {count} databases.": {
+      "one": "Mémorisé sur cet appareil : {count} base de données.",
+      "many": "Mémorisé sur cet appareil : {count} de bases de données.",
+      "other": "Mémorisé sur cet appareil : {count} bases de données."
+    },
+    "Unlock remembered databases with": "Déverrouiller les bases mémorisées avec",
+    "Touch ID or the Mac password": "Touch ID ou le mot de passe du Mac",
+    "Windows Hello": "Windows Hello",
+    "The screen lock of this device": "Le verrouillage de l’écran de cet appareil",
+    "The system prompt, without a password": "L’invite du système, sans mot de passe",
+    "A passkey, with its PIN": "Une clé d’accès, avec son code PIN",
+    "A passkey, without its PIN": "Une clé d’accès, sans son code PIN",
+    "No prompt, only a click": "Aucune invite, juste un clic",
+    "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "Chaque déverrouillage est confirmé par le système : une empreinte digitale, un visage, un code PIN ou le mot de passe de l’ordinateur.",
+    "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "Chaque déverrouillage demande seulement au système de continuer : tant que cet ordinateur est déverrouillé, n’importe qui devant lui peut ouvrir la base.",
+    "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "Chrome demande où conserver la clé d’accès : le Gestionnaire de mots de passe de Google, un téléphone ou une clé de sécurité. Chaque déverrouillage en demande le code PIN.",
+    "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "Chrome demande où conserver la clé d’accès. Chaque déverrouillage demande seulement de continuer : tant que cet ordinateur est déverrouillé, n’importe qui devant lui peut ouvrir la base.",
+    "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "N’importe qui peut utiliser ce navigateur sur cet ordinateur pour ouvrir la base. Ne choisissez cette option que pour un ordinateur qui n’appartient qu’à vous."
   },
   "password": {
     "Show password": "Afficher le mot de passe",

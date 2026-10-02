@@ -454,6 +454,12 @@ try {
   check('after unlocking: the fill asked for goes on', [await until(siteTab, `document.querySelector('#password').value === 'alice-pass'`), await value('#username')], [true, 'alice']);
   check('panel: for this site', [await text('.tree-item--site .tree-label'), await text('.tree-item--site .tree-count'), await text('#list-title'), await texts('.entry-title')], ['For this site', '1', 'login.test', ['Login']]);
   await shot('x2-site');
+  // A database can be remembered in the panel: its origin is the extension's, not file:.
+  // The panel is narrow: the phone's layout, where the settings are in the ⋯ menu.
+  await click('#more');
+  await clickText('.context-item', 'Settings');
+  check('panel: remembering offered in the settings', await inPanel(`[...document.querySelectorAll('[data-setting="remember"] option')].map((o) => o.value).includes('device')`), true);
+  await inPanel(`document.querySelector('.popover')?.dispatchEvent(new Event('dismiss'))`);
   const offscreenTarget = await waitForTarget((t) => t.url === `${origin}/offscreen.html`);
   await attach(offscreenTarget.targetId, 'offscreen');
 
@@ -738,6 +744,87 @@ try {
   await clickPopup('.popup-head .icon-button');
   check('popup: Lock locks everywhere', [await until(popup, `!!document.querySelector('.popup-unlock')`), await until(panel, `!document.querySelector('#unlock').hidden`), await offscreenOpen()], [true, true, false]);
   await closePopup();
+
+  /* -------------------------------------------------------------- *
+   * Remembered on this device: a passkey of the extension's own (its id
+   * the relying party), then a click — in the panel and in the popup
+   * -------------------------------------------------------------- */
+  const records = (sessionId) =>
+    evaluate(sessionId, `new Promise((resolve, reject) => {
+      const open = indexedDB.open('html-password-manager-remember', 1);
+      open.onupgradeneeded = () => open.result.createObjectStore('remembered', { keyPath: 'name' });
+      open.onerror = () => reject(open.error);
+      open.onsuccess = () => {
+        const all = open.result.transaction('remembered').objectStore('remembered').getAll();
+        all.onsuccess = () => {
+          open.result.close();
+          resolve(all.result.map((r) => ({ name: r.name, with: r.with, plain: new TextDecoder().decode(r.sealed.data).includes(${JSON.stringify(PASSWORD)}) })));
+        };
+      };
+    })`);
+  const recordsSoon = async (sessionId) => {
+    for (let i = 0; i < 80; i += 1) {
+      const found = await records(sessionId);
+      if (found.length) return found;
+      await sleep(100);
+    }
+    return [];
+  };
+  const lockAll = async () => {
+    await evaluate(worker, `chrome.contextMenus.onClicked.dispatch({ menuItemId: 'lock' }); true`);
+    return until(panel, `!document.querySelector('#unlock').hidden`);
+  };
+  const unlockTyped = async (tick) => {
+    await until(panel, `!document.querySelector('#remember-row').hidden`);
+    if ((await inPanel(`document.querySelector('#remember').checked`)) !== tick) await click('#remember');
+    await inPanel(`document.querySelector('#password').focus()`);
+    await type(PASSWORD);
+    await press('Enter', 'Enter', 13);
+    return until(panel, `!document.querySelector('#app').hidden`);
+  };
+  const pickWay = async (way) => {
+    await click('#more');
+    await clickText('.context-item', 'Settings');
+    await inPanel(`(() => { const s = document.querySelector('[data-setting="remember"]'); s.value = ${JSON.stringify(way)}; s.dispatchEvent(new Event('change')); })()`);
+    await inPanel(`document.querySelector('.popover')?.dispatchEvent(new Event('dismiss'))`);
+  };
+
+  await send('WebAuthn.enable', {}, panel);
+  const { authenticatorId } = await send(
+    'WebAuthn.addVirtualAuthenticator',
+    { options: { protocol: 'ctap2', transport: 'internal', hasResidentKey: true, hasUserVerification: true, isUserVerified: true, hasPrf: true, automaticPresenceSimulation: true } },
+    panel,
+  );
+  // The panel was left at its gate, before the authenticator: once more, so that the gate sees it.
+  check('remember, panel: unlocked', await unlockTyped(false), true);
+  await lockAll();
+  check('remember, panel: ticked, unlocked', await unlockTyped(true), true);
+  const [madeRecord] = await recordsSoon(panel);
+  const { credentials } = await send('WebAuthn.getCredentials', { authenticatorId }, panel);
+  check('remember, panel: a passkey for the extension itself, the password sealed', [madeRecord, credentials.map((c) => c.rpId)], [{ name: 'Extension.kdbx', with: 'system', plain: false }, [origin]]);
+  await lockAll();
+  check('remember, panel: the button', await until(panel, `!document.querySelector('#unlock-remembered').hidden`), true);
+  await click('#unlock-remembered');
+  check('remember, panel: the prompt, then the database, handed to the offscreen document', [await until(panel, `!document.querySelector('#app').hidden`), await until(worker, `chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] }).then((c) => c.length === 1)`)], [true, true]);
+
+  // In the popup: remembered with no prompt (the popup is a page of its own, with no authenticator of the panel's)
+  await lockAll();
+  check('remember, panel: unticked — forgotten', [await unlockTyped(false), (await sleep(300), await records(panel))], [true, []]);
+  await pickWay('device');
+  await lockAll();
+  await unlockTyped(true);
+  check('remember, panel: kept with no prompt', (await recordsSoon(panel)).map((r) => r.with), ['device']);
+  await lockAll();
+  await openPopup();
+  check(
+    'remember, popup: its button, the checkbox ticked',
+    [await until(popup, `!document.querySelector('.unlock-remembered').hidden`), await inPopup(`document.querySelector('.unlock-remembered').textContent`), await inPopup(`document.querySelector('.popup-remember input').checked`)],
+    [true, 'Unlock without the password', true],
+  );
+  await clickPopup('.unlock-remembered');
+  check('remember, popup: a click opens it, in the offscreen document', [await until(popup, `!document.querySelector('.popup-unlock')`), await offscreenOpen()], [true, true]);
+  await closePopup();
+  await lockAll();
 
   check('no errors in the extension', errors, []);
 
