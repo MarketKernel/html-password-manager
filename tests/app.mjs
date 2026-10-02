@@ -131,6 +131,13 @@ async function until(expr, timeout = 8000) {
   }
   return false;
 }
+// Page.reload answers before the old document is gone, so a check right after it could
+// still pass on that one; the mark left on it tells the two apart.
+const reload = async () => {
+  await evaluate(`window.__beforeReload = true`);
+  await send('Page.reload');
+  return until(`!window.__beforeReload && document.readyState === 'complete'`);
+};
 
 const MOD = process.platform === 'darwin' ? 4 : 2;
 // Headless Chrome on a Linux runner (GitHub's) finds no mouse and reports (hover: none),
@@ -956,7 +963,7 @@ try {
   check('fsa: written into the file', K.field(written, 'URL'), 'https://example.org/written-in-place');
 
   // After a reload the file is offered again, and the change is there
-  await send('Page.reload');
+  await reload();
   await until(`document.readyState === 'complete' && !document.querySelector('#recent').hidden`);
   check('fsa: recent file listed', await texts('.recent-name'), ['Database.kdbx']);
   await click('.recent-open');
@@ -1000,7 +1007,7 @@ try {
   check('pwa: manifest parsed', (await send('Page.getAppManifest')).errors, []);
   check('pwa: installable', (await send('Page.getInstallabilityErrors')).installabilityErrors, []);
   pagesDown = true;
-  await send('Page.reload');
+  await reload();
   check('pwa: offline', await until(`document.readyState === 'complete' && !!document.querySelector('#gate-pick')?.getClientRects().length`), true);
   await click('#open-file');
   await type(PASSWORD);
