@@ -248,6 +248,7 @@
     "Remembered on this device": "已在此设备上记住",
     "Forgotten on this device": "已在此设备上忘记",
     "Not remembered: the prompt was closed": "未记住：提示已关闭",
+    "Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.": "未记住：Chrome 将通行密钥保存在了自己的个人资料中，而那里无法保存密码。请重试，并在 Chrome 窗口中选择 Google 密码管理工具，或在设置中选择其他方式。",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "未记住：此通行密钥无法保存密码。请在设置中选择其他方式。",
     "Not remembered: the passkey was not saved in iCloud Keychain.": "未记住：通行密钥未保存到 iCloud 钥匙串。",
     "Not remembered": "未记住",
@@ -322,6 +323,7 @@
     "This browser cannot write files in place, so saving shares a copy.": "此浏览器无法直接写入文件，因此保存时会共享副本。",
     "Version {version}": "版本 {version}",
     "Not available in this browser: choose another way.": "此浏览器不支持：请选择其他方式。",
+    "Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.": "在已安装应用的窗口中，Chrome 不提供 Apple 密码。请在 Chrome 标签页中打开此页面，或选择其他方式。",
     "Forget all": "全部忘记",
     "Remembered on this device: {count} databases.": {
       "other": "此设备上已记住：{count} 个数据库。"

@@ -61,6 +61,7 @@ import { platform, type OpenState, type Resumed } from './platform';
 import {
   forget,
   forgetAll,
+  inAppWindow,
   isCancelled,
   notRememberedText,
   recall,
@@ -309,7 +310,8 @@ async function renderRemember(): Promise<void> {
   const offered = Boolean(name) && !keyFile && (way !== null || rememberHere.includes(settings.rememberWith));
   rememberRow.hidden = !offered;
   rememberBox.checked = offered && way !== null;
-  rememberedButton.hidden = !offered || way === null;
+  // Remembered in Apple Passwords from a tab, the database has no button in the app's window, where Chrome cannot reach them.
+  rememberedButton.hidden = !offered || way === null || (way === 'keychain' && !ways.includes(way));
   if (way) rememberedButton.textContent = unlockLabel(way);
   // One button leads: the remembered way when there is one.
   unlockButton.classList.toggle('button--primary', rememberedButton.hidden);
@@ -1046,7 +1048,7 @@ function rememberSettings(anchor: HTMLElement, row: (label: string, control: HTM
     openSettings(anchor);
   });
   choice.dataset['setting'] = 'remember';
-  const note = h('p', { class: 'settings-note', 'data-setting': 'remember-note', text: rememberHere.includes(current) ? rememberNote(current) : t('settings', 'Not available in this browser: choose another way.') });
+  const note = h('p', { class: 'settings-note', 'data-setting': 'remember-note', text: rememberHere.includes(current) ? rememberNote(current) : unavailableNote(current) });
   const remembered = h('p', { class: 'settings-note', 'data-setting': 'remembered' });
   remembered.hidden = true;
   void rememberedCount().then((count) => {
@@ -1100,6 +1102,13 @@ function rememberNote(way: RememberWith): string {
     case 'device':
       return t('settings', 'Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.');
   }
+}
+
+/** Why the way chosen is not in this browser's list. */
+function unavailableNote(way: RememberWith): string {
+  return way === 'keychain' && inAppWindow()
+    ? t('settings', 'Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.')
+    : t('settings', 'Not available in this browser: choose another way.');
 }
 
 function themeLabel(theme: Theme): string {

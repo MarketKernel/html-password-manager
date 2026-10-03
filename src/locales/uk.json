@@ -275,6 +275,7 @@
     "Remembered on this device": "Запам’ятано на цьому пристрої",
     "Forgotten on this device": "Забуто на цьому пристрої",
     "Not remembered: the prompt was closed": "Не запам’ятано: запит закрито",
+    "Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.": "Не запам’ятано: Chrome зберіг ключ доступу у своєму профілі, а там пароль не зберігається. Спробуйте ще раз і виберіть у вікні Chrome Менеджер паролів Google — або інший спосіб у налаштуваннях.",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "Не запам’ятано: цей ключ доступу не може зберігати пароль. Виберіть інший спосіб у налаштуваннях.",
     "Not remembered: the passkey was not saved in iCloud Keychain.": "Не запам’ятано: ключ доступу збережено не у Зв’язці ключів iCloud.",
     "Not remembered": "Не запам’ятано"
@@ -351,6 +352,7 @@
     "This browser cannot write files in place, so saving shares a copy.": "Цей браузер не вміє записувати файли на місце, тому збереження надсилає копію через «Поширити».",
     "Version {version}": "Версія {version}",
     "Not available in this browser: choose another way.": "Недоступно в цьому браузері: виберіть інший спосіб.",
+    "Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.": "У вікні встановленого застосунку Chrome не пропонує Паролі Apple. Відкрийте цю сторінку у вкладці Chrome або виберіть інший спосіб.",
     "Forget all": "Забути всі",
     "Remembered on this device: {count} databases.": {
       "one": "Запам’ятано на цьому пристрої: {count} база.",

@@ -269,6 +269,7 @@
     "Remembered on this device": "ఈ పరికరంలో గుర్తుంచుకోబడింది",
     "Forgotten on this device": "ఈ పరికరంలో మర్చిపోబడింది",
     "Not remembered: the prompt was closed": "గుర్తుంచుకోబడలేదు: ప్రాంప్ట్ మూసివేయబడింది",
+    "Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.": "గుర్తుంచుకోబడలేదు: Chrome పాస్‌కీని తన ప్రొఫైల్‌లో ఉంచింది, అది పాస్‌వర్డ్‌ను భద్రపరచలేదు. మళ్లీ ప్రయత్నించి Chrome విండోలో Google Password Managerను ఎంచుకోండి, లేదా సెట్టింగ్‌లలో వేరే మార్గాన్ని.",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "గుర్తుంచుకోబడలేదు: ఈ పాస్‌కీ పాస్‌వర్డ్‌ను భద్రపరచలేదు. సెట్టింగ్‌లలో వేరే మార్గాన్ని ఎంచుకోండి.",
     "Not remembered: the passkey was not saved in iCloud Keychain.": "గుర్తుంచుకోబడలేదు: పాస్‌కీ iCloud కీచైన్‌లో సేవ్ కాలేదు.",
     "Not remembered": "గుర్తుంచుకోబడలేదు"
@@ -356,6 +357,7 @@
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "పాస్‌కీని ఎక్కడ ఉంచాలో Chrome అడుగుతుంది. ప్రతి అన్‌లాక్‌లో కేవలం కొనసాగించమని మాత్రమే అడుగుతుంది: ఇది అన్‌లాక్‌గా ఉన్నప్పుడు ఈ కంప్యూటర్ వద్ద ఉన్న ఎవరైనా డేటాబేస్‌ను తెరవగలరు.",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "ఈ కంప్యూటర్‌లో ఈ బ్రౌజర్‌ను ఉపయోగించగల ఎవరైనా డేటాబేస్‌ను తెరవగలరు. ఇది కేవలం మీకు మాత్రమే చెందిన కంప్యూటర్ కోసమే ఎంచుకోండి.",
     "Not available in this browser: choose another way.": "ఈ బ్రౌజర్‌లో అందుబాటులో లేదు: వేరే మార్గాన్ని ఎంచుకోండి.",
+    "Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.": "ఇన్‌స్టాల్ చేసిన యాప్ విండోలో Chrome Apple Passwordsను అందించదు. ఈ పేజీని Chrome ట్యాబ్‌లో తెరవండి, లేదా వేరే మార్గాన్ని ఎంచుకోండి.",
     "Forget all": "అన్నీ మర్చిపోండి",
     "Remembered on this device: {count} databases.": {
       "one": "ఈ పరికరంలో {count} డేటాబేస్ గుర్తుంచుకోబడింది.",

@@ -251,6 +251,7 @@
     "Remembered on this device": "এই ডিভাইসে মনে রাখা হয়েছে",
     "Forgotten on this device": "এই ডিভাইসে ভুলে যাওয়া হয়েছে",
     "Not remembered: the prompt was closed": "মনে রাখা হয়নি: প্রম্পট বন্ধ করা হয়েছে",
+    "Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.": "মনে রাখা হয়নি: Chrome পাসকীটি তার প্রোফাইলে রেখেছে, যা পাসওয়ার্ড রাখতে পারে না। আবার চেষ্টা করুন এবং Chrome-এর উইন্ডোতে Google পাসওয়ার্ড ম্যানেজার বেছে নিন, অথবা সেটিংসে অন্য একটি উপায়।",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "মনে রাখা হয়নি: এই পাসকী পাসওয়ার্ড রাখতে পারে না। সেটিংসে অন্য একটি উপায় বেছে নিন।",
     "Not remembered: the passkey was not saved in iCloud Keychain.": "মনে রাখা হয়নি: পাসকীটি iCloud কীচেইনে সংরক্ষিত হয়নি।",
     "Not remembered": "মনে রাখা হয়নি",
@@ -327,6 +328,7 @@
     "This browser cannot write files in place, so saving shares a copy.": "এই ব্রাউজার সরাসরি ফাইলে লিখতে পারে না, তাই সংরক্ষণ করলে একটি কপি শেয়ার হয়।",
     "Version {version}": "সংস্করণ {version}",
     "Not available in this browser: choose another way.": "এই ব্রাউজারে উপলব্ধ নয়: অন্য উপায় বেছে নিন।",
+    "Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.": "ইনস্টল করা অ্যাপের উইন্ডোতে Chrome Apple Passwords দেয় না। এই পৃষ্ঠাটি Chrome-এর একটি ট্যাবে খুলুন, অথবা অন্য উপায় বেছে নিন।",
     "Forget all": "সব ভুলুন",
     "Remembered on this device: {count} databases.": {
       "one": "এই ডিভাইসে মনে রাখা হয়েছে: {count}টি ডেটাবেস।",

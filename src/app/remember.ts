@@ -20,7 +20,9 @@
  * secret computed after the user is verified: a browser the Mac allows to use passkeys can
  * list it without a prompt. And Google Password Manager syncs it in the clear — so a
  * passkey kept there or in the Chrome profile, the two other places Chrome offers, is
- * deleted again and nothing is remembered.
+ * deleted again and nothing is remembered. Chrome has no iCloud Keychain at all in an
+ * installed app's window (crbug.com/364926914), so the PWA there offers neither the way nor
+ * the button of a database remembered so in a tab of the same origin.
  *
  * There is no server: the challenge is random, no signature is checked, and the passkey is
  * only the keeper of the secret.
@@ -66,13 +68,14 @@ type Remembered = DeviceRecord | PasskeyRecord | KeychainRecord;
 
 /**
  * Why a remembered password cannot be had. "unsupported": the passkey keeps no PRF secret, so
- * nothing was remembered. "elsewhere": the "keychain" passkey was kept somewhere other than
- * iCloud Keychain, so nothing was remembered. "broken": the record no longer opens — the passkey is gone or the
- * record was damaged — and is best forgotten. A cancelled prompt is not this, but the
- * browser's own NotAllowedError.
+ * nothing was remembered; "profile" is that for the Chrome profile's passkey on a Mac, which
+ * Chrome may pick by itself in the installed app's window. "elsewhere": the "keychain"
+ * passkey was kept somewhere other than iCloud Keychain, so nothing was remembered.
+ * "broken": the record no longer opens — the passkey is gone or the record was damaged — and
+ * is best forgotten. A cancelled prompt is not this, but the browser's own NotAllowedError.
  */
 export class RememberError extends Error {
-  constructor(readonly reason: 'unsupported' | 'elsewhere' | 'broken') {
+  constructor(readonly reason: 'unsupported' | 'profile' | 'elsewhere' | 'broken') {
     super(`remember: ${reason}`);
   }
 }
@@ -88,8 +91,11 @@ const IDB_NAME = 'html-password-manager-remember';
 const IDB_STORE = 'remembered';
 const RP_NAME = 'Deterministic Password';
 
+/** The Chrome profile's own passkeys on a Mac, behind Touch ID: they have no PRF. */
+const CHROME_PROFILE = 'adce000235bcc60a648b0b25f1f05503';
+
 /** The AAGUIDs of the keepers the "keychain" way turns away: Google Password Manager and the Chrome profile. */
-const NOT_KEYCHAIN = new Set(['ea9b8d664d011d213ce4b6b48cb575d4', 'adce000235bcc60a648b0b25f1f05503']);
+const NOT_KEYCHAIN = new Set(['ea9b8d664d011d213ce4b6b48cb575d4', CHROME_PROFILE]);
 
 const random = (length: number): Uint8Array<ArrayBuffer> => crypto.getRandomValues(new Uint8Array(length));
 
@@ -111,11 +117,16 @@ export async function rememberWays(): Promise<RememberWith[]> {
     const prf = capabilities?.['extension:prf'] !== false;
     const platform = await credential.isUserVerifyingPlatformAuthenticatorAvailable().catch(() => false);
     if (prf && platform) ways.push('system', 'systemClick');
-    if (platform && systemOf() === 'mac') ways.push('keychain');
+    if (platform && systemOf() === 'mac' && !inAppWindow()) ways.push('keychain');
     if (prf) ways.push('passkey', 'passkeyClick');
   }
   ways.push('device');
   return ways;
+}
+
+/** The installed PWA's own window, not a tab or the extension: Chrome leaves iCloud Keychain out of its prompts there. */
+export function inAppWindow(): boolean {
+  return typeof matchMedia === 'function' && ['standalone', 'minimal-ui', 'window-controls-overlay', 'tabbed'].some((mode) => matchMedia(`(display-mode: ${mode})`).matches);
 }
 
 /** "mac", "windows" or "other": the name of the system's prompt. */
@@ -172,6 +183,7 @@ export function settledText(outcome: 'remembered' | 'forgotten'): string {
 
 export function notRememberedText(error: unknown): string {
   if (isCancelled(error)) return t('toast', 'Not remembered: the prompt was closed');
+  if (error instanceof RememberError && error.reason === 'profile') return t('toast', 'Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.');
   if (error instanceof RememberError && error.reason === 'unsupported') return t('toast', 'Not remembered: this passkey cannot keep the password. Choose another way in the settings.');
   if (error instanceof RememberError && error.reason === 'elsewhere') return t('toast', 'Not remembered: the passkey was not saved in iCloud Keychain.');
   return t('toast', 'Not remembered');
@@ -326,7 +338,7 @@ async function sealWithPasskey(name: string, way: PasskeyRecord['with'], passwor
   const prf = created.getClientExtensionResults().prf;
   if (prf?.enabled === false) {
     passkeyGone(credential);
-    throw new RememberError('unsupported');
+    throw new RememberError(aaguidOf(created) === CHROME_PROFILE ? 'profile' : 'unsupported');
   }
   // Some keepers give the PRF secret only when the passkey is used, not when it is made: then it is used once.
   const output = prf?.results?.first ?? (await prfOf(credential, salt, verification));

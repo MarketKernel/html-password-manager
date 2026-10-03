@@ -264,6 +264,7 @@
     "Remembered on this device": "تم التذكّر على هذا الجهاز",
     "Forgotten on this device": "تم النسيان على هذا الجهاز",
     "Not remembered: the prompt was closed": "لم يتم التذكّر: أُغلقت المطالبة",
+    "Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.": "لم يتم التذكّر: حفظ Chrome مفتاح المرور في ملفه الشخصي، ولا يمكنه حفظ كلمة المرور. حاول مرة أخرى واختر مدير كلمات المرور من Google في نافذة Chrome، أو طريقة أخرى في الإعدادات.",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "لم يتم التذكّر: لا يمكن لمفتاح المرور هذا حفظ كلمة المرور. اختر طريقة أخرى في الإعدادات.",
     "Not remembered: the passkey was not saved in iCloud Keychain.": "لم يتم التذكّر: لم يُحفظ مفتاح المرور في سلسلة مفاتيح iCloud.",
     "Not remembered": "لم يتم التذكّر"
@@ -362,6 +363,7 @@
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "يسأل Chrome أين يُحفظ مفتاح المرور. تطلب كل عملية فتح قفل المتابعة فقط: يمكن لأي شخص أمام هذا الحاسوب وهو مفتوح فتح قاعدة البيانات.",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "يمكن لأي شخص يستطيع استخدام هذا المتصفح على هذا الحاسوب فتح قاعدة البيانات. اختر هذا الخيار فقط لحاسوب يخصّك وحدك.",
     "Not available in this browser: choose another way.": "غير متاح في هذا المتصفح: اختر طريقة أخرى.",
+    "Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.": "لا يعرض Chrome كلمات السر من Apple في نافذة التطبيق المثبّت. افتح هذه الصفحة في علامة تبويب في Chrome، أو اختر طريقة أخرى.",
     "Forget all": "نسيان الكل",
     "Remembered on this device: {count} databases.": {
       "zero": "لا توجد قواعد بيانات متذكَّرة على هذا الجهاز.",

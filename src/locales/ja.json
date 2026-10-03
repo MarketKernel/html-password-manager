@@ -265,6 +265,7 @@
     "Remembered on this device": "このデバイスに記憶しました",
     "Forgotten on this device": "このデバイスで忘れました",
     "Not remembered: the prompt was closed": "記憶されませんでした: プロンプトが閉じられました",
+    "Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.": "記憶されませんでした: Chrome がパスキーをプロファイルに保存しましたが、そこではパスワードを保持できません。もう一度試して、Chrome のウインドウで Google パスワード マネージャーを選ぶか、設定で別の方法を選んでください。",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "記憶されませんでした: このパスキーはパスワードを保持できません。設定で別の方法を選んでください。",
     "Not remembered: the passkey was not saved in iCloud Keychain.": "記憶されませんでした: パスキーが iCloud キーチェーンに保存されませんでした。",
     "Not remembered": "記憶されませんでした",
@@ -336,6 +337,7 @@
     "This browser cannot write files in place, so saving shares a copy.": "このブラウザはファイルを直接上書きできないため、保存するとコピーが共有されます。",
     "Version {version}": "バージョン {version}",
     "Not available in this browser: choose another way.": "このブラウザでは利用できません。別の方法を選んでください。",
+    "Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.": "インストールしたアプリのウインドウでは、Chrome は Apple のパスワードを使えません。このページを Chrome のタブで開くか、別の方法を選んでください。",
     "Forget all": "すべて忘れる",
     "Remembered on this device: {count} databases.": {
       "other": "このデバイスに記憶済み: {count} 件のデータベース。"

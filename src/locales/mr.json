@@ -269,6 +269,7 @@
     "Remembered on this device": "या डिव्हाइसवर लक्षात ठेवले",
     "Forgotten on this device": "या डिव्हाइसवर विसरले गेले",
     "Not remembered: the prompt was closed": "लक्षात ठेवले गेले नाही: प्रॉम्प्ट बंद झाला",
+    "Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.": "लक्षात ठेवले गेले नाही: Chrome ने पासकी आपल्या प्रोफाइलमध्ये ठेवली, जी पासवर्ड साठवू शकत नाही. पुन्हा प्रयत्न करा आणि Chrome च्या विंडोमध्ये Google Password Manager निवडा, किंवा सेटिंग्जमध्ये दुसरा मार्ग.",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "लक्षात ठेवले गेले नाही: ही पासकी पासवर्ड साठवू शकत नाही. सेटिंग्जमध्ये दुसरा मार्ग निवडा.",
     "Not remembered: the passkey was not saved in iCloud Keychain.": "लक्षात ठेवले गेले नाही: पासकी iCloud कीचेनमध्ये जतन झाली नाही.",
     "Not remembered": "लक्षात ठेवले गेले नाही"
@@ -356,6 +357,7 @@
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "पासकी कुठे ठेवायची हे Chrome विचारतो. प्रत्येक अनलॉकमध्ये फक्त सुरू ठेवण्यास सांगितले जाते: अनलॉक असताना या संगणकावर असलेली कोणतीही व्यक्ती डेटाबेस उघडू शकते.",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "या संगणकावर हा ब्राउझर वापरू शकणारी कोणतीही व्यक्ती डेटाबेस उघडू शकते. फक्त जो संगणक केवळ तुमचाच आहे त्यासाठीच हे निवडा.",
     "Not available in this browser: choose another way.": "या ब्राउझरमध्ये उपलब्ध नाही: दुसरा मार्ग निवडा.",
+    "Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.": "इंस्टॉल केलेल्या ॲपच्या विंडोमध्ये Chrome Apple Passwords देत नाही. हे पान Chrome च्या टॅबमध्ये उघडा, किंवा दुसरा मार्ग निवडा.",
     "Forget all": "सर्व विसरा",
     "Remembered on this device: {count} databases.": {
       "one": "या डिव्हाइसवर {count} डेटाबेस लक्षात ठेवला आहे.",

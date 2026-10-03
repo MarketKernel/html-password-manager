@@ -252,6 +252,7 @@
     "Remembered on this device": "اس ڈیوائس پر یاد رکھا گیا",
     "Forgotten on this device": "اس ڈیوائس پر فراموش کر دیا گیا",
     "Not remembered: the prompt was closed": "یاد نہیں رکھا گیا: پرامپٹ بند کر دیا گیا",
+    "Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.": "یاد نہیں رکھا گیا: Chrome نے پاس کی اپنی پروفائل میں رکھی، جو پاس ورڈ محفوظ نہیں رکھ سکتی۔ دوبارہ کوشش کریں اور Chrome کی ونڈو میں Google Password Manager منتخب کریں، یا ترتیبات میں دوسرا طریقہ۔",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "یاد نہیں رکھا گیا: یہ پاس کی پاس ورڈ محفوظ نہیں رکھ سکتی۔ ترتیبات میں دوسرا طریقہ منتخب کریں۔",
     "Not remembered: the passkey was not saved in iCloud Keychain.": "یاد نہیں رکھا گیا: پاس کی iCloud کی چین میں محفوظ نہیں ہوئی۔",
     "Not remembered": "یاد نہیں رکھا گیا"
@@ -342,6 +343,7 @@
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "Chrome پوچھتا ہے کہ پاس کی کہاں رکھی جائے۔ ہر ان لاک پر صرف جاری رکھنے کو کہا جاتا ہے: ان لاک ہونے کے دوران اس کمپیوٹر پر موجود کوئی بھی شخص ڈیٹا بیس کھول سکتا ہے۔",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "جو بھی اس کمپیوٹر پر یہ براؤزر استعمال کر سکتا ہے وہ ڈیٹا بیس کھول سکتا ہے۔ یہ صرف اسی کمپیوٹر کے لیے منتخب کریں جو صرف آپ کا ہو۔",
     "Not available in this browser: choose another way.": "اس براؤزر میں دستیاب نہیں: کوئی اور طریقہ منتخب کریں۔",
+    "Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.": "انسٹال کی گئی ایپ کی ونڈو میں Chrome، Apple Passwords پیش نہیں کرتا۔ یہ صفحہ Chrome کے کسی ٹیب میں کھولیں، یا کوئی اور طریقہ منتخب کریں۔",
     "Forget all": "سب فراموش کریں",
     "Remembered on this device: {count} databases.": {
       "one": "اس ڈیوائس پر {count} ڈیٹا بیس یاد رکھا گیا ہے۔",

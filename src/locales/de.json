@@ -269,6 +269,7 @@
     "Remembered on this device": "Auf diesem Gerät gemerkt",
     "Forgotten on this device": "Auf diesem Gerät vergessen",
     "Not remembered: the prompt was closed": "Nicht gemerkt: Die Abfrage wurde geschlossen",
+    "Not remembered: Chrome kept the passkey in its profile, which cannot keep the password. Try again and choose Google Password Manager in the window of Chrome, or another way in the settings.": "Nicht gemerkt: Chrome hat den Passkey in seinem Profil gespeichert, das das Passwort nicht speichern kann. Versuchen Sie es erneut und wählen Sie im Fenster von Chrome den Google Passwortmanager oder eine andere Methode in den Einstellungen.",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "Nicht gemerkt: Dieser Passkey kann das Passwort nicht speichern. Wählen Sie eine andere Methode in den Einstellungen.",
     "Not remembered: the passkey was not saved in iCloud Keychain.": "Nicht gemerkt: Der Passkey wurde nicht im iCloud-Schlüsselbund gesichert.",
     "Not remembered": "Nicht gemerkt"
@@ -341,6 +342,7 @@
     "This browser cannot write files in place, so saving shares a copy.": "Dieser Browser kann Dateien nicht direkt überschreiben, daher teilt Speichern eine Kopie.",
     "Version {version}": "Version {version}",
     "Not available in this browser: choose another way.": "In diesem Browser nicht verfügbar: Wählen Sie einen anderen Weg.",
+    "Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.": "Im Fenster der installierten App bietet Chrome Apple Passwörter nicht an. Öffnen Sie diese Seite in einem Chrome-Tab oder wählen Sie einen anderen Weg.",
     "Forget all": "Alle vergessen",
     "Remembered on this device: {count} databases.": {
       "one": "Auf diesem Gerät gemerkt: {count} Datenbank.",

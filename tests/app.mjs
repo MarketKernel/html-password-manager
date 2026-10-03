@@ -1168,6 +1168,21 @@ try {
     check('remember, keychain: the button', (await until(`!document.querySelector('#unlock-remembered').hidden`)) && (await text('#unlock-remembered')), 'Unlock with Touch ID');
     await click('#unlock-remembered');
     check('remember, keychain: the prompt, then the database', await until(`!document.querySelector('#app').hidden`), true);
+
+    // The installed PWA's window: Chrome has no iCloud Keychain there, so neither the way nor its button
+    // DevTools cannot emulate display-mode, so the page's matchMedia answers for it.
+    await evaluate(`(() => { const real = window.matchMedia.bind(window); window.realMatchMedia = real; window.matchMedia = (query) => (query === '(display-mode: standalone)' ? { matches: true } : real(query)); })()`);
+    await lockNow();
+    await sleep(600);
+    check('remember, keychain in the app window: no button, still remembered', await gateState(), [true, true, null, true]);
+    check('remember, keychain in the app window: the password opens it, the record kept', [await typeAndUnlock(true), (await records()).map((r) => r.with)], [true, ['keychain']]);
+    await click('#settings');
+    check('remember, keychain in the app window: the settings say why', await text('[data-setting="remember-note"]'), 'Chrome does not offer Apple Passwords in the window of the installed app. Open this page in a Chrome tab, or choose another way.');
+    await evaluate(`window.matchMedia = window.realMatchMedia`);
+    await lockNow();
+    await until(`!document.querySelector('#unlock-remembered').hidden`);
+    await click('#unlock-remembered');
+    check('remember, keychain in a tab again: the button opens it', await until(`!document.querySelector('#app').hidden`), true);
   }
 
   // Another database under the same file name: the remembered password does not open it, and is forgotten
