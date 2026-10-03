@@ -266,6 +266,7 @@
     "Forgotten on this device": "このデバイスで忘れました",
     "Not remembered: the prompt was closed": "記憶されませんでした: プロンプトが閉じられました",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "記憶されませんでした: このパスキーはパスワードを保持できません。設定で別の方法を選んでください。",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "記憶されませんでした: パスキーが iCloud キーチェーンに保存されませんでした。",
     "Not remembered": "記憶されませんでした",
     "Remembered passwords forgotten": "記憶したパスワードを忘れました"
   },
@@ -344,11 +345,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "このデバイスの画面ロック",
     "The system prompt, without a password": "パスワードなしのシステムプロンプト",
+    "Apple Passwords (iCloud Keychain)": "Apple のパスワード (iCloud キーチェーン)",
     "A passkey, with its PIN": "パスキー（PIN あり）",
     "A passkey, without its PIN": "パスキー（PIN なし）",
     "No prompt, only a click": "確認なし、クリックのみ",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "ロック解除のたびにシステムが確認します: 指紋、顔、PIN、またはコンピューターのパスワードです。",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "ロック解除のたびにシステムは続行の確認のみを求めます。ロック解除されている間、このコンピューターを使える人なら誰でもデータベースを開けます。",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "Chrome がパスキーの保存先を尋ねます: iCloud キーチェーンを選んでください。ロック解除のたびに Touch ID で、Touch ID がない場合は Mac のパスワードで確認します。",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "Chrome がパスキーの保存先を尋ねます: Google パスワード マネージャー、スマートフォン、またはセキュリティキーです。ロック解除のたびに PIN の入力を求められます。",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "Chrome がパスキーの保存先を尋ねます。ロック解除のたびに続行の確認のみを求めます。ロック解除されている間、このコンピューターを使える人なら誰でもデータベースを開けます。",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "このコンピューターでこのブラウザを使える人なら誰でもデータベースを開けます。自分だけが使うコンピューターの場合にのみ選んでください。"

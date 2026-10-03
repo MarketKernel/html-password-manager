@@ -1,11 +1,11 @@
 /**
  * The master password sealed for "remember on this device": AES-GCM under a key that never
- * lies beside it in the clear — one derived from a passkey's PRF output, which only the
- * passkey's keeper gives back, or the browser's own non-extractable key for a device that
- * asks nothing. Every remembered database is read back with this, so format 1 does not
+ * lies beside it in the clear — one derived from a passkey's PRF output, or from the random
+ * user handle a passkey keeps, which only the passkey's keeper gives back, or the browser's
+ * own non-extractable key for a device that asks nothing. Every remembered database is read back with this, so format 1 does not
  * change:
  *
- *   key  = HKDF-SHA-256(PRF output, salt = empty, info = "hpm/remember/v1") as AES-GCM-256,
+ *   key  = HKDF-SHA-256(PRF output or user handle, salt = empty, info = "hpm/remember/v1") as AES-GCM-256,
  *          or a random AES-GCM-256 key; neither can be exported
  *   iv   = 12 random bytes, new for every seal
  *   aad  = "hpm/remember/v1" 0x00 ‖ UTF-8(the database's file name)
@@ -25,7 +25,7 @@ export interface Sealed {
   data: Uint8Array<ArrayBuffer>;
 }
 
-/** The key of a passkey's PRF output. */
+/** The key of a passkey's PRF output, or of the 32 random bytes kept as its user handle. */
 export async function keyFromPrf(prf: BufferSource): Promise<CryptoKey> {
   const material = await crypto.subtle.importKey('raw', prf, 'HKDF', false, ['deriveKey']);
   return crypto.subtle.deriveKey(

@@ -276,6 +276,7 @@
     "Forgotten on this device": "Забуто на цьому пристрої",
     "Not remembered: the prompt was closed": "Не запам’ятано: запит закрито",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "Не запам’ятано: цей ключ доступу не може зберігати пароль. Виберіть інший спосіб у налаштуваннях.",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "Не запам’ятано: ключ доступу збережено не у Зв’язці ключів iCloud.",
     "Not remembered": "Не запам’ятано"
   },
   "dialog": {
@@ -362,11 +363,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "Блокування екрана цього пристрою",
     "The system prompt, without a password": "Системний запит без пароля",
+    "Apple Passwords (iCloud Keychain)": "Паролі Apple (Зв’язка ключів iCloud)",
     "A passkey, with its PIN": "Ключ доступу з PIN-кодом",
     "A passkey, without its PIN": "Ключ доступу без PIN-коду",
     "No prompt, only a click": "Без запиту, лише клік",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "Кожне відкриття підтверджує система: відбитком пальця, обличчям, PIN-кодом або паролем комп’ютера.",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "Система лише запитує продовжити: поки комп’ютер розблокований, базу на ньому може відкрити будь-хто.",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "Chrome запитає, де зберігати ключ доступу: виберіть Зв’язку ключів iCloud. Кожне відкриття підтверджується Touch ID, а де його немає — паролем Mac.",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "Chrome запитає, де зберігати ключ доступу: у Менеджері паролів Google, на телефоні або на ключі безпеки. Під час кожного відкриття він попросить PIN-код.",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "Chrome запитає, де зберігати ключ доступу. Під час кожного відкриття він лише попросить продовжити: поки комп’ютер розблокований, базу на ньому може відкрити будь-хто.",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "Базу зможе відкрити будь-хто, хто користується цим браузером на цьому комп’ютері. Обирайте цей спосіб лише для комп’ютера, яким користуєтеся тільки ви."

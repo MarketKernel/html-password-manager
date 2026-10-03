@@ -256,6 +256,7 @@
     "Forgotten on this device": "Oublié sur cet appareil",
     "Not remembered: the prompt was closed": "Non mémorisé : l’invite a été fermée",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "Non mémorisé : cette clé d’accès ne peut pas conserver le mot de passe. Choisissez un autre moyen dans les paramètres.",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "Non mémorisé : la clé d’accès n’a pas été enregistrée dans le trousseau iCloud.",
     "Not remembered": "Non mémorisé"
   },
   "dialog": {
@@ -342,11 +343,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "Le verrouillage de l’écran de cet appareil",
     "The system prompt, without a password": "L’invite du système, sans mot de passe",
+    "Apple Passwords (iCloud Keychain)": "Mots de passe Apple (trousseau iCloud)",
     "A passkey, with its PIN": "Une clé d’accès, avec son code PIN",
     "A passkey, without its PIN": "Une clé d’accès, sans son code PIN",
     "No prompt, only a click": "Aucune invite, juste un clic",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "Chaque déverrouillage est confirmé par le système : une empreinte digitale, un visage, un code PIN ou le mot de passe de l’ordinateur.",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "Chaque déverrouillage demande seulement au système de continuer : tant que cet ordinateur est déverrouillé, n’importe qui devant lui peut ouvrir la base.",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "Chrome demande où conserver la clé d’accès : choisissez le trousseau iCloud. Chaque déverrouillage est confirmé par Touch ID, ou par le mot de passe du Mac en l’absence de Touch ID.",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "Chrome demande où conserver la clé d’accès : le Gestionnaire de mots de passe de Google, un téléphone ou une clé de sécurité. Chaque déverrouillage en demande le code PIN.",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "Chrome demande où conserver la clé d’accès. Chaque déverrouillage demande seulement de continuer : tant que cet ordinateur est déverrouillé, n’importe qui devant lui peut ouvrir la base.",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "N’importe qui peut utiliser ce navigateur sur cet ordinateur pour ouvrir la base. Ne choisissez cette option que pour un ordinateur qui n’appartient qu’à vous."

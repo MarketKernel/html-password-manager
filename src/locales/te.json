@@ -270,6 +270,7 @@
     "Forgotten on this device": "ఈ పరికరంలో మర్చిపోబడింది",
     "Not remembered: the prompt was closed": "గుర్తుంచుకోబడలేదు: ప్రాంప్ట్ మూసివేయబడింది",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "గుర్తుంచుకోబడలేదు: ఈ పాస్‌కీ పాస్‌వర్డ్‌ను భద్రపరచలేదు. సెట్టింగ్‌లలో వేరే మార్గాన్ని ఎంచుకోండి.",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "గుర్తుంచుకోబడలేదు: పాస్‌కీ iCloud కీచైన్‌లో సేవ్ కాలేదు.",
     "Not remembered": "గుర్తుంచుకోబడలేదు"
   },
   "dialog": {
@@ -344,11 +345,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "ఈ పరికరం స్క్రీన్ లాక్",
     "The system prompt, without a password": "సిస్టమ్ ప్రాంప్ట్, పాస్‌వర్డ్ లేకుండా",
+    "Apple Passwords (iCloud Keychain)": "Apple Passwords (iCloud కీచైన్)",
     "A passkey, with its PIN": "పాస్‌కీ, దాని PINతో",
     "A passkey, without its PIN": "పాస్‌కీ, దాని PIN లేకుండా",
     "No prompt, only a click": "ప్రాంప్ట్ లేదు, కేవలం ఒక క్లిక్",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "ప్రతి అన్‌లాక్‌ను సిస్టమ్ నిర్ధారిస్తుంది: వేలిముద్ర, ముఖం, PIN లేదా కంప్యూటర్ పాస్‌వర్డ్‌తో.",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "ప్రతి అన్‌లాక్‌లో సిస్టమ్ కేవలం కొనసాగించమని మాత్రమే అడుగుతుంది: ఇది అన్‌లాక్‌గా ఉన్నప్పుడు ఈ కంప్యూటర్ వద్ద ఉన్న ఎవరైనా డేటాబేస్‌ను తెరవగలరు.",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "పాస్‌కీని ఎక్కడ ఉంచాలో Chrome అడుగుతుంది: iCloud కీచైన్‌ను ఎంచుకోండి. ప్రతి అన్‌లాక్ Touch ID తో, Touch ID లేని చోట Mac పాస్‌వర్డ్‌తో నిర్ధారించబడుతుంది.",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "పాస్‌కీని ఎక్కడ ఉంచాలో Chrome అడుగుతుంది: Google Password Manager, ఫోన్ లేదా సెక్యూరిటీ కీ. ప్రతి అన్‌లాక్ దాని PIN అడుగుతుంది.",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "పాస్‌కీని ఎక్కడ ఉంచాలో Chrome అడుగుతుంది. ప్రతి అన్‌లాక్‌లో కేవలం కొనసాగించమని మాత్రమే అడుగుతుంది: ఇది అన్‌లాక్‌గా ఉన్నప్పుడు ఈ కంప్యూటర్ వద్ద ఉన్న ఎవరైనా డేటాబేస్‌ను తెరవగలరు.",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "ఈ కంప్యూటర్‌లో ఈ బ్రౌజర్‌ను ఉపయోగించగల ఎవరైనా డేటాబేస్‌ను తెరవగలరు. ఇది కేవలం మీకు మాత్రమే చెందిన కంప్యూటర్ కోసమే ఎంచుకోండి.",

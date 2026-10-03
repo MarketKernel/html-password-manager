@@ -253,6 +253,7 @@
     "Forgotten on this device": "اس ڈیوائس پر فراموش کر دیا گیا",
     "Not remembered: the prompt was closed": "یاد نہیں رکھا گیا: پرامپٹ بند کر دیا گیا",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "یاد نہیں رکھا گیا: یہ پاس کی پاس ورڈ محفوظ نہیں رکھ سکتی۔ ترتیبات میں دوسرا طریقہ منتخب کریں۔",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "یاد نہیں رکھا گیا: پاس کی iCloud کی چین میں محفوظ نہیں ہوئی۔",
     "Not remembered": "یاد نہیں رکھا گیا"
   },
   "dialog": {
@@ -330,11 +331,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "اس ڈیوائس کا اسکرین لاک",
     "The system prompt, without a password": "سسٹم کا پرامپٹ، پاس ورڈ کے بغیر",
+    "Apple Passwords (iCloud Keychain)": "Apple Passwords (iCloud کی چین)",
     "A passkey, with its PIN": "پاس کی، اس کے PIN کے ساتھ",
     "A passkey, without its PIN": "پاس کی، اس کے PIN کے بغیر",
     "No prompt, only a click": "کوئی پرامپٹ نہیں، صرف ایک کلک",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "ہر ان لاک سسٹم سے تصدیق شدہ ہوتا ہے: فنگر پرنٹ، چہرہ، PIN یا کمپیوٹر کا پاس ورڈ۔",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "ہر ان لاک پر سسٹم صرف جاری رکھنے کو کہتا ہے: ان لاک ہونے کے دوران اس کمپیوٹر پر موجود کوئی بھی شخص ڈیٹا بیس کھول سکتا ہے۔",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "Chrome پوچھتا ہے کہ پاس کی کہاں رکھی جائے: iCloud کی چین منتخب کریں۔ ہر ان لاک کی تصدیق Touch ID سے ہوتی ہے، اور جہاں Touch ID نہ ہو وہاں Mac کے پاس ورڈ سے۔",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "Chrome پوچھتا ہے کہ پاس کی کہاں رکھی جائے: Google Password Manager، فون یا سیکیورٹی کلید۔ ہر ان لاک پر اس کا PIN مانگا جاتا ہے۔",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "Chrome پوچھتا ہے کہ پاس کی کہاں رکھی جائے۔ ہر ان لاک پر صرف جاری رکھنے کو کہا جاتا ہے: ان لاک ہونے کے دوران اس کمپیوٹر پر موجود کوئی بھی شخص ڈیٹا بیس کھول سکتا ہے۔",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "جو بھی اس کمپیوٹر پر یہ براؤزر استعمال کر سکتا ہے وہ ڈیٹا بیس کھول سکتا ہے۔ یہ صرف اسی کمپیوٹر کے لیے منتخب کریں جو صرف آپ کا ہو۔",

@@ -1027,6 +1027,8 @@ try {
    * can name, which 127.0.0.1 is not — with a virtual authenticator that
    * has PRF.
    * -------------------------------------------------------------- */
+  // Apple Passwords is offered on a Mac only, where headless Chrome names its platform macOS too.
+  const MAC = process.platform === 'darwin';
   const SYSTEM_LABEL = { darwin: 'Touch ID or the Mac password', win32: 'Windows Hello' }[process.platform] ?? 'The screen lock of this device';
   const unlockAt = async (url) => {
     await send('Page.navigate', { url });
@@ -1050,7 +1052,7 @@ try {
   await click('#settings');
   check('remember: every way, the system prompt with a password first and chosen', await rememberChoice(), [
     'system',
-    [SYSTEM_LABEL, 'The system prompt, without a password', 'A passkey, with its PIN', 'A passkey, without its PIN', 'No prompt, only a click'],
+    [SYSTEM_LABEL, 'The system prompt, without a password', ...(MAC ? ['Apple Passwords (iCloud Keychain)'] : []), 'A passkey, with its PIN', 'A passkey, without its PIN', 'No prompt, only a click'],
   ]);
   check('remember: its note', await text('[data-setting="remember-note"]'), 'Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.');
   check('remember: nothing remembered yet', await visible('[data-setting="remembered"]'), false);
@@ -1146,6 +1148,27 @@ try {
   // user leaves the request waiting rather than refusing it.
   await click('#unlock-remembered');
   check('remember, system: the prompt, then the database', await until(`!document.querySelector('#app').hidden`), true);
+
+  // Apple Passwords: a passkey with no PRF, its user handle the key
+  if (MAC) {
+    await lockNow();
+    await until(`!document.querySelector('#unlock-remembered').hidden`);
+    check('remember, keychain: the system record forgotten first', await typeAndUnlock(false), true);
+    await toastSaid('Forgotten on this device');
+    await click('#settings');
+    await pickWay('keychain');
+    check('remember, keychain: its note', await text('[data-setting="remember-note"]'), 'Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.');
+    await lockNow();
+    check('remember, keychain: unlocked', await typeAndUnlock(true), true);
+    // The system's passkey went when its record was forgotten: the one left is the new one.
+    check('remember, keychain: a passkey made, the password sealed', [await recordsSoon(), await passkeys()], [[{ name: 'Database.kdbx', with: 'keychain', verification: null, plain: false }], 1]);
+    const { credentials } = await send('WebAuthn.getCredentials', { authenticatorId });
+    check('remember, keychain: discoverable, its user handle 32 bytes', credentials.filter((c) => c.isResidentCredential && Buffer.from(c.userHandle ?? '', 'base64').length === 32).length, 1);
+    await lockNow();
+    check('remember, keychain: the button', (await until(`!document.querySelector('#unlock-remembered').hidden`)) && (await text('#unlock-remembered')), 'Unlock with Touch ID');
+    await click('#unlock-remembered');
+    check('remember, keychain: the prompt, then the database', await until(`!document.querySelector('#app').hidden`), true);
+  }
 
   // Another database under the same file name: the remembered password does not open it, and is forgotten
   const otherDir = await mkdtemp(join(tmpdir(), 'hpm-other-'));

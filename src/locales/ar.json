@@ -265,6 +265,7 @@
     "Forgotten on this device": "تم النسيان على هذا الجهاز",
     "Not remembered: the prompt was closed": "لم يتم التذكّر: أُغلقت المطالبة",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "لم يتم التذكّر: لا يمكن لمفتاح المرور هذا حفظ كلمة المرور. اختر طريقة أخرى في الإعدادات.",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "لم يتم التذكّر: لم يُحفظ مفتاح المرور في سلسلة مفاتيح iCloud.",
     "Not remembered": "لم يتم التذكّر"
   },
   "dialog": {
@@ -350,11 +351,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "قفل شاشة هذا الجهاز",
     "The system prompt, without a password": "مطالبة النظام، بلا كلمة مرور",
+    "Apple Passwords (iCloud Keychain)": "كلمات السر من Apple (سلسلة مفاتيح iCloud)",
     "A passkey, with its PIN": "مفتاح مرور، مع رمز PIN الخاص به",
     "A passkey, without its PIN": "مفتاح مرور، بلا رمز PIN الخاص به",
     "No prompt, only a click": "بلا مطالبة، مجرد نقرة",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "يؤكّد النظام كل عملية فتح قفل: ببصمة إصبع أو وجه أو رمز PIN أو كلمة مرور الحاسوب.",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "في كل عملية فتح قفل، يطلب النظام المتابعة فقط: يمكن لأي شخص أمام هذا الحاسوب وهو مفتوح فتح قاعدة البيانات.",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "يسأل Chrome أين يُحفظ مفتاح المرور: اختر سلسلة مفاتيح iCloud. تؤكَّد كل عملية فتح قفل ببصمة Touch ID، أو بكلمة مرور الـ Mac حيث لا يوجد Touch ID.",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "يسأل Chrome أين يُحفظ مفتاح المرور: مدير كلمات المرور من Google أو هاتف أو مفتاح أمان. يطلب كل عملية فتح قفل رمز PIN الخاص به.",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "يسأل Chrome أين يُحفظ مفتاح المرور. تطلب كل عملية فتح قفل المتابعة فقط: يمكن لأي شخص أمام هذا الحاسوب وهو مفتوح فتح قاعدة البيانات.",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "يمكن لأي شخص يستطيع استخدام هذا المتصفح على هذا الحاسوب فتح قاعدة البيانات. اختر هذا الخيار فقط لحاسوب يخصّك وحدك.",

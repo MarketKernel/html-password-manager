@@ -1074,6 +1074,8 @@ function rememberLabel(way: RememberWith): string {
     }
     case 'systemClick':
       return t('settings', 'The system prompt, without a password');
+    case 'keychain':
+      return t('settings', 'Apple Passwords (iCloud Keychain)');
     case 'passkey':
       return t('settings', 'A passkey, with its PIN');
     case 'passkeyClick':
@@ -1089,6 +1091,8 @@ function rememberNote(way: RememberWith): string {
       return t('settings', 'Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.');
     case 'systemClick':
       return t('settings', 'Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.');
+    case 'keychain':
+      return t('settings', 'Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.');
     case 'passkey':
       return t('settings', 'Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.');
     case 'passkeyClick':

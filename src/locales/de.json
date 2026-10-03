@@ -270,6 +270,7 @@
     "Forgotten on this device": "Auf diesem Gerät vergessen",
     "Not remembered: the prompt was closed": "Nicht gemerkt: Die Abfrage wurde geschlossen",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "Nicht gemerkt: Dieser Passkey kann das Passwort nicht speichern. Wählen Sie eine andere Methode in den Einstellungen.",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "Nicht gemerkt: Der Passkey wurde nicht im iCloud-Schlüsselbund gesichert.",
     "Not remembered": "Nicht gemerkt"
   },
   "dialog": {
@@ -350,11 +351,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "Die Bildschirmsperre dieses Geräts",
     "The system prompt, without a password": "Die Systemabfrage, ohne Passwort",
+    "Apple Passwords (iCloud Keychain)": "Apple Passwörter (iCloud-Schlüsselbund)",
     "A passkey, with its PIN": "Ein Passkey, mit seiner PIN",
     "A passkey, without its PIN": "Ein Passkey, ohne seine PIN",
     "No prompt, only a click": "Keine Abfrage, nur ein Klick",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "Jedes Entsperren wird vom System bestätigt: per Fingerabdruck, Gesicht, PIN oder dem Passwort des Computers.",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "Das System fragt bei jedem Entsperren nur, ob fortgefahren werden soll: Solange dieser Computer entsperrt ist, kann jeder an ihm die Datenbank öffnen.",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "Chrome fragt, wo der Passkey aufbewahrt werden soll: Wählen Sie den iCloud-Schlüsselbund. Jedes Entsperren wird mit Touch ID bestätigt, ohne Touch ID mit dem Mac-Passwort.",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "Chrome fragt, wo der Passkey aufbewahrt werden soll: im Google Passwortmanager, auf einem Telefon oder auf einem Sicherheitsschlüssel. Bei jedem Entsperren wird die PIN abgefragt.",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "Chrome fragt, wo der Passkey aufbewahrt werden soll. Bei jedem Entsperren wird nur gefragt, ob fortgefahren werden soll: Solange dieser Computer entsperrt ist, kann jeder an ihm die Datenbank öffnen.",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "Jeder, der diesen Browser auf diesem Computer nutzen kann, öffnet damit die Datenbank. Wählen Sie dies nur für einen Computer, der ausschließlich Ihnen gehört."

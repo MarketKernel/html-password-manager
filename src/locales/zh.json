@@ -249,6 +249,7 @@
     "Forgotten on this device": "已在此设备上忘记",
     "Not remembered: the prompt was closed": "未记住：提示已关闭",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "未记住：此通行密钥无法保存密码。请在设置中选择其他方式。",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "未记住：通行密钥未保存到 iCloud 钥匙串。",
     "Not remembered": "未记住",
     "Remembered passwords forgotten": "已记住的密码已忘记"
   },
@@ -330,11 +331,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "此设备的锁屏",
     "The system prompt, without a password": "系统提示，无需密码",
+    "Apple Passwords (iCloud Keychain)": "Apple 密码（iCloud 钥匙串）",
     "A passkey, with its PIN": "通行密钥，需要 PIN",
     "A passkey, without its PIN": "通行密钥，无需 PIN",
     "No prompt, only a click": "无需提示，仅需点击",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "每次解锁都由系统确认：指纹、面容、PIN 或电脑密码。",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "每次解锁时，系统只要求继续：在数据库解锁期间，任何能使用这台电脑的人都可以打开它。",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "Chrome 会询问通行密钥的保存位置：请选择 iCloud 钥匙串。每次解锁都通过 Touch ID 确认，没有 Touch ID 时则通过 Mac 密码确认。",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "Chrome 会询问通行密钥的保存位置：Google 密码管理工具、手机或安全密钥。每次解锁都需要输入其 PIN。",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "Chrome 会询问通行密钥的保存位置。每次解锁只要求继续：在数据库解锁期间，任何能使用这台电脑的人都可以打开它。",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "任何能在这台电脑上使用此浏览器的人都可以打开数据库。请只在完全属于你自己的电脑上选择此项。"

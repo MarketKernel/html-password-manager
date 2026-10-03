@@ -252,6 +252,7 @@
     "Forgotten on this device": "এই ডিভাইসে ভুলে যাওয়া হয়েছে",
     "Not remembered: the prompt was closed": "মনে রাখা হয়নি: প্রম্পট বন্ধ করা হয়েছে",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "মনে রাখা হয়নি: এই পাসকী পাসওয়ার্ড রাখতে পারে না। সেটিংসে অন্য একটি উপায় বেছে নিন।",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "মনে রাখা হয়নি: পাসকীটি iCloud কীচেইনে সংরক্ষিত হয়নি।",
     "Not remembered": "মনে রাখা হয়নি",
     "Remembered passwords forgotten": "মনে রাখা পাসওয়ার্ড ভুলে যাওয়া হয়েছে"
   },
@@ -336,11 +337,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "এই ডিভাইসের স্ক্রিন লক",
     "The system prompt, without a password": "সিস্টেম প্রম্পট, পাসওয়ার্ড ছাড়া",
+    "Apple Passwords (iCloud Keychain)": "Apple Passwords (iCloud কীচেইন)",
     "A passkey, with its PIN": "পাসকী, তার PIN সহ",
     "A passkey, without its PIN": "পাসকী, তার PIN ছাড়া",
     "No prompt, only a click": "কোনো প্রম্পট নয়, শুধু একটি ক্লিক",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "প্রতিবার আনলকের সময় সিস্টেম নিশ্চিত করে: ফিঙ্গারপ্রিন্ট, মুখ, PIN বা কম্পিউটারের পাসওয়ার্ড দিয়ে।",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "প্রতিবার আনলকের সময় সিস্টেম শুধু এগিয়ে যাওয়ার জন্য জিজ্ঞাসা করে: ডেটাবেস আনলক থাকা অবস্থায় এই কম্পিউটার ব্যবহার করতে পারে এমন যে কেউ এটি খুলতে পারবে।",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "Chrome জিজ্ঞাসা করে পাসকীটি কোথায় রাখতে হবে: iCloud কীচেইন বেছে নিন। প্রতিবার আনলক Touch ID দিয়ে নিশ্চিত হয়, Touch ID না থাকলে Mac-এর পাসওয়ার্ড দিয়ে।",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "Chrome জিজ্ঞাসা করে পাসকীটি কোথায় রাখতে হবে: Google পাসওয়ার্ড ম্যানেজার, একটি ফোন বা একটি সিকিউরিটি কী। প্রতিবার আনলকের সময় এর PIN চাওয়া হয়।",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "Chrome জিজ্ঞাসা করে পাসকীটি কোথায় রাখতে হবে। প্রতিবার আনলকের সময় শুধু এগিয়ে যাওয়ার জন্য জিজ্ঞাসা করা হয়: ডেটাবেস আনলক থাকা অবস্থায় এই কম্পিউটার ব্যবহার করতে পারে এমন যে কেউ এটি খুলতে পারবে।",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "এই কম্পিউটারে এই ব্রাউজার ব্যবহার করতে পারে এমন যে কেউ ডেটাবেস খুলতে পারবে। শুধু এমন কম্পিউটারের জন্য এটি বেছে নিন যা একান্তই আপনার।"

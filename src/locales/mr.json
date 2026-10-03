@@ -270,6 +270,7 @@
     "Forgotten on this device": "या डिव्हाइसवर विसरले गेले",
     "Not remembered: the prompt was closed": "लक्षात ठेवले गेले नाही: प्रॉम्प्ट बंद झाला",
     "Not remembered: this passkey cannot keep the password. Choose another way in the settings.": "लक्षात ठेवले गेले नाही: ही पासकी पासवर्ड साठवू शकत नाही. सेटिंग्जमध्ये दुसरा मार्ग निवडा.",
+    "Not remembered: the passkey was not saved in iCloud Keychain.": "लक्षात ठेवले गेले नाही: पासकी iCloud कीचेनमध्ये जतन झाली नाही.",
     "Not remembered": "लक्षात ठेवले गेले नाही"
   },
   "dialog": {
@@ -344,11 +345,13 @@
     "Windows Hello": "Windows Hello",
     "The screen lock of this device": "या डिव्हाइसचे स्क्रीन लॉक",
     "The system prompt, without a password": "सिस्टम प्रॉम्प्ट, पासवर्डशिवाय",
+    "Apple Passwords (iCloud Keychain)": "Apple Passwords (iCloud कीचेन)",
     "A passkey, with its PIN": "पासकी, तिच्या PIN सह",
     "A passkey, without its PIN": "पासकी, तिच्या PIN शिवाय",
     "No prompt, only a click": "कोणताही प्रॉम्प्ट नाही, फक्त एक क्लिक",
     "Each unlock is confirmed by the system: a fingerprint, a face, a PIN or the password of the computer.": "प्रत्येक अनलॉकची पुष्टी सिस्टमकडून केली जाते: फिंगरप्रिंट, चेहरा, PIN किंवा संगणकाचा पासवर्ड.",
     "Each unlock asks the system only to continue: anyone at this computer while it is unlocked can open the database.": "प्रत्येक अनलॉकमध्ये सिस्टम फक्त सुरू ठेवण्यास सांगते: अनलॉक असताना या संगणकावर असलेली कोणतीही व्यक्ती डेटाबेस उघडू शकते.",
+    "Chrome asks where to keep the passkey: choose iCloud Keychain. Each unlock is confirmed by Touch ID, or by the Mac password where there is no Touch ID.": "पासकी कुठे ठेवायची हे Chrome विचारतो: iCloud कीचेन निवडा. प्रत्येक अनलॉकची पुष्टी Touch ID ने होते, आणि Touch ID नसल्यास Mac च्या पासवर्डने.",
     "Chrome asks where to keep the passkey: Google Password Manager, a phone or a security key. Each unlock asks for its PIN.": "पासकी कुठे ठेवायची हे Chrome विचारतो: Google Password Manager, फोन किंवा सिक्युरिटी की. प्रत्येक अनलॉकवर तिचा PIN विचारला जातो.",
     "Chrome asks where to keep the passkey. Each unlock asks only to continue: anyone at this computer while it is unlocked can open the database.": "पासकी कुठे ठेवायची हे Chrome विचारतो. प्रत्येक अनलॉकमध्ये फक्त सुरू ठेवण्यास सांगितले जाते: अनलॉक असताना या संगणकावर असलेली कोणतीही व्यक्ती डेटाबेस उघडू शकते.",
     "Anyone who can use this browser on this computer opens the database. Choose it only for a computer that is yours alone.": "या संगणकावर हा ब्राउझर वापरू शकणारी कोणतीही व्यक्ती डेटाबेस उघडू शकते. फक्त जो संगणक केवळ तुमचाच आहे त्यासाठीच हे निवडा.",
