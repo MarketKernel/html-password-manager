@@ -421,5 +421,15 @@
     "Full mode": "Modo completo",
     "Search finds an entry to copy from.": "A pesquisa encontra uma entrada para copiar.",
     "Open the database in full mode once: then it unlocks here with the master password alone.": "Abra o banco uma vez no modo completo: depois ele se desbloqueia aqui só com a senha mestra."
+  },
+  "update": {
+    "Check for updates": "Verificar atualizações",
+    "Checking for updates…": "Verificando atualizações…",
+    "This is the latest version.": "Esta é a versão mais recente.",
+    "No connection: could not check for updates.": "Sem conexão: não foi possível verificar atualizações.",
+    "Version {version} is ready.": "A versão {version} está pronta.",
+    "A new version is ready.": "Uma nova versão está pronta.",
+    "Update": "Atualizar",
+    "It also starts by itself the next time the app is opened.": "Ela também inicia sozinha na próxima vez que o app for aberto."
   }
 }

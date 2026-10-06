@@ -506,9 +506,10 @@ o ícone (uma data URI), em `src/app/template.html`. Os fallbacks do kdbxweb par
 ocupado pelos dicionários.
 
 A mesma execução grava `build/pages/`: essa página como PWA instalável — `index.html` com um link
-para o manifest e o registro de um service worker, `manifest.webmanifest`, os ícones e `sw.js`,
-que guarda a página em cache para que ela abra offline. O próprio `build/password-manager.html`
-continua sendo um único arquivo sem referências externas.
+para o manifest e uma `<meta name="service-worker">` que diz à página para registrar o seu worker,
+`manifest.webmanifest`, os ícones e `sw.js`, que guarda a página em cache para que ela abra
+offline. O próprio `build/password-manager.html` continua sendo um único arquivo sem referências
+externas.
 
 E `build/extension/`: `panel.html` é o template com o script em `panel.js` — o mesmo
 `src/app/main.ts`, com `src/extension/extension.ts` no lugar de `src/app/platform.ts`, cujos hooks
@@ -559,15 +560,21 @@ GitHub Pages (Settings → Pages → Source: GitHub Actions), em
 arquivo único; os arquivos recentes, as configurações e os identificadores lembrados pertencem a
 esse endereço, separados dos de uma cópia aberta do disco.
 
-Cada publicação muda o nome do cache em `sw.js`, então o navegador pega a nova versão sozinho; uma
-janela aberta passa para ela no próximo recarregamento. Essa também é a contrapartida: um PWA
+Cada publicação muda o nome do cache em `sw.js`, então o navegador pega o novo worker sozinho: ao
+abrir com conexão, ou quando Configurações → Verificar atualizações pede. O novo worker baixa a
+sua versão para um cache próprio e espera; o que está rodando continua servindo a página antiga,
+também offline. As configurações e a tela de desbloqueio então dizem "A versão … está pronta.
+Atualizar": Atualizar bloqueia o banco de dados (salvando-o, ou perguntando, como qualquer
+bloqueio), deixa o novo worker entrar e recarrega a página. Sem o botão, a nova versão começa a
+rodar assim que todas as janelas do app forem fechadas. Essa também é a contrapartida: um PWA
 instalado roda o que a última publicação colocou ali, enquanto um arquivo baixado continua na
 versão que é. Para uma versão fixa no disco, pegue `password-manager-<tag>.html` de um lançamento
 e confira-o com `SHA256SUMS.txt`.
 
 `npm run test:browser` também abre `build/pages/`: o service worker assume a página, o Chrome
 considera o manifest instalável e, com o servidor desligado, a página ainda carrega e desbloqueia o
-banco de dados de exemplo.
+banco de dados de exemplo; depois uma nova publicação é encontrada, espera, e Atualizar a deixa
+entrar.
 
 ## Estrutura
 
@@ -597,6 +604,7 @@ src/app/              a página: o arquivo único, o PWA e o painel lateral da e
   ui.ts               caixas de diálogo, menu de contexto, popovers, toasts, ícones; painéis inferiores no celular
   screens.ts          o layout de celular: a lista ou a entrada, a gaveta de grupos, o botão voltar
   platform.ts         o que a página faz além de si mesma: nada, no arquivo e no PWA
+  update.ts           as atualizações do PWA: registra o sw.js, encontra uma versão em espera e a deixa entrar
 src/extension/        a extensão para Chrome
   manifest.json       o manifest dela; a compilação acrescenta a versão
   extension.ts        o platform.ts do painel lateral: o documento offscreen, a aba, Preencher

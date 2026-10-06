@@ -521,9 +521,10 @@ için yedekleri (`crypto`, `@xmldom/xmldom`) boş taslaklarla değiştirilir —
 sözlüklerden oluşan `build/password-manager.html` dosyasıdır.
 
 Aynı çalıştırma `build/pages/` klasörünü de yazar: o sayfanın yüklenebilir PWA hâli — manifest
-bağlantısı ve service worker kaydı içeren `index.html`, `manifest.webmanifest`, simgeler ve
-sayfayı çevrimdışı açılsın diye önbelleğe alan `sw.js`. `build/password-manager.html`'in
-kendisi ise dış başvurusu olmayan tek bir dosya olarak kalır.
+bağlantısı ve sayfaya kendi worker'ını kaydetmesini söyleyen bir `<meta name="service-worker">`
+içeren `index.html`, `manifest.webmanifest`, simgeler ve sayfayı çevrimdışı açılsın diye
+önbelleğe alan `sw.js`. `build/password-manager.html`'in kendisi ise dış başvurusu olmayan tek
+bir dosya olarak kalır.
 
 Ve `build/extension/`: `panel.html`, betiği `panel.js` içinde olan şablondur — aynı
 `src/app/main.ts`, yalnızca `src/app/platform.ts` yerine `src/extension/extension.ts` ile;
@@ -577,15 +578,21 @@ dosyalarını ekler.
 dosyadakiyle aynı şekilde açılır; son kullanılan dosyalar, ayarlar ve hatırlanan tanıtıcılar o
 adrese aittir ve diskten açılan bir kopyanınkilerden ayrıdır.
 
-Her yayımlama `sw.js` içindeki önbellek adını değiştirir, böylece tarayıcı yeni sürümü kendiliğinden
-alır; açık bir pencere bir sonraki yeniden yüklemede ona geçer. Bedeli de budur: yüklenmiş bir
-PWA, son yayımlamanın oraya koyduğu her neyse onu çalıştırır, indirilmiş bir dosya ise hangi
+Her yayımlama `sw.js` içindeki önbellek adını değiştirir, böylece tarayıcı yeni worker'ı
+kendiliğinden alır — bağlantılı bir açılışta, ya da Ayarlar → Güncellemeleri kontrol et
+istendiğinde. Yeni worker kendi sürümünü kendi önbelleğine indirir ve bekler; çalışmakta olan ise
+eski sayfayı sunmaya devam eder, çevrimdışıyken de. Ayarlar ve kilit açma ekranı o zaman "Sürüm …
+hazır. Güncelle" der: Güncelle veritabanını kilitler (her kilitlemede olduğu gibi onu kaydederek
+ya da sorarak), yeni worker'ı içeri alır ve sayfayı yeniden yükler. Düğme kullanılmazsa yeni
+sürüm, uygulamanın tüm pencereleri kapandığında kendiliğinden başlar. Bedeli de budur: yüklenmiş
+bir PWA, son yayımlamanın oraya koyduğu her neyse onu çalıştırır, indirilmiş bir dosya ise hangi
 sürümse o kalır. Diskte sabit bir sürüm için bir yayından `password-manager-<tag>.html`
 dosyasını alın ve onu `SHA256SUMS.txt` ile karşılaştırın.
 
 `npm run test:browser`, `build/pages/` klasörünü de açar: service worker sayfayı devralır,
 Chrome manifesti yüklenebilir bulur ve sunucu kapandıktan sonra da sayfa yüklenir ve örnek
-veritabanının kilidini açar.
+veritabanının kilidini açar; ardından yeni bir yayımlama bulunur, beklenir ve Güncelle onu içeri
+alır.
 
 ## Proje yapısı
 
@@ -615,6 +622,7 @@ src/app/              sayfa: tek dosya, PWA ve uzantının yan paneli
   ui.ts               iletişim kutuları, bağlam menüsü, açılır paneller, bildirimler, simgeler; telefonda alt sayfalar
   screens.ts          telefon düzeni: liste ya da girdi, grup çekmecesi, geri düğmesi
   platform.ts         sayfanın kendi dışında yaptıkları: dosyada ve PWA'da hiçbir şey
+  update.ts           PWA'nın güncellemeleri: sw.js'i kaydeder, bekleyen bir sürüm bulur ve onu içeri alır
 src/extension/        Chrome uzantısı
   manifest.json       uzantının manifesti; sürümü derleme ekler
   extension.ts        yan panelin platform.ts'si: offscreen belgesi, sekme, Doldur

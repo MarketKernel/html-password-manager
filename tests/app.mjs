@@ -55,6 +55,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const html = await readFile(APP);
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml' };
 let pagesDown = false;
+// Set, the server hands out a service worker of this version: a new deploy, as the page sees it.
+let nextVersion = null;
 // /pages/… is build/pages/, any other path the single file.
 const server = createServer(async (req, res) => {
   const path = new URL(req.url, 'http://localhost').pathname;
@@ -66,7 +68,8 @@ const server = createServer(async (req, res) => {
   if (pagesDown) return req.socket.destroy();
   const name = path.endsWith('/') ? 'index.html' : basename(path);
   try {
-    const body = await readFile(join(PAGES, name));
+    let body = await readFile(join(PAGES, name));
+    if (name === 'sw.js' && nextVersion) body = body.toString().replace(/const VERSION = '[^']*'/, `const VERSION = '${nextVersion}'`);
     res.setHeader('content-type', TYPES[extname(name)] ?? 'application/octet-stream');
     res.end(body);
   } catch {
@@ -1019,7 +1022,38 @@ try {
   await type(PASSWORD);
   await press('Enter');
   check('pwa: offline unlock', await until(`!document.querySelector('#app').hidden`), true);
+
+  // Updates: a new deploy installs beside the running version and waits for Update
+  const versionLine = `document.querySelector('[data-setting="update"]')?.textContent ?? ''`;
+  const workerVersion = () =>
+    evaluate(`new Promise((resolve) => { const c = new MessageChannel(); c.port1.onmessage = (e) => resolve(e.data); navigator.serviceWorker.controller.postMessage('version', [c.port2]); })`);
+  const running = await text('#version');
+  check('pwa: the worker knows its version', await workerVersion(), running);
+  await click('#settings');
+  check('pwa: settings offer a check', await text('[data-setting="update"] button'), 'Check for updates');
+  await click('[data-setting="update"] button');
+  check('pwa: no server, no check', await until(`${versionLine}.includes('No connection: could not check for updates.')`), true);
   pagesDown = false;
+  await click('[data-setting="update"] button');
+  check('pwa: nothing new', await until(`${versionLine}.endsWith('This is the latest version.')`), true);
+  nextVersion = '9.9.9';
+  await press('Escape');
+  await click('#settings');
+  check('pwa: settings offer a check again', await text('[data-setting="update"] button'), 'Check for updates');
+  await click('[data-setting="update"] button');
+  check('pwa: a new version ready', await until(`${versionLine}.includes('Version 9.9.9 is ready.')`, 15000), true);
+  check('pwa: and on the gate', await text('#gate-update'), 'Version 9.9.9 is ready. Update');
+  check('pwa: the old worker still serves', await workerVersion(), running);
+  await evaluate(`window.__beforeReload = true`);
+  await click('[data-setting="update"] button');
+  check('pwa: update reloads the page, locked', await until(`!window.__beforeReload && document.readyState === 'complete' && !!document.querySelector('#gate-pick')?.getClientRects().length`, 15000), true);
+  check('pwa: the new worker serves', await workerVersion(), '9.9.9');
+  check('pwa: the old cache gone', (await evaluate(`caches.keys()`)).length, 1);
+  pagesDown = true;
+  await reload();
+  check('pwa: offline after the update', await until(`!!document.querySelector('#gate-pick')?.getClientRects().length`), true);
+  pagesDown = false;
+  nextVersion = null;
 
   /* -------------------------------------------------------------- *
    * Remembering a database on this device: never on file:, where every

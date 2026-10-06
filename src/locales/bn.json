@@ -415,5 +415,15 @@
     "Full mode": "পূর্ণ মোড",
     "Search finds an entry to copy from.": "খোঁজে কপি করার মতো এন্ট্রি পাওয়া যায়।",
     "Open the database in full mode once: then it unlocks here with the master password alone.": "ডেটাবেসটি একবার পূর্ণ মোডে খুলুন: তারপর এটি এখানে শুধু মাস্টার পাসওয়ার্ডেই খুলবে।"
+  },
+  "update": {
+    "Check for updates": "হালনাগাদের জন্য পরীক্ষা করুন",
+    "Checking for updates…": "হালনাগাদের জন্য পরীক্ষা করা হচ্ছে…",
+    "This is the latest version.": "এটি সর্বশেষ সংস্করণ।",
+    "No connection: could not check for updates.": "কোনো সংযোগ নেই: হালনাগাদের জন্য পরীক্ষা করা যায়নি।",
+    "Version {version} is ready.": "সংস্করণ {version} প্রস্তুত।",
+    "A new version is ready.": "একটি নতুন সংস্করণ প্রস্তুত।",
+    "Update": "হালনাগাদ করুন",
+    "It also starts by itself the next time the app is opened.": "পরের বার অ্যাপ খোলার সময় এটি নিজে থেকেও চালু হয়ে যাবে।"
   }
 }

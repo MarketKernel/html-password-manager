@@ -520,9 +520,10 @@ gaya dan ikon (sebagai data URI), ke `src/app/template.html`. Fallback kdbxweb u
 kamus.
 
 Proses yang sama menulis `build/pages/`: halaman tersebut sebagai PWA yang dapat dipasang —
-`index.html` dengan tautan manifest dan pendaftaran service worker, `manifest.webmanifest`, ikon,
-dan `sw.js`, yang menyimpan halaman di cache agar dapat dibuka secara offline.
-`build/password-manager.html` sendiri tetap berupa satu file tanpa referensi eksternal.
+`index.html` dengan tautan manifest dan sebuah `<meta name="service-worker">` yang memberi tahu
+halaman untuk mendaftarkan worker-nya, `manifest.webmanifest`, ikon, dan `sw.js`, yang menyimpan
+halaman di cache agar dapat dibuka secara offline. `build/password-manager.html` sendiri tetap
+berupa satu file tanpa referensi eksternal.
 
 Serta `build/extension/`: `panel.html` adalah template dengan skripnya di `panel.js` —
 `src/app/main.ts` yang sama, dengan `src/extension/extension.ts` menggantikan
@@ -574,15 +575,21 @@ Workflow rilis berhenti jika tag dan `package.json` tidak sesuai, lalu melampirk
 di file tunggal; file terbaru, setelan, dan handle yang diingat menjadi milik alamat tersebut,
 terpisah dari milik salinan yang dibuka dari disk.
 
-Setiap deploy mengubah nama cache di `sw.js`, sehingga browser mengambil versi baru dengan
-sendirinya; jendela yang sedang terbuka beralih ke versi itu saat dimuat ulang berikutnya. Itu
-juga konsekuensinya: PWA yang terpasang menjalankan apa pun yang ditaruh oleh deploy terakhir,
-sedangkan file yang diunduh tetap pada versinya. Untuk versi yang tetap di disk, ambil
-`password-manager-<tag>.html` dari sebuah rilis dan bandingkan dengan `SHA256SUMS.txt`.
+Setiap deploy mengubah nama cache di `sw.js`, sehingga browser mengambil worker baru dengan
+sendirinya — saat dibuka dengan koneksi, atau ketika Setelan → Periksa pembaruan memintanya.
+Worker baru mengunduh versinya ke cache miliknya sendiri dan menunggu; yang sedang berjalan tetap
+melayani halaman lama, termasuk secara offline. Setelan dan layar buka kunci kemudian menampilkan
+"Versi … sudah siap. Perbarui": Perbarui mengunci basis data (menyimpannya, atau menanyakannya,
+seperti penguncian lainnya), membiarkan worker baru masuk, dan memuat ulang halaman. Tanpa tombol
+ini, versi baru mulai berjalan begitu semua jendela aplikasi ditutup. Itu juga konsekuensinya: PWA
+yang terpasang menjalankan apa pun yang ditaruh oleh deploy terakhir, sedangkan file yang diunduh
+tetap pada versinya. Untuk versi yang tetap di disk, ambil `password-manager-<tag>.html` dari
+sebuah rilis dan bandingkan dengan `SHA256SUMS.txt`.
 
 `npm run test:browser` juga membuka `build/pages/`: service worker mengambil alih halaman, Chrome
-menganggap manifest dapat dipasang, dan setelah server dimatikan, halaman tetap dimuat dan
-membuka kunci basis data contoh.
+menganggap manifest dapat dipasang, dan setelah server dimatikan, halaman tetap dimuat dan membuka
+kunci basis data contoh; lalu sebuah deploy baru ditemukan, menunggu, dan Perbarui membiarkannya
+masuk.
 
 ## Struktur
 
@@ -612,6 +619,7 @@ src/app/              halaman: file tunggal, PWA, dan panel samping ekstensi
   ui.ts               dialog, menu konteks, popover, toast, ikon; lembar (sheet) di ponsel
   screens.ts          tata letak ponsel: daftar atau entri, laci grup, tombol kembali
   platform.ts         apa yang dilakukan halaman di luar dirinya: tidak ada, di file dan PWA
+  update.ts           pembaruan PWA: mendaftarkan sw.js, menemukan versi yang menunggu, dan membiarkannya masuk
 src/extension/        ekstensi Chrome
   manifest.json       manifest-nya; build menambahkan versi
   extension.ts        platform.ts untuk panel samping: dokumen offscreen, tab, Isi

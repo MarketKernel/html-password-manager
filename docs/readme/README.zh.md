@@ -275,7 +275,7 @@ npm run shots -- shots/after  # 先构建，再把主要界面的截图保存到
 
 `build.mjs` 使用 esbuild 将 `src/app/main.ts` 打包为 IIFE，并将其连同样式和图标（data URI）一起替换进 `src/app/template.html`。kdbxweb 针对 Node 的后备依赖（`crypto`、`@xmldom/xmldom`）被替换为空桩——浏览器自带 `crypto.subtle` 和 `DOMParser`。结果是 `build/password-manager.html`，约 500 KB，其中四分之一是词典。
 
-同一次运行还会生成 `build/pages/`：该页面的可安装 PWA 版本——带有 manifest 链接和 service worker 注册的 `index.html`、`manifest.webmanifest`、图标，以及缓存页面以便离线打开的 `sw.js`。`build/password-manager.html` 本身仍是一个没有外部引用的单一文件。
+同一次运行还会生成 `build/pages/`：该页面的可安装 PWA 版本——带有 manifest 链接、以及告诉页面去注册自己 worker 的 `<meta name="service-worker">` 的 `index.html`、`manifest.webmanifest`、图标，以及缓存页面以便离线打开的 `sw.js`。`build/password-manager.html` 本身仍是一个没有外部引用的单一文件。
 
 还有 `build/extension/`：`panel.html` 是模板，其脚本位于 `panel.js`——同样是 `src/app/main.ts`，只是用 `src/extension/extension.ts` 代替了 `src/app/platform.ts`（后者的钩子在文件版中什么也不做）——旁边是 `popup.html`（带有页面的样式和 `popup.css`）和 `popup.js`、`background.js`、`offscreen.html` 和 `offscreen.js`、图标，以及 `manifest.json`，其版本号取自 `package.json`。`build/password-manager-extension-<version>.zip` 包含相同的文件，且日期固定：相同的源码得出相同的字节。
 
@@ -299,9 +299,9 @@ git push --follow-tags      # 该标签会启动 .github/workflows/release.yml
 `.github/workflows/pages.yml` 会对每次推送到 `main` 的内容进行构建和测试，并将 `build/pages/` 部署到 GitHub Pages（Settings → Pages → Source: GitHub Actions），地址为
 <https://password.marketkernel.com/>。文件的打开方式与单文件版相同；最近的文件、设置和记住的句柄属于该地址，与从磁盘打开的副本的那些相互独立。
 
-每次部署都会更改 `sw.js` 中的缓存名称，因此浏览器会自行获取新版本；已打开的窗口会在下次重新加载时切换到新版本。这也是一种取舍：已安装的 PWA 运行的是最近一次部署放在那里的版本，而下载的文件则始终是原来的版本。如需一个固定在磁盘上的版本，请从某个发布中获取 `password-manager-<tag>.html`，并用 `SHA256SUMS.txt` 进行核对。
+每次部署都会更改 `sw.js` 中的缓存名称，因此浏览器会自行获取新的 worker——在有网络连接时启动，或者在“设置 → 检查更新”发出请求时。新的 worker 会把自己的版本下载到专属的缓存中并等待；正在运行的那个则继续提供旧页面，离线时也是如此。此后设置页面和解锁界面会显示“版本 … 已准备就绪。更新”：点击“更新”会锁定数据库（和任何锁定一样，保存它或询问是否保存），放新的 worker 接管，并重新加载页面。如果不点这个按钮，等应用的所有窗口都关闭后，新版本会自行启动。这也是一种取舍：已安装的 PWA 运行的是最近一次部署放在那里的版本，而下载的文件则始终是原来的版本。如需一个固定在磁盘上的版本，请从某个发布中获取 `password-manager-<tag>.html`，并用 `SHA256SUMS.txt` 进行核对。
 
-`npm run test:browser` 也会打开 `build/pages/`：service worker 接管页面，Chrome 认定 manifest 可安装，并且在服务器关闭后，页面仍能加载并解锁示例数据库。
+`npm run test:browser` 也会打开 `build/pages/`：service worker 接管页面，Chrome 认定 manifest 可安装，并且在服务器关闭后，页面仍能加载并解锁示例数据库；随后会发现一次新的部署，等待它，并由“更新”放它接管。
 
 ## 目录结构
 
@@ -331,6 +331,7 @@ src/app/              页面：单文件版、PWA 和扩展程序的侧边栏
   ui.ts               对话框、右键菜单、弹出框、提示消息、图标；手机上的底部面板
   screens.ts          手机布局：列表或条目、群组抽屉、返回按钮
   platform.ts         页面在自身之外所做的事：在文件版和 PWA 中什么也不做
+  update.ts           PWA 的更新：注册 sw.js，找到等待中的版本，放它接管
 src/extension/        Chrome 扩展程序
   manifest.json       它的 manifest；构建时添加版本号
   extension.ts        侧边栏的 platform.ts：offscreen 文档、标签页、填充

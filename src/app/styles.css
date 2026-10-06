@@ -282,6 +282,7 @@ button, input, textarea, select {
 .gate-hint { color: var(--faint); margin: 14px 0 0; }
 .gate-error { color: var(--danger); min-height: 1.4em; margin: 12px 0 0; }
 .gate-version { color: var(--faint); font-size: 12px; margin: 20px 0 0; }
+.gate-update { margin-top: 4px; }
 .gate-caps { color: var(--warn); margin: 10px 0 0; font-size: 13px; }
 
 .recent {

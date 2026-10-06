@@ -152,7 +152,8 @@ async function buildPages(html) {
     '<meta name="theme-color" content="#17181c" media="(prefers-color-scheme: dark)">',
     '<meta name="apple-mobile-web-app-capable" content="yes">',
     '<meta name="apple-mobile-web-app-status-bar-style" content="default">',
-    "<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));</script>",
+    // The page registers the worker itself (update.ts): this is how it knows it is the PWA.
+    '<meta name="service-worker" content="sw.js">',
   ].join('\n');
   const page = allowPwa(html).replace('</head>', () => `${head}\n</head>`);
   // A deploy between two releases changes the page, not the version: the hash tells them apart.
@@ -178,7 +179,7 @@ async function buildPages(html) {
 
   await rm(dir, { recursive: true, force: true });
   await mkdir(dir, { recursive: true });
-  const worker = (await readFile(at('src/pwa/sw.js'), 'utf8')).replaceAll('__VERSION__', cache);
+  const worker = (await readFile(at('src/pwa/sw.js'), 'utf8')).replaceAll('__CACHE__', cache).replaceAll('__VERSION__', release.label);
   await Promise.all([
     writeFile(join(dir, 'index.html'), page, 'utf8'),
     writeFile(join(dir, 'sw.js'), worker, 'utf8'),

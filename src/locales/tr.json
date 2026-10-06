@@ -415,5 +415,15 @@
     "Full mode": "Tam mod",
     "Search finds an entry to copy from.": "Kopyalamak için arayarak bir girdi bulun.",
     "Open the database in full mode once: then it unlocks here with the master password alone.": "Veritabanını bir kez tam modda açın: sonra burada yalnızca ana parolayla açılır."
+  },
+  "update": {
+    "Check for updates": "Güncellemeleri kontrol et",
+    "Checking for updates…": "Güncellemeler kontrol ediliyor…",
+    "This is the latest version.": "Bu en güncel sürüm.",
+    "No connection: could not check for updates.": "Bağlantı yok: güncellemeler kontrol edilemedi.",
+    "Version {version} is ready.": "Sürüm {version} hazır.",
+    "A new version is ready.": "Yeni bir sürüm hazır.",
+    "Update": "Güncelle",
+    "It also starts by itself the next time the app is opened.": "O da uygulamanın bir sonraki açılışında kendiliğinden başlar."
   }
 }

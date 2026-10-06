@@ -76,6 +76,7 @@ import {
   unlockLabel,
   type RememberWith,
 } from './remember';
+import { applyUpdate, canUpdate, checkForUpdate, startUpdates, updateState, type UpdateState } from './update';
 import { back, bindScreens, closeDrawer, hideDetails, isDrawerOpen, isNarrow, isTouch, showDetails, toggleDrawer } from './screens';
 import { matches, sortEntries, SORT_KEYS, sortLabel } from './search';
 import {
@@ -1031,9 +1032,74 @@ function openSettings(anchor: HTMLElement): void {
     }),
     h('label', { class: 'settings-row settings-row--check' }, legacy, h('span', { text: t('settings', 'Show legacy password algorithms') })),
     h('p', { class: 'settings-note', text: t('settings', 'The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.') }),
-    h('p', { class: 'settings-note settings-version', text: t('settings', 'Version {version}', { version: __APP_VERSION__ }) }),
+    versionLine(),
   );
   popover(anchor, panel);
+}
+
+/** The version, and in the installed app what is known of a newer one. */
+function versionLine(): HTMLElement {
+  const line = h('p', { class: 'settings-note settings-version', 'data-setting': 'update' });
+  // What the last check found is old news by the time the settings open again: they offer another.
+  const state = updateState();
+  showVersionLine(line, state.kind === 'checking' || state.kind === 'ready' ? state : { kind: 'idle' });
+  return line;
+}
+
+function showVersionLine(line: HTMLElement, state: UpdateState): void {
+  const version = t('settings', 'Version {version}', { version: __APP_VERSION__ });
+  if (!canUpdate()) {
+    line.textContent = version;
+    return;
+  }
+  const check = h('button', { type: 'button', class: 'link-button', text: t('update', 'Check for updates') });
+  check.addEventListener('click', () => void checkForUpdate());
+  let note: (Node | string)[];
+  switch (state.kind) {
+    case 'idle':
+      note = [check];
+      break;
+    case 'checking':
+      note = [t('update', 'Checking for updates…')];
+      break;
+    case 'latest':
+      note = [t('update', 'This is the latest version.')];
+      break;
+    case 'offline':
+      note = [t('update', 'No connection: could not check for updates.'), ' ', check];
+      break;
+    case 'ready':
+      note = [...updateReady(state.version), ' ', t('update', 'It also starts by itself the next time the app is opened.')];
+      break;
+  }
+  line.replaceChildren(version, ' · ', ...note);
+}
+
+/** "Version 1.2.3 is ready. Update", for the settings and the gate. */
+function updateReady(version: string | null): (Node | string)[] {
+  const button = h('button', { type: 'button', class: 'link-button', text: t('update', 'Update') });
+  button.addEventListener('click', () => void update());
+  return [version ? t('update', 'Version {version} is ready.', { version }) : t('update', 'A new version is ready.'), ' ', button];
+}
+
+/** The new version comes up locked: the database is locked first, saved or let go as on any lock. */
+async function update(): Promise<void> {
+  if (db) {
+    await lock();
+    if (db) return;
+  }
+  // The gate is not to be used in the moment before the reload, nor the clipboard left unwiped.
+  gate.inert = true;
+  await clearClipboard();
+  applyUpdate();
+}
+
+function showUpdate(state: UpdateState): void {
+  const onGate = el('gate-update');
+  onGate.hidden = state.kind !== 'ready';
+  if (state.kind === 'ready') onGate.replaceChildren(...updateReady(state.version));
+  const line = document.querySelector<HTMLElement>('[data-setting="update"]');
+  if (line) showVersionLine(line, state);
 }
 
 /** How a remembered database is unlocked, where this page can remember one at all. */
@@ -1141,6 +1207,7 @@ function applyLanguage(): void {
       : isTouch()
         ? t('gate', 'On this device the file opens read-only: Save downloads an updated copy of the database.')
         : t('gate', 'This browser opens the file read-only: Save downloads an updated copy of the database. Chrome, Edge and Arc save changes straight back into the file.');
+  showUpdate(updateState());
 }
 
 function setTheme(theme: Theme): void {
@@ -1565,6 +1632,7 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
 
 applyLanguage();
 applyTheme(settings.theme);
+startUpdates(showUpdate);
 applyPanels(settings);
 platform.settings(settings);
 platform.start({

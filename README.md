@@ -492,8 +492,8 @@ Node (`crypto`, `@xmldom/xmldom`) are replaced with empty stubs — a browser ha
 and `DOMParser`. The result is `build/password-manager.html`, around 500 KB, a quarter of it the dictionaries.
 
 The same run writes `build/pages/`: that page as an installable PWA — `index.html` with a
-manifest link and a service worker registration, `manifest.webmanifest`, the icons and
-`sw.js`, which caches the page so it opens offline. `build/password-manager.html` itself
+manifest link and a `<meta name="service-worker">` that tells the page to register its worker,
+`manifest.webmanifest`, the icons and `sw.js`, which caches the page so it opens offline. `build/password-manager.html` itself
 stays a single file with no external references.
 
 And `build/extension/`: `panel.html` is the template with its script in `panel.js` — the same
@@ -544,15 +544,19 @@ The release workflow stops if the tag and `package.json` disagree, then attaches
 single file; the recent files, settings and remembered handles belong to that address, apart
 from those of a copy opened from disk.
 
-Each deploy changes the cache name in `sw.js`, so the browser picks up the new version by
-itself; an open window switches to it on its next reload. That is also the trade-off: an
-installed PWA runs whatever the last deploy put there, while a downloaded file stays the
-version it is. For a version fixed on disk, take `password-manager-<tag>.html` from a
+Each deploy changes the cache name in `sw.js`, so the browser picks up the new worker by
+itself — on a launch with a connection, or when Settings → Check for updates asks. The new
+worker downloads its version into a cache of its own and waits; the running one keeps serving
+the old page, offline too. The settings and the unlock screen then say "Version … is ready.
+Update": Update locks the database (saving it, or asking, as any lock does), lets the new
+worker in and reloads the page. Without the button the new version starts once every window
+of the app has been closed. That is also the trade-off: an installed PWA runs whatever the
+last deploy put there, while a downloaded file stays the version it is. For a version fixed on disk, take `password-manager-<tag>.html` from a
 release and compare it with `SHA256SUMS.txt`.
 
 `npm run test:browser` opens `build/pages/` as well: the service worker takes the page over,
 Chrome finds the manifest installable, and with the server gone the page still loads and
-unlocks the sample database.
+unlocks the sample database; then a new deploy is found, waits, and Update lets it in.
 
 ## Layout
 
@@ -582,6 +586,7 @@ src/app/              the page: the single file, the PWA and the extension's sid
   ui.ts               dialogs, context menu, popovers, toasts, icons; sheets on a phone
   screens.ts          the phone layout: the list or the entry, the group drawer, the back button
   platform.ts         what the page does beyond itself: nothing, in the file and the PWA
+  update.ts           the PWA's updates: registers sw.js, finds a waiting version, lets it in
 src/extension/        the Chrome extension
   manifest.json       its manifest; the build adds the version
   extension.ts        platform.ts of the side panel: the offscreen document, the tab, Fill

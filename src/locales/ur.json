@@ -415,5 +415,15 @@
     "Full mode": "مکمل موڈ",
     "Search finds an entry to copy from.": "تلاش سے وہ اندراج ملتا ہے جس سے کاپی کرنا ہو۔",
     "Open the database in full mode once: then it unlocks here with the master password alone.": "ڈیٹا بیس کو ایک بار مکمل موڈ میں کھولیں: پھر یہ یہاں صرف ماسٹر پاس ورڈ سے کھل جائے گا۔"
+  },
+  "update": {
+    "Check for updates": "اپڈیٹس کے لیے چیک کریں",
+    "Checking for updates…": "اپڈیٹس کے لیے چیک ہو رہا ہے…",
+    "This is the latest version.": "یہ تازہ ترین ورژن ہے۔",
+    "No connection: could not check for updates.": "کوئی کنکشن نہیں: اپڈیٹس کے لیے چیک نہیں ہو سکا۔",
+    "Version {version} is ready.": "ورژن {version} تیار ہے۔",
+    "A new version is ready.": "نیا ورژن تیار ہے۔",
+    "Update": "اپڈیٹ کریں",
+    "It also starts by itself the next time the app is opened.": "ایپ اگلی بار کھلنے پر یہ خود بخود بھی شروع ہو جائے گا۔"
   }
 }

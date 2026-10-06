@@ -8,6 +8,7 @@ import { t } from '../core/i18n';
 
 let clearTimer = 0;
 let pending = false;
+let wiping: Promise<void> = Promise.resolve();
 
 export async function copyText(value: string, clearAfterSeconds: number): Promise<void> {
   await write(value);
@@ -16,12 +17,18 @@ export async function copyText(value: string, clearAfterSeconds: number): Promis
   if (pending) clearTimer = window.setTimeout(() => void clearClipboard(), clearAfterSeconds * 1000);
 }
 
-/** Wipes the clipboard if a secret copied from here may still be on it. */
-export async function clearClipboard(): Promise<void> {
+/**
+ * Wipes the clipboard if a secret copied from here may still be on it. A second
+ * call waits for the wipe the first one started: the page about to reload for an
+ * update must not go before it is done.
+ */
+export function clearClipboard(): Promise<void> {
   window.clearTimeout(clearTimer);
-  if (!pending) return;
-  pending = false;
-  await write('').catch(() => undefined);
+  if (pending) {
+    pending = false;
+    wiping = write('').catch(() => undefined);
+  }
+  return wiping;
 }
 
 async function write(value: string): Promise<void> {

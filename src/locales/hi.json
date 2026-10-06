@@ -415,5 +415,15 @@
     "Full mode": "पूर्ण मोड",
     "Search finds an entry to copy from.": "खोज से वह प्रविष्टि मिलती है जिससे कॉपी करना है।",
     "Open the database in full mode once: then it unlocks here with the master password alone.": "डेटाबेस को एक बार पूर्ण मोड में खोलें: फिर यह यहाँ केवल मास्टर पासवर्ड से खुल जाता है।"
+  },
+  "update": {
+    "Check for updates": "अपडेट जाँचें",
+    "Checking for updates…": "अपडेट की जाँच हो रही है…",
+    "This is the latest version.": "यह नवीनतम संस्करण है।",
+    "No connection: could not check for updates.": "इंटरनेट कनेक्शन नहीं: अपडेट की जाँच नहीं हो सकी।",
+    "Version {version} is ready.": "संस्करण {version} तैयार है।",
+    "A new version is ready.": "नया संस्करण तैयार है।",
+    "Update": "अपडेट करें",
+    "It also starts by itself the next time the app is opened.": "अगली बार ऐप खोलने पर यह अपने आप भी शुरू हो जाएगा।"
   }
 }

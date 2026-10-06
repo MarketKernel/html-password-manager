@@ -543,7 +543,8 @@ l’icône (une data URI), dans `src/app/template.html`. Les solutions de repli 
 `crypto.subtle` et de `DOMParser`. Le résultat est `build/password-manager.html`, environ 500 Ko, dont un quart pour les dictionnaires.
 
 La même exécution écrit `build/pages/` : cette page en PWA installable — `index.html` avec un
-lien vers le manifeste et l’enregistrement d’un service worker, `manifest.webmanifest`, les icônes
+lien vers le manifeste et un `<meta name="service-worker">` qui indique à la page d’enregistrer
+son service worker, `manifest.webmanifest`, les icônes
 et `sw.js`, qui met la page en cache pour qu’elle s’ouvre hors ligne. `build/password-manager.html`
 lui-même reste un fichier unique, sans aucune référence externe.
 
@@ -598,14 +599,21 @@ que dans le fichier unique ; les fichiers récents, les paramètres et les descr
 appartiennent à cette adresse, séparément de ceux d’une copie ouverte depuis le disque.
 
 Chaque déploiement change le nom du cache dans `sw.js`, si bien que le navigateur récupère de
-lui-même la nouvelle version ; une fenêtre ouverte y passe à son prochain rechargement. C’est
-aussi la contrepartie : une PWA installée exécute ce que le dernier déploiement y a mis, tandis
+lui-même le nouveau service worker — au lancement avec une connexion, ou quand Paramètres →
+Vérifier les mises à jour le demande. Le nouveau service worker télécharge sa version dans un
+cache à lui et attend ; celui en cours continue de servir l’ancienne page, hors ligne aussi.
+Les paramètres et l’écran de déverrouillage disent alors « La version … est prête. Mettre à
+jour » : Mettre à jour verrouille la base (en l’enregistrant, ou en le demandant, comme tout
+verrouillage), laisse entrer le nouveau service worker et recharge la page. Sans le bouton, la
+nouvelle version démarre d’elle-même une fois toutes les fenêtres de l’application fermées.
+C’est aussi la contrepartie : une PWA installée exécute ce que le dernier déploiement y a mis, tandis
 qu’un fichier téléchargé reste à sa version. Pour une version figée sur le disque, prenez
 `password-manager-<tag>.html` dans une release et comparez-le avec `SHA256SUMS.txt`.
 
 `npm run test:browser` ouvre aussi `build/pages/` : le service worker prend la page en charge,
 Chrome trouve le manifeste installable, et une fois le serveur arrêté, la page se charge encore et
-déverrouille la base d’exemple.
+déverrouille la base d’exemple ; puis un nouveau déploiement est trouvé, attend, et Mettre à jour
+le laisse entrer.
 
 ## Structure du projet
 
@@ -635,6 +643,7 @@ src/app/              la page : le fichier unique, la PWA et le panneau latéral
   ui.ts               boîtes de dialogue, menu contextuel, popovers, notifications, icônes ; feuilles sur téléphone
   screens.ts          la disposition pour téléphone : la liste ou l’entrée, le tiroir des groupes, le bouton Retour
   platform.ts         ce que la page fait au-delà d’elle-même : rien, dans le fichier et la PWA
+  update.ts           les mises à jour de la PWA : enregistre sw.js, trouve une version en attente, la laisse entrer
 src/extension/        l’extension Chrome
   manifest.json       son manifeste ; la compilation y ajoute la version
   extension.ts        platform.ts du panneau latéral : le document offscreen, l’onglet, Remplir

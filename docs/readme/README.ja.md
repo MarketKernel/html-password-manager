@@ -275,7 +275,7 @@ npm run shots -- shots/after  # ビルドしてから主な画面のスクリー
 
 `build.mjs` は esbuild で `src/app/main.ts` を IIFE にバンドルし、スタイルとアイコン (data URI) とともに `src/app/template.html` に埋め込みます。kdbxweb の Node 向けフォールバック (`crypto`、`@xmldom/xmldom`) は空のスタブに置き換えられます。ブラウザには `crypto.subtle` と `DOMParser` があるからです。出力は `build/password-manager.html` で、約 500 KB、そのうち 4 分の 1 が辞書です。
 
-同じ実行で `build/pages/` も書き出されます。これはそのページをインストール可能な PWA にしたもので、マニフェストへのリンクとサービスワーカーの登録を含む `index.html`、`manifest.webmanifest`、アイコン、そしてページをキャッシュしてオフラインで開けるようにする `sw.js` からなります。`build/password-manager.html` 自体は、外部参照のない単一ファイルのままです。
+同じ実行で `build/pages/` も書き出されます。これはそのページをインストール可能な PWA にしたもので、マニフェストへのリンクと、ページに自身のワーカーを登録させる `<meta name="service-worker">` を含む `index.html`、`manifest.webmanifest`、アイコン、そしてページをキャッシュしてオフラインで開けるようにする `sw.js` からなります。`build/password-manager.html` 自体は、外部参照のない単一ファイルのままです。
 
 さらに `build/extension/` も書き出されます。`panel.html` は、スクリプトを `panel.js` に分けたテンプレートです。中身は同じ `src/app/main.ts` ですが、`src/app/platform.ts` の代わりに `src/extension/extension.ts` が使われます (`src/app/platform.ts` のフックはファイル版では何もしません)。その横に `popup.html` (ページのスタイルと `popup.css` を含みます) と `popup.js`、`background.js`、`offscreen.html` と `offscreen.js`、アイコン、そして `package.json` のバージョンを持つ `manifest.json` が並びます。`build/password-manager-extension-<version>.zip` には同じファイルが日付を固定して収められているので、同じソースからは同じバイト列が得られます。
 
@@ -298,9 +298,9 @@ git push --follow-tags      # タグによって .github/workflows/release.yml �
 
 `.github/workflows/pages.yml` は、`main` へのプッシュごとにビルドとテストを行い、`build/pages/` を GitHub Pages (Settings → Pages → Source: GitHub Actions) にデプロイします。公開先は <https://password.marketkernel.com/> です。ファイルは単一ファイル版と同じ方法で開きます。最近使ったファイル、設定、記憶されたハンドルはそのアドレスに属し、ディスクから開いたコピーのものとは別になります。
 
-デプロイのたびに `sw.js` 内のキャッシュ名が変わるので、ブラウザは新しいバージョンを自動的に取得します。開いているウィンドウは、次に再読み込みしたときに新しいバージョンに切り替わります。これはトレードオフでもあります。インストールした PWA は最後のデプロイの内容で動作しますが、ダウンロードしたファイルはそのバージョンのままです。ディスク上でバージョンを固定したい場合は、リリースから `password-manager-<tag>.html` を取得し、`SHA256SUMS.txt` と照合してください。
+デプロイのたびに `sw.js` 内のキャッシュ名が変わるので、ブラウザは新しいワーカーを自動的に取得します — 接続のある状態で起動したときか、設定 →「更新を確認」が求めたときです。新しいワーカーは自分専用のキャッシュにそのバージョンをダウンロードして待機し、実行中のワーカーはオフラインでも古いページを提供し続けます。設定画面とロック解除画面には「バージョン … の準備ができました。更新」と表示されます。「更新」は、データベースをロックし (他のロックと同様に保存するか確認を求めたうえで)、新しいワーカーを迎え入れてページを再読み込みします。ボタンを使わなくても、アプリのすべてのウィンドウが閉じられれば新しいバージョンが始まります。これはトレードオフでもあります。インストールした PWA は最後のデプロイの内容で動作しますが、ダウンロードしたファイルはそのバージョンのままです。ディスク上でバージョンを固定したい場合は、リリースから `password-manager-<tag>.html` を取得し、`SHA256SUMS.txt` と照合してください。
 
-`npm run test:browser` は `build/pages/` も開きます。サービスワーカーがページを制御下に置くこと、Chrome がマニフェストをインストール可能と判断すること、サーバーを止めてもページが読み込まれ、サンプルデータベースのロックを解除できることを確認します。
+`npm run test:browser` は `build/pages/` も開きます。サービスワーカーがページを制御下に置くこと、Chrome がマニフェストをインストール可能と判断すること、サーバーを止めてもページが読み込まれ、サンプルデータベースのロックを解除できることを確認します。続けて、新しいデプロイが見つかって待機し、「更新」がそれを迎え入れることも確認します。
 
 ## ディレクトリ構成
 
@@ -330,6 +330,7 @@ src/app/              ページ: 単一ファイル、PWA、拡張機能のサ�
   ui.ts               ダイアログ、コンテキストメニュー、ポップオーバー、トースト、アイコン; スマートフォンではシート
   screens.ts          スマートフォンのレイアウト: リストかエントリ、グループのドロワー、戻るボタン
   platform.ts         ページが自身の外で行うこと: ファイル版と PWA では何もしない
+  update.ts           PWA の更新: sw.js を登録し、待機中のバージョンを見つけて迎え入れる
 src/extension/        Chrome 拡張機能
   manifest.json       拡張機能のマニフェスト; バージョンはビルドが追加
   extension.ts        サイドパネルの platform.ts: オフスクリーンドキュメント、タブ、入力

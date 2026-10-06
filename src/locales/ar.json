@@ -439,5 +439,15 @@
     "Full mode": "الوضع الكامل",
     "Search finds an entry to copy from.": "يجد البحث إدخالًا للنسخ منه.",
     "Open the database in full mode once: then it unlocks here with the master password alone.": "افتح قاعدة البيانات مرة واحدة في الوضع الكامل: بعدها تُفتح هنا بكلمة المرور الرئيسية وحدها."
+  },
+  "update": {
+    "Check for updates": "التحقق من التحديثات",
+    "Checking for updates…": "جارٍ التحقق من التحديثات…",
+    "This is the latest version.": "هذا هو أحدث إصدار.",
+    "No connection: could not check for updates.": "لا يوجد اتصال: تعذّر التحقق من التحديثات.",
+    "Version {version} is ready.": "الإصدار {version} جاهز.",
+    "A new version is ready.": "إصدار جديد جاهز.",
+    "Update": "تحديث",
+    "It also starts by itself the next time the app is opened.": "سيبدأ أيضًا من تلقاء نفسه في المرة القادمة التي يُفتح فيها التطبيق."
   }
 }

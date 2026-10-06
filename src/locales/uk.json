@@ -427,5 +427,15 @@
     "Full mode": "Повний режим",
     "Search finds an entry to copy from.": "Пошук знайде запис, щоб скопіювати з нього.",
     "Open the database in full mode once: then it unlocks here with the master password alone.": "Один раз відкрийте базу в повному режимі — далі вона відкриватиметься тут лише майстер-паролем."
+  },
+  "update": {
+    "Check for updates": "Перевірити оновлення",
+    "Checking for updates…": "Перевірка оновлень…",
+    "This is the latest version.": "Це остання версія.",
+    "No connection: could not check for updates.": "Немає з’єднання: не вдалося перевірити оновлення.",
+    "Version {version} is ready.": "Версія {version} готова.",
+    "A new version is ready.": "Нова версія готова.",
+    "Update": "Оновити",
+    "It also starts by itself the next time the app is opened.": "Вона також запуститься сама під час наступного відкриття застосунку."
   }
 }

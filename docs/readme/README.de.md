@@ -538,7 +538,8 @@ für Node (`crypto`, `@xmldom/xmldom`) werden durch leere Stubs ersetzt — ein 
 ein Viertel davon die Wörterbücher.
 
 Derselbe Lauf schreibt `build/pages/`: diese Seite als installierbare PWA — `index.html` mit
-einem Manifest-Link und einer Service-Worker-Registrierung, `manifest.webmanifest`, die Symbole
+einem Manifest-Link und einem `<meta name="service-worker">`, das der Seite sagt, ihren Service
+Worker zu registrieren, `manifest.webmanifest`, die Symbole
 und `sw.js`, das die Seite zwischenspeichert, damit sie offline öffnet.
 `build/password-manager.html` selbst bleibt eine einzelne Datei ohne externe Verweise.
 
@@ -593,8 +594,14 @@ auf GitHub Pages bereit (Settings → Pages → Source: GitHub Actions), unter
 Einzeldatei; die zuletzt geöffneten Dateien, die Einstellungen und die gemerkten Handles gehören
 zu dieser Adresse, getrennt von denen einer vom Datenträger geöffneten Kopie.
 
-Jedes Deployment ändert den Cache-Namen in `sw.js`, sodass der Browser die neue Version von
-selbst übernimmt; ein geöffnetes Fenster wechselt beim nächsten Neuladen zu ihr. Das ist zugleich
+Jedes Deployment ändert den Cache-Namen in `sw.js`, sodass der Browser von selbst den neuen
+Service Worker übernimmt — beim Start mit Verbindung, oder wenn Einstellungen → Nach Updates
+suchen danach fragt. Der neue Service Worker lädt seine Version in einen eigenen Cache und
+wartet; der laufende liefert weiterhin die alte Seite, auch offline. Die Einstellungen und der
+Entsperrbildschirm sagen dann „Version … ist bereit. Aktualisieren“: Aktualisieren sperrt die
+Datenbank (speichert sie oder fragt nach, wie jede Sperre), lässt den neuen Service Worker
+hinein und lädt die Seite neu. Ohne die Schaltfläche startet die neue Version von selbst,
+sobald jedes Fenster der App geschlossen wurde. Das ist zugleich
 der Kompromiss: Eine installierte PWA führt aus, was das letzte Deployment dort abgelegt hat,
 während eine heruntergeladene Datei die Version bleibt, die sie ist. Für eine auf dem
 Datenträger fest stehende Version nehmen Sie `password-manager-<tag>.html` aus einem Release und
@@ -602,7 +609,8 @@ vergleichen sie mit `SHA256SUMS.txt`.
 
 `npm run test:browser` öffnet auch `build/pages/`: Der Service Worker übernimmt die Seite, Chrome
 hält das Manifest für installierbar, und ohne Server lädt die Seite trotzdem und entsperrt die
-Beispieldatenbank.
+Beispieldatenbank; danach wird ein neues Deployment gefunden, wartet, und Aktualisieren lässt es
+hinein.
 
 ## Projektstruktur
 
@@ -632,6 +640,7 @@ src/app/              die Seite: die Einzeldatei, die PWA und die Seitenleiste d
   ui.ts               Dialoge, Kontextmenü, Popovers, Toasts, Symbole; Sheets auf dem Smartphone
   screens.ts          das Smartphone-Layout: Liste oder Eintrag, die Gruppenschublade, die Zurück-Taste
   platform.ts         was die Seite über sich hinaus tut: nichts, in der Datei und der PWA
+  update.ts           die Updates der PWA: registriert sw.js, findet eine wartende Version, lässt sie hinein
 src/extension/        die Chrome-Erweiterung
   manifest.json       ihr Manifest; der Build ergänzt die Version
   extension.ts        platform.ts der Seitenleiste: das Offscreen-Dokument, der Tab, Ausfüllen
