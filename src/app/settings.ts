@@ -27,6 +27,8 @@ export interface Settings {
   rememberWith: RememberWith;
   /** Write the file shortly after every change, when it can be written in place. */
   autosave: boolean;
+  /** The installed app lets a new version in by itself while it is locked and out of sight. */
+  autoUpdate: boolean;
   generator: GeneratorOptions;
   /** The kind of password the generator opens with. */
   generatorKind: GeneratorKind;
@@ -56,6 +58,7 @@ const DEFAULTS: Settings = {
   clipboardSeconds: 30,
   rememberWith: 'system',
   autosave: true,
+  autoUpdate: false,
   generator: { ...GENERATOR_DEFAULTS },
   generatorKind: 'v3',
   showLegacy: false,

@@ -43,8 +43,10 @@ to disk, and the master password never leaves the page. The same page is also a
 as a PWA (Progressive Web App): it can be installed into the system and then runs as a
 separate app, with its own window and icon, and works offline. On a computer, in Chrome,
 Edge and Arc, use the install button in the address bar; on Android, Chrome's ⋮ menu →
-Install app; on iOS, Share → Add to Home Screen, in Safari or in Chrome. The database stays
-on your disk there too — see "[GitHub Pages](#github-pages)".
+Install app; on iOS, Share → Add to Home Screen, in Safari or in Chrome. Installed in Chrome
+or Edge on a computer, it also opens a `.kdbx` from the Finder or Explorer (Open With) and
+saves straight back into it. The database stays on your disk there too — see
+"[GitHub Pages](#github-pages)".
 
 ![html-password-manager: groups, entries and an entry being edited](docs/password-manager.jpg)
 
@@ -545,18 +547,31 @@ single file; the recent files, settings and remembered handles belong to that ad
 from those of a copy opened from disk.
 
 Each deploy changes the cache name in `sw.js`, so the browser picks up the new worker by
-itself — on a launch with a connection, or when Settings → Check for updates asks. The new
-worker downloads its version into a cache of its own and waits; the running one keeps serving
-the old page, offline too. The settings and the unlock screen then say "Version … is ready.
-Update": Update locks the database (saving it, or asking, as any lock does), lets the new
-worker in and reloads the page. Without the button the new version starts once every window
-of the app has been closed. That is also the trade-off: an installed PWA runs whatever the
+itself — on a launch with a connection, every few hours while the app stays open, or when
+Settings → Check for updates asks. The new worker downloads its version into a cache of its
+own and waits; the running one keeps serving the old page, offline too. The settings, with a
+dot on their button, and the unlock screen then say "Version … is ready. Update": Update
+locks the database (saving it, or asking, as any lock does), lets the new worker in and
+reloads the page, which says once that it has been updated. Without the button the new
+version starts once every window of the app has been closed — or, with "Install updates by
+themselves when the app is locked and in the background" ticked in the settings, as soon as
+no database is open and the window is out of sight. That is also the trade-off: an installed PWA runs whatever the
 last deploy put there, while a downloaded file stays the version it is. For a version fixed on disk, take `password-manager-<tag>.html` from a
 release and compare it with `SHA256SUMS.txt`.
 
+The manifest names `.kdbx` as a file the app opens (`file_handlers`) and keeps it to one
+window (`launch_handler`, `focus-existing`): a file opened from the system comes to the window
+already open — two windows on one file would overwrite each other's saves — and locks the
+database there first if it is another one. The installed app asks the browser to keep its
+storage (`navigator.storage.persist()`), as remembering a database does anywhere: a disk
+running low could otherwise take the offline copy, the recent files and the remembered
+databases with it.
+
 `npm run test:browser` opens `build/pages/` as well: the service worker takes the page over,
 Chrome finds the manifest installable, and with the server gone the page still loads and
-unlocks the sample database; then a new deploy is found, waits, and Update lets it in.
+unlocks the sample database; then a new deploy is found, waits, and Update lets it in, or
+comes in by itself once the page is hidden. Headless Chrome does not hand files to an app, so
+a stand-in `launchQueue` gives the page a real file handle, which opens writable.
 
 ## Layout
 
@@ -574,7 +589,7 @@ src/app/              the page: the single file, the PWA and the extension's sid
   template.html       markup with the __STYLES__/__APP__/__ICON__ placeholders, the CSP; the extension's panel.html too
   styles.css          palette, light and dark themes, three panes; a phone's one screen at a time
   main.ts             the gate, unlocking, saving, locking, toolbar, shortcuts, settings
-  files.ts            File System Access API, drag-and-drop, file input; recent files
+  files.ts            File System Access API, drag-and-drop, file input; recent files; files the system opens with the app
   groups.ts           the group tree, tags and recycle bin in the left panel
   list.ts             the entry list
   details.ts          one entry: reading, editing on a draft, history, attachments, TOTP
@@ -586,7 +601,7 @@ src/app/              the page: the single file, the PWA and the extension's sid
   ui.ts               dialogs, context menu, popovers, toasts, icons; sheets on a phone
   screens.ts          the phone layout: the list or the entry, the group drawer, the back button
   platform.ts         what the page does beyond itself: nothing, in the file and the PWA
-  update.ts           the PWA's updates: registers sw.js, finds a waiting version, lets it in
+  update.ts           the PWA's updates: registers sw.js, checks now and then, finds a waiting version, lets it in
 src/extension/        the Chrome extension
   manifest.json       its manifest; the build adds the version
   extension.ts        platform.ts of the side panel: the offscreen document, the tab, Fill

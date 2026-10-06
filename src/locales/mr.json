@@ -424,6 +424,8 @@
     "Version {version} is ready.": "आवृत्ती {version} तयार आहे.",
     "A new version is ready.": "नवीन आवृत्ती तयार आहे.",
     "Update": "अद्ययावत करा",
-    "It also starts by itself the next time the app is opened.": "पुढच्या वेळी ॲप उघडताना ती आपोआप सुरू होईल."
+    "It also starts by itself the next time the app is opened.": "पुढच्या वेळी ॲप उघडताना ती आपोआप सुरू होईल.",
+    "Updated to version {version}.": "आवृत्ती {version} मध्ये अद्ययावत केले.",
+    "Install updates by themselves when the app is locked and in the background": "अ‍ॅप लॉक आणि पार्श्वभूमीत असताना अद्ययावत आपोआप इन्स्टॉल करा"
   }
 }

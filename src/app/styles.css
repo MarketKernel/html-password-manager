@@ -159,9 +159,10 @@ button, input, textarea, select {
 }
 .icon-button--small { width: 30px; height: 30px; border-radius: 7px; }
 .icon-button--small svg { width: 17px; height: 17px; }
-/* A dot on the save button while there are unsaved changes. */
+/* A dot on the save button while there are unsaved changes, and on the settings when an update is ready. */
 .icon-button--dirty { position: relative; color: var(--accent); }
-.icon-button--dirty::after {
+.icon-button--badge { position: relative; }
+.icon-button--dirty::after, .icon-button--badge::after {
   content: '';
   position: absolute;
   top: 7px;

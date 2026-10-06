@@ -44,6 +44,8 @@ dalam bentuk PWA (Progressive Web App): dapat dipasang ke sistem lalu berjalan s
 aplikasi terpisah, dengan jendela dan ikonnya sendiri, serta berfungsi secara offline. Di
 komputer, pada Chrome, Edge, dan Arc, gunakan tombol pasang di bilah alamat; di Android, menu ⋮
 Chrome → Instal aplikasi; di iOS, Bagikan → Tambah ke Layar Utama, di Safari maupun di Chrome.
+Saat dipasang di Chrome atau Edge di komputer, aplikasi ini juga membuka `.kdbx` dari Finder
+atau Explorer (Buka Dengan) dan menyimpannya langsung kembali ke sana.
 Di sana pun basis data tetap berada di disk Anda — lihat "[GitHub Pages](#github-pages)".
 
 ![html-password-manager: grup, entri, dan entri yang sedang diedit](../password-manager.jpg)
@@ -576,20 +578,34 @@ di file tunggal; file terbaru, setelan, dan handle yang diingat menjadi milik al
 terpisah dari milik salinan yang dibuka dari disk.
 
 Setiap deploy mengubah nama cache di `sw.js`, sehingga browser mengambil worker baru dengan
-sendirinya — saat dibuka dengan koneksi, atau ketika Setelan → Periksa pembaruan memintanya.
-Worker baru mengunduh versinya ke cache miliknya sendiri dan menunggu; yang sedang berjalan tetap
-melayani halaman lama, termasuk secara offline. Setelan dan layar buka kunci kemudian menampilkan
+sendirinya — saat dibuka dengan koneksi, setiap beberapa jam selama aplikasi tetap terbuka, atau
+ketika Setelan → Periksa pembaruan memintanya. Worker baru mengunduh versinya ke cache miliknya
+sendiri dan menunggu; yang sedang berjalan tetap melayani halaman lama, termasuk secara offline.
+Setelan — dengan sebuah titik pada tombolnya — dan layar buka kunci kemudian menampilkan
 "Versi … sudah siap. Perbarui": Perbarui mengunci basis data (menyimpannya, atau menanyakannya,
-seperti penguncian lainnya), membiarkan worker baru masuk, dan memuat ulang halaman. Tanpa tombol
-ini, versi baru mulai berjalan begitu semua jendela aplikasi ditutup. Itu juga konsekuensinya: PWA
-yang terpasang menjalankan apa pun yang ditaruh oleh deploy terakhir, sedangkan file yang diunduh
-tetap pada versinya. Untuk versi yang tetap di disk, ambil `password-manager-<tag>.html` dari
-sebuah rilis dan bandingkan dengan `SHA256SUMS.txt`.
+seperti penguncian lainnya), membiarkan worker baru masuk, dan memuat ulang halaman, yang
+menyatakan sekali bahwa ia telah diperbarui. Tanpa tombol ini, versi baru mulai berjalan begitu
+semua jendela aplikasi ditutup — atau, jika "Instal pembaruan dengan sendirinya saat aplikasi
+terkunci dan di latar belakang" dicentang di setelan, segera setelah tidak ada basis data yang
+terbuka dan jendela tidak terlihat. Itu juga konsekuensinya: PWA yang terpasang menjalankan apa
+pun yang ditaruh oleh deploy terakhir, sedangkan file yang diunduh tetap pada versinya. Untuk
+versi yang tetap di disk, ambil `password-manager-<tag>.html` dari sebuah rilis dan bandingkan
+dengan `SHA256SUMS.txt`.
+
+Manifes menetapkan `.kdbx` sebagai file yang dibuka aplikasi (`file_handlers`) dan membatasinya
+pada satu jendela (`launch_handler`, `focus-existing`): file yang dibuka dari sistem akan masuk
+ke jendela yang sudah terbuka — dua jendela pada satu file akan saling menimpa penyimpanannya —
+dan di sana mengunci basis data terlebih dahulu jika itu basis data lain. Aplikasi yang terpasang
+meminta browser untuk mempertahankan penyimpanannya (`navigator.storage.persist()`), seperti yang
+dilakukan pengingatan sebuah basis data di mana pun: jika tidak, disk yang kehabisan ruang bisa
+turut mengambil salinan offline, file terbaru, dan basis data yang diingat.
 
 `npm run test:browser` juga membuka `build/pages/`: service worker mengambil alih halaman, Chrome
 menganggap manifest dapat dipasang, dan setelah server dimatikan, halaman tetap dimuat dan membuka
 kunci basis data contoh; lalu sebuah deploy baru ditemukan, menunggu, dan Perbarui membiarkannya
-masuk.
+masuk, atau masuk dengan sendirinya begitu halaman disembunyikan. Chrome headless tidak
+menyerahkan file ke sebuah aplikasi, sehingga sebuah `launchQueue` pengganti memberi halaman
+sebuah handle file sungguhan, yang terbuka dapat ditulis.
 
 ## Struktur
 
@@ -607,7 +623,7 @@ src/app/              halaman: file tunggal, PWA, dan panel samping ekstensi
   template.html       markup dengan placeholder __STYLES__/__APP__/__ICON__, CSP; juga panel.html ekstensi
   styles.css          palet, tema terang dan gelap, tiga panel; satu layar dalam satu waktu di ponsel
   main.ts             layar buka kunci, pembukaan kunci, penyimpanan, penguncian, bilah alat, pintasan, setelan
-  files.ts            File System Access API, seret dan lepas, input file; file terbaru
+  files.ts            File System Access API, seret dan lepas, input file; file terbaru; file yang dibuka sistem dengan aplikasi
   groups.ts           pohon grup, tag, dan tempat sampah di panel kiri
   list.ts             daftar entri
   details.ts          satu entri: tampilan, pengeditan pada draf, riwayat, lampiran, TOTP
@@ -619,7 +635,7 @@ src/app/              halaman: file tunggal, PWA, dan panel samping ekstensi
   ui.ts               dialog, menu konteks, popover, toast, ikon; lembar (sheet) di ponsel
   screens.ts          tata letak ponsel: daftar atau entri, laci grup, tombol kembali
   platform.ts         apa yang dilakukan halaman di luar dirinya: tidak ada, di file dan PWA
-  update.ts           pembaruan PWA: mendaftarkan sw.js, menemukan versi yang menunggu, dan membiarkannya masuk
+  update.ts           pembaruan PWA: mendaftarkan sw.js, memeriksa secara berkala, menemukan versi yang menunggu, dan membiarkannya masuk
 src/extension/        ekstensi Chrome
   manifest.json       manifest-nya; build menambahkan versi
   extension.ts        platform.ts untuk panel samping: dokumen offscreen, tab, Isi

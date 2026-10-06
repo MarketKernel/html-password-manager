@@ -251,6 +251,21 @@ export async function remember(name: string, way: RememberWith, password: string
   if (!allowedHere()) throw new RememberError('unsupported');
   const record = way === 'device' ? await sealOnDevice(name, password) : way === 'keychain' ? await sealInKeychain(name, password) : await sealWithPasskey(name, way, password);
   await withStore('readwrite', (store) => store.put(record));
+  keepStorage();
+}
+
+/**
+ * Asks the browser to keep this origin's storage when the disk runs low: the
+ * remembered databases, the recent files and the installed app's offline copy
+ * would go otherwise. Chrome answers by itself (yes for an installed app);
+ * Firefox asks the user, so this is called after a user's action or in the
+ * app's own window only.
+ */
+export function keepStorage(): void {
+  void navigator.storage
+    ?.persisted?.()
+    .then((kept) => kept || navigator.storage.persist())
+    .catch(() => undefined);
 }
 
 /** The remembered password, after the passkey's prompt where there is one; NotAllowedError when it is cancelled. */

@@ -424,6 +424,8 @@
     "Version {version} is ready.": "সংস্করণ {version} প্রস্তুত।",
     "A new version is ready.": "একটি নতুন সংস্করণ প্রস্তুত।",
     "Update": "হালনাগাদ করুন",
-    "It also starts by itself the next time the app is opened.": "পরের বার অ্যাপ খোলার সময় এটি নিজে থেকেও চালু হয়ে যাবে।"
+    "It also starts by itself the next time the app is opened.": "পরের বার অ্যাপ খোলার সময় এটি নিজে থেকেও চালু হয়ে যাবে।",
+    "Updated to version {version}.": "সংস্করণ {version}-এ হালনাগাদ করা হয়েছে।",
+    "Install updates by themselves when the app is locked and in the background": "অ্যাপ লক ও ব্যাকগ্রাউন্ডে থাকলে হালনাগাদ নিজে থেকে ইনস্টল করুন"
   }
 }

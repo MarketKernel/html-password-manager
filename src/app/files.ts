@@ -51,6 +51,9 @@ declare global {
   interface DataTransferItem {
     getAsFileSystemHandle?(): Promise<FileHandleLike | { kind: 'directory' } | null>;
   }
+  interface Window {
+    launchQueue?: { setConsumer(consumer: (params: { readonly files: readonly (FileHandleLike | { kind: 'directory' })[] }) => void): void };
+  }
 }
 
 const kdbxType = (): PickerType => ({
@@ -163,6 +166,18 @@ export async function pickSaveTarget(suggestedName: string): Promise<HandleFile 
     if (isAbort(error)) return null;
     throw error;
   }
+}
+
+/**
+ * A .kdbx the system opened with the installed app (the manifest's
+ * file_handlers): Chrome hands it to this consumer, in the window already open
+ * too, as the manifest's launch_handler asks. A handle, so saving writes in place.
+ */
+export function onLaunchedFile(open: (file: HandleFile) => void): void {
+  window.launchQueue?.setConsumer((params) => {
+    const handle = params.files.find((item): item is FileHandleLike => item.kind === 'file');
+    if (handle) open(new HandleFile(handle));
+  });
 }
 
 export async function fileFromDrop(transfer: DataTransfer): Promise<DbFile | null> {

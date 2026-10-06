@@ -167,6 +167,10 @@ async function buildPages(html) {
     start_url: './',
     scope: './',
     display: 'standalone',
+    // A .kdbx opens in the app from the Finder or Explorer (Chrome and Edge on a computer), in its
+    // window when one is open: a second window on the same file would overwrite the first one's saves.
+    file_handlers: [{ action: './', accept: { 'application/x-keepass2': ['.kdbx'] } }],
+    launch_handler: { client_mode: 'focus-existing' },
     background_color: '#fbfbfa',
     theme_color: '#6c4ee6',
     icons: [

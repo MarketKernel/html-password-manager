@@ -418,6 +418,8 @@
     "Version {version} is ready.": "バージョン {version} の準備ができました。",
     "A new version is ready.": "新しいバージョンの準備ができました。",
     "Update": "更新",
-    "It also starts by itself the next time the app is opened.": "次回アプリを開いたときにも自動的に起動します。"
+    "It also starts by itself the next time the app is opened.": "次回アプリを開いたときにも自動的に起動します。",
+    "Updated to version {version}.": "バージョン {version} に更新されました。",
+    "Install updates by themselves when the app is locked and in the background": "アプリがロックされてバックグラウンドにあるとき、更新を自動でインストール"
   }
 }

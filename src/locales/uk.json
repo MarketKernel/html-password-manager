@@ -436,6 +436,8 @@
     "Version {version} is ready.": "Версія {version} готова.",
     "A new version is ready.": "Нова версія готова.",
     "Update": "Оновити",
-    "It also starts by itself the next time the app is opened.": "Вона також запуститься сама під час наступного відкриття застосунку."
+    "It also starts by itself the next time the app is opened.": "Вона також запуститься сама під час наступного відкриття застосунку.",
+    "Updated to version {version}.": "Оновлено до версії {version}.",
+    "Install updates by themselves when the app is locked and in the background": "Оновлюватися автоматично, коли застосунок заблокований і у фоновому режимі"
   }
 }

@@ -45,7 +45,9 @@ como PWA (Progressive Web App). Se puede instalar en el sistema y entonces funci
 aplicación aparte, con su propia ventana y su propio icono, y también sin conexión. En un ordenador,
 en Chrome, Edge y Arc, usa el botón de instalación de la barra de direcciones; en Android, el menú ⋮
 de Chrome → Instalar aplicación; en iOS, Compartir → Añadir a pantalla de inicio, en Safari o en
-Chrome. También ahí la base de datos se queda en tu disco; consulta «[GitHub Pages](#github-pages)».
+Chrome. Instalada en Chrome o Edge en un ordenador, también abre un `.kdbx` desde el Finder o el
+Explorador (Abrir con) y guarda los cambios directamente en él. También ahí la base de datos se
+queda en tu disco; consulta «[GitHub Pages](#github-pages)».
 
 ![html-password-manager: grupos, entradas y una entrada en edición](../password-manager.jpg)
 
@@ -563,19 +565,34 @@ Pages (Settings → Pages → Source: GitHub Actions), en
 separados de los de una copia abierta desde el disco.
 
 Cada despliegue cambia el nombre de la caché en `sw.js`, así que el navegador recoge el nuevo
-worker por sí solo: al iniciar con conexión, o cuando Ajustes → Buscar actualizaciones lo pide.
-El nuevo worker descarga su versión en una caché propia y espera; el que está en marcha sigue
-sirviendo la página anterior, también sin conexión. Los ajustes y la pantalla de desbloqueo dicen
-entonces «La versión … está lista. Actualizar»: Actualizar bloquea la base de datos (guardándola,
-o preguntando, como cualquier bloqueo), deja entrar al nuevo worker y recarga la página. Sin el
-botón, la nueva versión arranca en cuanto se cierran todas las ventanas de la app. Esa es también
-la contrapartida: una PWA instalada ejecuta lo que haya puesto allí el último despliegue, mientras
-que un archivo descargado sigue siendo la versión que es. Para tener una versión fija en el disco,
-toma `password-manager-<tag>.html` de una versión publicada y compáralo con `SHA256SUMS.txt`.
+worker por sí solo: al iniciar con conexión, cada pocas horas mientras la app sigue abierta, o
+cuando Ajustes → Buscar actualizaciones lo pide. El nuevo worker descarga su versión en una caché
+propia y espera; el que está en marcha sigue sirviendo la página anterior, también sin conexión.
+Los ajustes —con un punto en su botón— y la pantalla de desbloqueo dicen entonces «La versión …
+está lista. Actualizar»: Actualizar bloquea la base de datos (guardándola, o preguntando, como
+cualquier bloqueo), deja entrar al nuevo worker y recarga la página, que avisa una vez de que se
+ha actualizado. Sin el botón, la nueva versión arranca en cuanto se cierran todas las ventanas de
+la app, o bien, con «Instalar las actualizaciones automáticamente cuando la app esté bloqueada y
+en segundo plano» marcada en los ajustes, en cuanto no haya ninguna base de datos abierta y la
+ventana esté fuera de la vista. Esa es también la contrapartida: una PWA instalada ejecuta lo que
+haya puesto allí el último despliegue, mientras que un archivo descargado sigue siendo la versión
+que es. Para tener una versión fija en el disco, toma `password-manager-<tag>.html` de una
+versión publicada y compáralo con `SHA256SUMS.txt`.
+
+El manifiesto declara `.kdbx` como un archivo que la app abre (`file_handlers`) y lo limita a una
+sola ventana (`launch_handler`, `focus-existing`): un archivo abierto desde el sistema llega a la
+ventana ya abierta —dos ventanas con el mismo archivo se sobrescribirían los guardados entre
+sí— y allí bloquea antes la base de datos si es otra. La app instalada pide al navegador que
+conserve su almacenamiento (`navigator.storage.persist()`), igual que hace recordar una base de
+datos en cualquier sitio: de lo contrario, un disco que se queda sin espacio podría llevarse con
+él la copia sin conexión, los archivos recientes y las bases de datos recordadas.
 
 `npm run test:browser` abre también `build/pages/`: el service worker se hace cargo de la página,
 Chrome considera instalable el manifiesto y, sin el servidor, la página sigue cargando y desbloquea la
-base de datos de ejemplo; luego se encuentra un nuevo despliegue, espera, y Actualizar lo deja entrar.
+base de datos de ejemplo; luego se encuentra un nuevo despliegue, espera, y Actualizar lo deja
+entrar, o entra por sí solo en cuanto la página queda oculta. Chrome en modo headless no entrega
+archivos a una app, así que un `launchQueue` sustituto le da a la página un identificador de
+archivo real, que se abre con permiso de escritura.
 
 ## Estructura
 
@@ -593,7 +610,7 @@ src/app/              la página: el archivo único, la PWA y el panel lateral d
   template.html       marcado con los marcadores __STYLES__/__APP__/__ICON__, la CSP; también el panel.html de la extensión
   styles.css          paleta, temas claro y oscuro, tres paneles; en un teléfono, una pantalla a la vez
   main.ts             la pantalla de entrada, desbloqueo, guardado, bloqueo, barra de herramientas, atajos, ajustes
-  files.ts            File System Access API, arrastrar y soltar, selector de archivos; archivos recientes
+  files.ts            File System Access API, arrastrar y soltar, selector de archivos; archivos recientes; archivos que el sistema abre con la app
   groups.ts           el árbol de grupos, las etiquetas y la papelera de reciclaje en el panel izquierdo
   list.ts             la lista de entradas
   details.ts          una entrada: lectura, edición sobre un borrador, historial, adjuntos, TOTP
@@ -605,7 +622,7 @@ src/app/              la página: el archivo único, la PWA y el panel lateral d
   ui.ts               cuadros de diálogo, menú contextual, ventanas emergentes, avisos, iconos; hojas en un teléfono
   screens.ts          el diseño de teléfono: la lista o la entrada, el cajón de grupos, el botón Atrás
   platform.ts         lo que la página hace más allá de sí misma: nada, en el archivo y en la PWA
-  update.ts           las actualizaciones de la PWA: registra sw.js, encuentra una versión en espera y la deja entrar
+  update.ts           las actualizaciones de la PWA: registra sw.js, comprueba de vez en cuando, encuentra una versión en espera y la deja entrar
 src/extension/        la extensión para Chrome
   manifest.json       su manifiesto; la compilación añade la versión
   extension.ts        platform.ts del panel lateral: el documento offscreen, la pestaña, Rellenar

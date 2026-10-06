@@ -47,7 +47,9 @@ en PWA (Progressive Web App) : elle peut être installée dans le système et fo
 une application à part, avec sa propre fenêtre et sa propre icône, même hors ligne. Sur un
 ordinateur, dans Chrome, Edge et Arc, utilisez le bouton d’installation de la barre d’adresse ;
 sur Android, menu ⋮ de Chrome → Installer l’application ; sur iOS, Partager → Sur l’écran
-d’accueil, dans Safari ou dans Chrome. Là aussi, la base de données reste sur votre disque — voir
+d’accueil, dans Safari ou dans Chrome. Installée dans Chrome ou Edge sur un ordinateur, elle
+ouvre aussi un `.kdbx` depuis le Finder ou l’Explorateur (Ouvrir avec) et enregistre directement
+dedans. Là aussi, la base de données reste sur votre disque — voir
 « [GitHub Pages](#github-pages) ».
 
 ![html-password-manager : groupes, entrées et une entrée en cours de modification](../password-manager.jpg)
@@ -599,21 +601,36 @@ que dans le fichier unique ; les fichiers récents, les paramètres et les descr
 appartiennent à cette adresse, séparément de ceux d’une copie ouverte depuis le disque.
 
 Chaque déploiement change le nom du cache dans `sw.js`, si bien que le navigateur récupère de
-lui-même le nouveau service worker — au lancement avec une connexion, ou quand Paramètres →
-Vérifier les mises à jour le demande. Le nouveau service worker télécharge sa version dans un
-cache à lui et attend ; celui en cours continue de servir l’ancienne page, hors ligne aussi.
-Les paramètres et l’écran de déverrouillage disent alors « La version … est prête. Mettre à
-jour » : Mettre à jour verrouille la base (en l’enregistrant, ou en le demandant, comme tout
-verrouillage), laisse entrer le nouveau service worker et recharge la page. Sans le bouton, la
-nouvelle version démarre d’elle-même une fois toutes les fenêtres de l’application fermées.
-C’est aussi la contrepartie : une PWA installée exécute ce que le dernier déploiement y a mis, tandis
-qu’un fichier téléchargé reste à sa version. Pour une version figée sur le disque, prenez
+lui-même le nouveau service worker — au lancement avec une connexion, toutes les quelques heures
+tant que l’application reste ouverte, ou quand Paramètres → Vérifier les mises à jour le demande.
+Le nouveau service worker télécharge sa version dans un cache à lui et attend ; celui en cours
+continue de servir l’ancienne page, hors ligne aussi. Les paramètres — avec un point sur leur
+bouton — et l’écran de déverrouillage disent alors « La version … est prête. Mettre à jour » :
+Mettre à jour verrouille la base (en l’enregistrant, ou en le demandant, comme tout
+verrouillage), laisse entrer le nouveau service worker et recharge la page, qui annonce une fois
+qu’elle a été mise à jour. Sans le bouton, la nouvelle version démarre d’elle-même une fois
+toutes les fenêtres de l’application fermées — ou, avec « Installer les mises à jour
+automatiquement quand l’application est verrouillée et en arrière-plan » coché dans les
+paramètres, dès qu’aucune base n’est ouverte et que la fenêtre est hors de vue. C’est aussi la
+contrepartie : une PWA installée exécute ce que le dernier déploiement y a mis, tandis qu’un
+fichier téléchargé reste à sa version. Pour une version figée sur le disque, prenez
 `password-manager-<tag>.html` dans une release et comparez-le avec `SHA256SUMS.txt`.
+
+Le manifeste déclare `.kdbx` comme un fichier que l’application ouvre (`file_handlers`) et le
+restreint à une seule fenêtre (`launch_handler`, `focus-existing`) : un fichier ouvert depuis le
+système arrive dans la fenêtre déjà ouverte — deux fenêtres sur un même fichier écraseraient
+l’une les enregistrements de l’autre — et y verrouille d’abord la base si c’en est une autre.
+L’application installée demande au navigateur de conserver son stockage
+(`navigator.storage.persist()`), comme le fait la mémorisation d’une base n’importe où : sinon,
+un disque qui vient à manquer de place pourrait emporter avec lui la copie hors ligne, les
+fichiers récents et les bases mémorisées.
 
 `npm run test:browser` ouvre aussi `build/pages/` : le service worker prend la page en charge,
 Chrome trouve le manifeste installable, et une fois le serveur arrêté, la page se charge encore et
 déverrouille la base d’exemple ; puis un nouveau déploiement est trouvé, attend, et Mettre à jour
-le laisse entrer.
+le laisse entrer, ou entre de lui-même une fois la page masquée. Chrome en mode headless ne remet
+pas de fichiers à une application, si bien qu’un `launchQueue` de remplacement donne à la page un
+véritable descripteur de fichier, qui s’ouvre en écriture.
 
 ## Structure du projet
 
@@ -631,7 +648,7 @@ src/app/              la page : le fichier unique, la PWA et le panneau latéral
   template.html       balisage avec les placeholders __STYLES__/__APP__/__ICON__, la CSP ; aussi le panel.html de l’extension
   styles.css          palette, thèmes clair et sombre, trois volets ; un seul écran à la fois sur téléphone
   main.ts             l’écran d’ouverture, déverrouillage, enregistrement, verrouillage, barre d’outils, raccourcis, paramètres
-  files.ts            File System Access API, glisser-déposer, sélecteur de fichier ; fichiers récents
+  files.ts            File System Access API, glisser-déposer, sélecteur de fichier ; fichiers récents ; fichiers ouverts par le système avec l’application
   groups.ts           l’arborescence des groupes, les étiquettes et la corbeille dans le panneau de gauche
   list.ts             la liste des entrées
   details.ts          une entrée : lecture, modification sur brouillon, historique, pièces jointes, TOTP
@@ -643,7 +660,7 @@ src/app/              la page : le fichier unique, la PWA et le panneau latéral
   ui.ts               boîtes de dialogue, menu contextuel, popovers, notifications, icônes ; feuilles sur téléphone
   screens.ts          la disposition pour téléphone : la liste ou l’entrée, le tiroir des groupes, le bouton Retour
   platform.ts         ce que la page fait au-delà d’elle-même : rien, dans le fichier et la PWA
-  update.ts           les mises à jour de la PWA : enregistre sw.js, trouve une version en attente, la laisse entrer
+  update.ts           les mises à jour de la PWA : enregistre sw.js, vérifie de temps à autre, trouve une version en attente, la laisse entrer
 src/extension/        l’extension Chrome
   manifest.json       son manifeste ; la compilation y ajoute la version
   extension.ts        platform.ts du panneau latéral : le document offscreen, l’onglet, Remplir

@@ -418,6 +418,8 @@
     "Version {version} is ready.": "Versi {version} sudah siap.",
     "A new version is ready.": "Versi baru sudah siap.",
     "Update": "Perbarui",
-    "It also starts by itself the next time the app is opened.": "Versi ini juga mulai dengan sendirinya pada pembukaan aplikasi berikutnya."
+    "It also starts by itself the next time the app is opened.": "Versi ini juga mulai dengan sendirinya pada pembukaan aplikasi berikutnya.",
+    "Updated to version {version}.": "Diperbarui ke versi {version}.",
+    "Install updates by themselves when the app is locked and in the background": "Instal pembaruan dengan sendirinya saat aplikasi terkunci dan di latar belakang"
   }
 }

@@ -424,6 +424,8 @@
     "Version {version} is ready.": "Version {version} ist bereit.",
     "A new version is ready.": "Eine neue Version ist bereit.",
     "Update": "Aktualisieren",
-    "It also starts by itself the next time the app is opened.": "Sie startet außerdem von selbst, sobald die App das nächste Mal geöffnet wird."
+    "It also starts by itself the next time the app is opened.": "Sie startet außerdem von selbst, sobald die App das nächste Mal geöffnet wird.",
+    "Updated to version {version}.": "Auf Version {version} aktualisiert.",
+    "Install updates by themselves when the app is locked and in the background": "Updates automatisch installieren, wenn die App gesperrt und im Hintergrund ist"
   }
 }

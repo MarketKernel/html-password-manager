@@ -430,6 +430,8 @@
     "Version {version} is ready.": "La versión {version} está lista.",
     "A new version is ready.": "Una nueva versión está lista.",
     "Update": "Actualizar",
-    "It also starts by itself the next time the app is opened.": "Además, se inicia sola la próxima vez que abras la app."
+    "It also starts by itself the next time the app is opened.": "Además, se inicia sola la próxima vez que abras la app.",
+    "Updated to version {version}.": "Actualizado a la versión {version}.",
+    "Install updates by themselves when the app is locked and in the background": "Instalar las actualizaciones automáticamente cuando la app esté bloqueada y en segundo plano"
   }
 }

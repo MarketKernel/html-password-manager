@@ -28,7 +28,7 @@
 
 一切都离线运行：无需账户，没有云端，也没有任何网络请求。整个应用就是一个独立的 HTML 文件；数据库在页面内存中解密，并直接保存回磁盘，主密码从不离开页面。同一个页面也是一个 [Chrome 扩展程序](#chrome-扩展程序)，可以把登录信息填入旁边的标签页——**[从 Chrome 应用商店安装](https://chromewebstore.google.com/detail/hiahfdknjchamepclnokcalkcjcfhahf)**。
 
-**[在线版本](https://password.marketkernel.com/)**——同一个页面的 PWA（Progressive Web App，渐进式 Web 应用）形式：它可以安装到系统中，之后作为独立的应用运行，拥有自己的窗口和图标，并且可以离线使用。在电脑上的 Chrome、Edge 和 Arc 中，使用地址栏中的安装按钮；在 Android 上，使用 Chrome 的 ⋮ 菜单 → 安装应用；在 iOS 上，在 Safari 或 Chrome 中使用共享 → 添加到主屏幕。在那里数据库同样保留在你的磁盘上——参见“[GitHub Pages](#github-pages)”。
+**[在线版本](https://password.marketkernel.com/)**——同一个页面的 PWA（Progressive Web App，渐进式 Web 应用）形式：它可以安装到系统中，之后作为独立的应用运行，拥有自己的窗口和图标，并且可以离线使用。在电脑上的 Chrome、Edge 和 Arc 中，使用地址栏中的安装按钮；在 Android 上，使用 Chrome 的 ⋮ 菜单 → 安装应用；在 iOS 上，在 Safari 或 Chrome 中使用共享 → 添加到主屏幕。在电脑上安装到 Chrome 或 Edge 后，它还可以从访达或文件资源管理器（打开方式）打开 `.kdbx`，并直接保存回原处。在那里数据库同样保留在你的磁盘上——参见“[GitHub Pages](#github-pages)”。
 
 ![html-password-manager：群组、条目以及一个正在编辑的条目](../password-manager.jpg)
 
@@ -299,9 +299,11 @@ git push --follow-tags      # 该标签会启动 .github/workflows/release.yml
 `.github/workflows/pages.yml` 会对每次推送到 `main` 的内容进行构建和测试，并将 `build/pages/` 部署到 GitHub Pages（Settings → Pages → Source: GitHub Actions），地址为
 <https://password.marketkernel.com/>。文件的打开方式与单文件版相同；最近的文件、设置和记住的句柄属于该地址，与从磁盘打开的副本的那些相互独立。
 
-每次部署都会更改 `sw.js` 中的缓存名称，因此浏览器会自行获取新的 worker——在有网络连接时启动，或者在“设置 → 检查更新”发出请求时。新的 worker 会把自己的版本下载到专属的缓存中并等待；正在运行的那个则继续提供旧页面，离线时也是如此。此后设置页面和解锁界面会显示“版本 … 已准备就绪。更新”：点击“更新”会锁定数据库（和任何锁定一样，保存它或询问是否保存），放新的 worker 接管，并重新加载页面。如果不点这个按钮，等应用的所有窗口都关闭后，新版本会自行启动。这也是一种取舍：已安装的 PWA 运行的是最近一次部署放在那里的版本，而下载的文件则始终是原来的版本。如需一个固定在磁盘上的版本，请从某个发布中获取 `password-manager-<tag>.html`，并用 `SHA256SUMS.txt` 进行核对。
+每次部署都会更改 `sw.js` 中的缓存名称，因此浏览器会自行获取新的 worker——在有网络连接时启动、应用保持打开期间每隔几小时一次，或者在“设置 → 检查更新”发出请求时。新的 worker 会把自己的版本下载到专属的缓存中并等待；正在运行的那个则继续提供旧页面，离线时也是如此。此后，按钮上带有一个小点的设置页面和解锁界面会显示“版本 … 已准备就绪。更新”：点击“更新”会锁定数据库（和任何锁定一样，保存它或询问是否保存），放新的 worker 接管，并重新加载页面，页面会提示一次已完成更新。如果不点这个按钮，等应用的所有窗口都关闭后，新版本会自行启动——或者，如果在设置中勾选了“锁定且在后台时自动安装更新”，那么一旦没有数据库处于打开状态且窗口不可见，新版本就会立即启动。这也是一种取舍：已安装的 PWA 运行的是最近一次部署放在那里的版本，而下载的文件则始终是原来的版本。如需一个固定在磁盘上的版本，请从某个发布中获取 `password-manager-<tag>.html`，并用 `SHA256SUMS.txt` 进行核对。
 
-`npm run test:browser` 也会打开 `build/pages/`：service worker 接管页面，Chrome 认定 manifest 可安装，并且在服务器关闭后，页面仍能加载并解锁示例数据库；随后会发现一次新的部署，等待它，并由“更新”放它接管。
+Manifest 将 `.kdbx` 指定为应用要打开的文件类型（`file_handlers`），并把它限制在一个窗口内（`launch_handler`、`focus-existing`）：从系统打开的文件会进入已经打开的那个窗口——同一个文件对应两个窗口会相互覆盖彼此的保存内容——如果该窗口打开的是另一个数据库，会先将其锁定。已安装的应用会要求浏览器保留其存储空间（`navigator.storage.persist()`），这和记住一个数据库在任何地方的做法一样：否则，磁盘空间不足时可能会把离线副本、最近的文件以及记住的数据库一并清除。
+
+`npm run test:browser` 也会打开 `build/pages/`：service worker 接管页面，Chrome 认定 manifest 可安装，并且在服务器关闭后，页面仍能加载并解锁示例数据库；随后会发现一次新的部署，等待它，并由“更新”放它接管，或者在页面隐藏后自行进入。Headless Chrome 不会把文件交给应用，因此一个替代的 `launchQueue` 会给页面一个真正的文件句柄，并以可写方式打开。
 
 ## 目录结构
 
@@ -319,7 +321,7 @@ src/app/              页面：单文件版、PWA 和扩展程序的侧边栏
   template.html       带有 __STYLES__/__APP__/__ICON__ 占位符的标记、CSP；也是扩展程序的 panel.html
   styles.css          配色、浅色和深色主题、三个窗格；手机上一次一屏
   main.ts             解锁界面、解锁、保存、锁定、工具栏、快捷键、设置
-  files.ts            File System Access API、拖放、文件输入；最近的文件
+  files.ts            File System Access API、拖放、文件输入；最近的文件；系统用该应用打开的文件
   groups.ts           左侧面板中的群组树、标签和回收站
   list.ts             条目列表
   details.ts          单个条目：查看、在草稿上编辑、历史记录、附件、TOTP
@@ -331,7 +333,7 @@ src/app/              页面：单文件版、PWA 和扩展程序的侧边栏
   ui.ts               对话框、右键菜单、弹出框、提示消息、图标；手机上的底部面板
   screens.ts          手机布局：列表或条目、群组抽屉、返回按钮
   platform.ts         页面在自身之外所做的事：在文件版和 PWA 中什么也不做
-  update.ts           PWA 的更新：注册 sw.js，找到等待中的版本，放它接管
+  update.ts           PWA 的更新：注册 sw.js，不时检查一次，找到等待中的版本，放它接管
 src/extension/        Chrome 扩展程序
   manifest.json       它的 manifest；构建时添加版本号
   extension.ts        侧边栏的 platform.ts：offscreen 文档、标签页、填充

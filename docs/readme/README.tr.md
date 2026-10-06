@@ -44,7 +44,9 @@ sekmede giriş bilgilerini dolduran bir [Chrome uzantısıdır](#chrome-uzantıs
 PWA (Progressive Web App) hâli: sisteme yüklenebilir, ardından kendi penceresi ve simgesiyle
 ayrı bir uygulama olarak çalışır ve çevrimdışı da işler. Bilgisayarda Chrome, Edge ve Arc'ta
 adres çubuğundaki yükleme düğmesini kullanın; Android'de Chrome'un ⋮ menüsü → Uygulamayı yükle;
-iOS'ta Safari'de ya da Chrome'da Paylaş → Ana Ekrana Ekle. Orada da veritabanı sizin diskinizde
+iOS'ta Safari'de ya da Chrome'da Paylaş → Ana Ekrana Ekle. Bilgisayarda Chrome ya da Edge'e
+yüklendiğinde, Finder ya da Gezgin'den (Birlikte Aç) bir `.kdbx` dosyası da açar ve doğrudan
+onun içine geri kaydeder. Orada da veritabanı sizin diskinizde
 kalır — bkz. "[GitHub Pages](#github-pages)".
 
 ![html-password-manager: gruplar, girdiler ve düzenlenmekte olan bir girdi](../password-manager.jpg)
@@ -579,20 +581,33 @@ dosyadakiyle aynı şekilde açılır; son kullanılan dosyalar, ayarlar ve hat�
 adrese aittir ve diskten açılan bir kopyanınkilerden ayrıdır.
 
 Her yayımlama `sw.js` içindeki önbellek adını değiştirir, böylece tarayıcı yeni worker'ı
-kendiliğinden alır — bağlantılı bir açılışta, ya da Ayarlar → Güncellemeleri kontrol et
-istendiğinde. Yeni worker kendi sürümünü kendi önbelleğine indirir ve bekler; çalışmakta olan ise
-eski sayfayı sunmaya devam eder, çevrimdışıyken de. Ayarlar ve kilit açma ekranı o zaman "Sürüm …
-hazır. Güncelle" der: Güncelle veritabanını kilitler (her kilitlemede olduğu gibi onu kaydederek
-ya da sorarak), yeni worker'ı içeri alır ve sayfayı yeniden yükler. Düğme kullanılmazsa yeni
-sürüm, uygulamanın tüm pencereleri kapandığında kendiliğinden başlar. Bedeli de budur: yüklenmiş
-bir PWA, son yayımlamanın oraya koyduğu her neyse onu çalıştırır, indirilmiş bir dosya ise hangi
-sürümse o kalır. Diskte sabit bir sürüm için bir yayından `password-manager-<tag>.html`
-dosyasını alın ve onu `SHA256SUMS.txt` ile karşılaştırın.
+kendiliğinden alır — bağlantılı bir açılışta, uygulama açık kaldığı sürece birkaç saatte bir, ya
+da Ayarlar → Güncellemeleri kontrol et istendiğinde. Yeni worker kendi sürümünü kendi önbelleğine
+indirir ve bekler; çalışmakta olan ise eski sayfayı sunmaya devam eder, çevrimdışıyken de. Ayarlar
+— düğmesinde bir nokta ile — ve kilit açma ekranı o zaman "Sürüm … hazır. Güncelle" der: Güncelle
+veritabanını kilitler (her kilitlemede olduğu gibi onu kaydederek ya da sorarak), yeni worker'ı
+içeri alır ve sayfayı yeniden yükler; sayfa da bir kez güncellendiğini söyler. Düğme
+kullanılmazsa yeni sürüm, uygulamanın tüm pencereleri kapandığında kendiliğinden başlar — ya da,
+ayarlarda "Uygulama kilitliyken ve arka plandayken güncellemeleri kendiliğinden yükle"
+işaretliyse, hiçbir veritabanı açık olmadığı ve pencere görünürden kaybolduğu an. Bedeli de
+budur: yüklenmiş bir PWA, son yayımlamanın oraya koyduğu her neyse onu çalıştırır, indirilmiş bir
+dosya ise hangi sürümse o kalır. Diskte sabit bir sürüm için bir yayından
+`password-manager-<tag>.html` dosyasını alın ve onu `SHA256SUMS.txt` ile karşılaştırın.
+
+Manifest, `.kdbx`'i uygulamanın açtığı bir dosya türü olarak adlandırır (`file_handlers`) ve
+onu tek bir pencereyle sınırlar (`launch_handler`, `focus-existing`): sistemden açılan bir dosya
+zaten açık olan pencereye gelir — aynı dosyaya ait iki pencere birbirinin kayıtlarının üzerine
+yazardı — ve orada başka bir veritabanı açıksa onu önce kilitler. Yüklenmiş uygulama, bir
+veritabanını hatırlamanın her yerde yaptığı gibi, tarayıcıdan deposunu saklı tutmasını ister
+(`navigator.storage.persist()`): yoksa dolmaya yüz tutan bir disk, çevrimdışı kopyayı, son
+kullanılan dosyaları ve hatırlanan veritabanlarını da alıp götürebilir.
 
 `npm run test:browser`, `build/pages/` klasörünü de açar: service worker sayfayı devralır,
 Chrome manifesti yüklenebilir bulur ve sunucu kapandıktan sonra da sayfa yüklenir ve örnek
 veritabanının kilidini açar; ardından yeni bir yayımlama bulunur, beklenir ve Güncelle onu içeri
-alır.
+alır, ya da sayfa gizlenir gizlenmez kendiliğinden gelir. Headless Chrome dosyaları bir
+uygulamaya teslim etmez, bu yüzden yerine geçen bir `launchQueue`, sayfaya yazılabilir açılan
+gerçek bir dosya tanıtıcısı verir.
 
 ## Proje yapısı
 
@@ -610,7 +625,7 @@ src/app/              sayfa: tek dosya, PWA ve uzantının yan paneli
   template.html       __STYLES__/__APP__/__ICON__ yer tutuculu işaretleme, CSP; uzantının panel.html'i de
   styles.css          renk paleti, açık ve koyu tema, üç bölme; telefonda aynı anda tek ekran
   main.ts             giriş ekranı, kilit açma, kaydetme, kilitleme, araç çubuğu, kısayollar, ayarlar
-  files.ts            File System Access API, sürükle-bırak, dosya girişi; son kullanılan dosyalar
+  files.ts            File System Access API, sürükle-bırak, dosya girişi; son kullanılan dosyalar; sistemin uygulamayla açtığı dosyalar
   groups.ts           sol paneldeki grup ağacı, etiketler ve geri dönüşüm kutusu
   list.ts             girdi listesi
   details.ts          tek bir girdi: görüntüleme, taslak üzerinde düzenleme, geçmiş, ekler, TOTP
@@ -622,7 +637,7 @@ src/app/              sayfa: tek dosya, PWA ve uzantının yan paneli
   ui.ts               iletişim kutuları, bağlam menüsü, açılır paneller, bildirimler, simgeler; telefonda alt sayfalar
   screens.ts          telefon düzeni: liste ya da girdi, grup çekmecesi, geri düğmesi
   platform.ts         sayfanın kendi dışında yaptıkları: dosyada ve PWA'da hiçbir şey
-  update.ts           PWA'nın güncellemeleri: sw.js'i kaydeder, bekleyen bir sürüm bulur ve onu içeri alır
+  update.ts           PWA'nın güncellemeleri: sw.js'i kaydeder, arada bir kontrol eder, bekleyen bir sürüm bulur ve onu içeri alır
 src/extension/        Chrome uzantısı
   manifest.json       uzantının manifesti; sürümü derleme ekler
   extension.ts        yan panelin platform.ts'si: offscreen belgesi, sekme, Doldur

@@ -5,7 +5,7 @@
  */
 
 import { releaseIcons } from './avatar';
-import { clearClipboard, copyText } from './clipboard';
+import { clearClipboard, copyText, secretOnClipboard } from './clipboard';
 import { sessionMasterPassword, setMasterPassword } from '../core/derived';
 import { Details } from './details';
 import {
@@ -15,6 +15,7 @@ import {
   forgetFile,
   HandleFile,
   NewFile,
+  onLaunchedFile,
   pickFile,
   pickSaveTarget,
   recentFiles,
@@ -63,6 +64,7 @@ import {
   forgetAll,
   inAppWindow,
   isCancelled,
+  keepStorage,
   notRememberedText,
   recall,
   recallFailedText,
@@ -76,7 +78,7 @@ import {
   unlockLabel,
   type RememberWith,
 } from './remember';
-import { applyUpdate, canUpdate, checkForUpdate, startUpdates, updateState, type UpdateState } from './update';
+import { applyUpdate, canUpdate, checkForUpdate, justUpdated, startUpdates, updateState, type UpdateState } from './update';
 import { back, bindScreens, closeDrawer, hideDetails, isDrawerOpen, isNarrow, isTouch, showDetails, toggleDrawer } from './screens';
 import { matches, sortEntries, SORT_KEYS, sortLabel } from './search';
 import {
@@ -138,6 +140,8 @@ el('version').textContent = __APP_VERSION__;
 let file: DbFile | null = null;
 let keyFile: { name: string; data: ArrayBuffer } | null = null;
 let db: Kdbx | null = null;
+/** An unlock is under way: the file and the key file under it must not change, nor the page reload. */
+let unlocking = false;
 let dirty = false;
 /** Bumped on every change, so a save knows whether the data moved on while it was writing. */
 let revision = 0;
@@ -278,6 +282,8 @@ async function renderRecent(): Promise<void> {
 }
 
 function chooseFile(next: DbFile): void {
+  // A file dropped, or opened from the system, while another one unlocks would end up paired with its database.
+  if (unlocking) return;
   if (!/\.kdbx$/i.test(next.name)) {
     gateError.textContent = t('errors', '"{name}" does not look like a KeePass database (.kdbx)', { name: next.name });
     return;
@@ -328,6 +334,7 @@ async function openWith(button: HTMLButtonElement, password: () => Promise<strin
   const opening = file;
   gateError.textContent = '';
   button.disabled = true;
+  unlocking = true;
   const label = button.innerHTML;
   button.textContent = t('gate', 'Unlocking…');
   try {
@@ -343,6 +350,7 @@ async function openWith(button: HTMLButtonElement, password: () => Promise<strin
     void rememberFile(opening);
     enter(opened);
   } finally {
+    unlocking = false;
     button.disabled = false;
     button.innerHTML = label;
   }
@@ -1032,9 +1040,22 @@ function openSettings(anchor: HTMLElement): void {
     }),
     h('label', { class: 'settings-row settings-row--check' }, legacy, h('span', { text: t('settings', 'Show legacy password algorithms') })),
     h('p', { class: 'settings-note', text: t('settings', 'The generator then also offers derived v2 and v1, the calculators of two older programs, to recover passwords made with them.') }),
+    ...autoUpdateRow(),
     versionLine(),
   );
   popover(anchor, panel);
+}
+
+/** The installed app's choice to update by itself, while nothing is lost by it. */
+function autoUpdateRow(): HTMLElement[] {
+  if (!canUpdate()) return [];
+  const box = h('input', { type: 'checkbox' });
+  box.checked = settings.autoUpdate;
+  box.addEventListener('change', () => {
+    settings.autoUpdate = box.checked;
+    saveSettings(settings);
+  });
+  return [h('label', { class: 'settings-row settings-row--check' }, box, h('span', { text: t('update', 'Install updates by themselves when the app is locked and in the background') }))];
 }
 
 /** The version, and in the installed app what is known of a newer one. */
@@ -1100,7 +1121,23 @@ function showUpdate(state: UpdateState): void {
   if (state.kind === 'ready') onGate.replaceChildren(...updateReady(state.version));
   const line = document.querySelector<HTMLElement>('[data-setting="update"]');
   if (line) showVersionLine(line, state);
+  // A dot on the settings, as on Save; on a phone they are in the menu.
+  for (const id of ['settings', 'more']) el(id).classList.toggle('icon-button--badge', state.kind === 'ready');
+  updateQuietly();
 }
+
+/**
+ * With the setting on, a waiting version comes in while nobody is looking and
+ * nothing would be lost: no database open, no dialog, the window out of sight.
+ */
+function updateQuietly(): void {
+  if (!settings.autoUpdate || db || unlocking || document.visibilityState !== 'hidden' || updateState().kind !== 'ready') return;
+  // A secret the hidden window could not wipe yet stays its job: the next focus tries again.
+  if (document.querySelector('.dialog') || secretOnClipboard()) return;
+  gate.inert = true;
+  applyUpdate();
+}
+document.addEventListener('visibilitychange', updateQuietly);
 
 /** How a remembered database is unlocked, where this page can remember one at all. */
 function rememberSettings(anchor: HTMLElement, row: (label: string, control: HTMLElement) => HTMLElement): HTMLElement[] {
@@ -1612,7 +1649,7 @@ for (const type of ['pointerdown', 'wheel', 'mousemove'] as const) {
 window.setInterval(() => {
   // In the extension the offscreen document keeps the time, a fill from the menu being activity too.
   if (!db || settings.lockMinutes === 0 || platform.idleElsewhere()) return;
-  if (Date.now() - lastActivity > settings.lockMinutes * 60000) void lock('idle');
+  if (Date.now() - lastActivity > settings.lockMinutes * 60000) void lock('idle').then(updateQuietly);
 }, 10000);
 
 window.addEventListener('beforeunload', (event) => {
@@ -1633,6 +1670,9 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
 applyLanguage();
 applyTheme(settings.theme);
 startUpdates(showUpdate);
+if (justUpdated()) toast(t('update', 'Updated to version {version}.', { version: __APP_VERSION__ }));
+// The installed app keeps its storage: its offline copy, the recent files, the remembered databases.
+if (inAppWindow()) keepStorage();
 applyPanels(settings);
 platform.settings(settings);
 platform.start({
@@ -1649,7 +1689,21 @@ platform.start({
     if (!db) void platform.resume().then((resumed) => (resumed && !db ? resume(resumed) : undefined));
   },
 });
-void platform.resume().then(
-  (resumed) => (resumed ? resume(resumed) : showGate('pick')),
-  () => showGate('pick'),
-);
+void platform
+  .resume()
+  .then(
+    (resumed) => (resumed ? resume(resumed) : showGate('pick')),
+    () => showGate('pick'),
+  )
+  // After the gate is up, or it would cover the file the app was launched with.
+  .then(() => onLaunchedFile((launched) => void openLaunched(launched)));
+
+/** A .kdbx opened from the Finder or Explorer with the installed app; it comes to this window when it is open already. */
+async function openLaunched(launched: HandleFile): Promise<void> {
+  if (db) {
+    if (await file?.handle?.isSameEntry?.(launched.handle)) return;
+    await lock();
+    if (db) return;
+  }
+  chooseFile(launched);
+}

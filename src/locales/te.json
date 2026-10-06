@@ -424,6 +424,8 @@
     "Version {version} is ready.": "వెర్షన్ {version} సిద్ధంగా ఉంది.",
     "A new version is ready.": "కొత్త వెర్షన్ సిద్ధంగా ఉంది.",
     "Update": "అప్‌డేట్ చేయండి",
-    "It also starts by itself the next time the app is opened.": "యాప్‌ను తదుపరిసారి తెరిచినప్పుడు అది దానంతట అదే కూడా మొదలవుతుంది."
+    "It also starts by itself the next time the app is opened.": "యాప్‌ను తదుపరిసారి తెరిచినప్పుడు అది దానంతట అదే కూడా మొదలవుతుంది.",
+    "Updated to version {version}.": "వెర్షన్ {version}కి అప్‌డేట్ చేయబడింది.",
+    "Install updates by themselves when the app is locked and in the background": "యాప్ లాక్ అయి బ్యాక్‌గ్రౌండ్‌లో ఉన్నప్పుడు అప్‌డేట్‌లను దానంతట అదే ఇన్‌స్టాల్ చేయండి"
   }
 }

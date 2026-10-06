@@ -448,6 +448,8 @@
     "Version {version} is ready.": "الإصدار {version} جاهز.",
     "A new version is ready.": "إصدار جديد جاهز.",
     "Update": "تحديث",
-    "It also starts by itself the next time the app is opened.": "سيبدأ أيضًا من تلقاء نفسه في المرة القادمة التي يُفتح فيها التطبيق."
+    "It also starts by itself the next time the app is opened.": "سيبدأ أيضًا من تلقاء نفسه في المرة القادمة التي يُفتح فيها التطبيق.",
+    "Updated to version {version}.": "تم التحديث إلى الإصدار {version}.",
+    "Install updates by themselves when the app is locked and in the background": "تثبيت التحديثات من تلقاء نفسها عندما يكون التطبيق مقفلاً وفي الخلفية"
   }
 }

@@ -43,8 +43,10 @@ também é uma [extensão para Chrome](#extensão-para-chrome) que preenche logi
 como PWA (Progressive Web App): ela pode ser instalada no sistema e então roda como um
 aplicativo separado, com janela e ícone próprios, e funciona offline. No computador, no Chrome,
 no Edge e no Arc, use o botão de instalação na barra de endereços; no Android, menu ⋮ do Chrome →
-Instalar app; no iOS, Compartilhar → Adicionar à Tela de Início, no Safari ou no Chrome. Também
-ali o banco de dados fica no seu disco — veja "[GitHub Pages](#github-pages)".
+Instalar app; no iOS, Compartilhar → Adicionar à Tela de Início, no Safari ou no Chrome.
+Instalada no Chrome ou no Edge num computador, ela também abre um `.kdbx` pelo Finder ou pelo
+Explorador (Abrir com) e salva direto de volta nele. Também ali o banco de dados fica no seu
+disco — veja "[GitHub Pages](#github-pages)".
 
 ![html-password-manager: grupos, entradas e uma entrada sendo editada](../password-manager.jpg)
 
@@ -561,20 +563,33 @@ arquivo único; os arquivos recentes, as configurações e os identificadores le
 esse endereço, separados dos de uma cópia aberta do disco.
 
 Cada publicação muda o nome do cache em `sw.js`, então o navegador pega o novo worker sozinho: ao
-abrir com conexão, ou quando Configurações → Verificar atualizações pede. O novo worker baixa a
-sua versão para um cache próprio e espera; o que está rodando continua servindo a página antiga,
-também offline. As configurações e a tela de desbloqueio então dizem "A versão … está pronta.
-Atualizar": Atualizar bloqueia o banco de dados (salvando-o, ou perguntando, como qualquer
-bloqueio), deixa o novo worker entrar e recarrega a página. Sem o botão, a nova versão começa a
-rodar assim que todas as janelas do app forem fechadas. Essa também é a contrapartida: um PWA
-instalado roda o que a última publicação colocou ali, enquanto um arquivo baixado continua na
-versão que é. Para uma versão fixa no disco, pegue `password-manager-<tag>.html` de um lançamento
-e confira-o com `SHA256SUMS.txt`.
+abrir com conexão, a cada poucas horas enquanto o app continua aberto, ou quando Configurações →
+Verificar atualizações pede. O novo worker baixa a sua versão para um cache próprio e espera; o
+que está rodando continua servindo a página antiga, também offline. As configurações — com um
+ponto no seu botão — e a tela de desbloqueio então dizem "A versão … está pronta. Atualizar":
+Atualizar bloqueia o banco de dados (salvando-o, ou perguntando, como qualquer bloqueio), deixa
+o novo worker entrar e recarrega a página, que avisa uma vez que foi atualizada. Sem o botão, a
+nova versão começa a rodar assim que todas as janelas do app forem fechadas — ou, com "Instalar
+atualizações automaticamente quando o app estiver bloqueado e em segundo plano" marcado nas
+configurações, assim que nenhum banco de dados estiver aberto e a janela estiver fora de vista.
+Essa também é a contrapartida: um PWA instalado roda o que a última publicação colocou ali,
+enquanto um arquivo baixado continua na versão que é. Para uma versão fixa no disco, pegue
+`password-manager-<tag>.html` de um lançamento e confira-o com `SHA256SUMS.txt`.
+
+O manifest nomeia `.kdbx` como um arquivo que o app abre (`file_handlers`) e o mantém em uma só
+janela (`launch_handler`, `focus-existing`): um arquivo aberto pelo sistema chega à janela já
+aberta — duas janelas com um mesmo arquivo sobrescreveriam os salvamentos uma da outra — e ali
+bloqueia primeiro o banco de dados, se for outro. O app instalado pede ao navegador para manter
+o seu armazenamento (`navigator.storage.persist()`), como faz lembrar um banco de dados em
+qualquer lugar: do contrário, um disco com pouco espaço poderia levar junto a cópia offline, os
+arquivos recentes e os bancos de dados lembrados.
 
 `npm run test:browser` também abre `build/pages/`: o service worker assume a página, o Chrome
 considera o manifest instalável e, com o servidor desligado, a página ainda carrega e desbloqueia o
 banco de dados de exemplo; depois uma nova publicação é encontrada, espera, e Atualizar a deixa
-entrar.
+entrar, ou ela mesma entra assim que a página fica oculta. O Chrome headless não entrega arquivos
+a um app, então um `launchQueue` substituto dá à página um identificador de arquivo de verdade,
+que abre com permissão de escrita.
 
 ## Estrutura
 
@@ -592,7 +607,7 @@ src/app/              a página: o arquivo único, o PWA e o painel lateral da e
   template.html       marcação com os placeholders __STYLES__/__APP__/__ICON__, a CSP; também o panel.html da extensão
   styles.css          paleta, temas claro e escuro, três painéis; no celular, uma tela de cada vez
   main.ts             a tela de entrada, desbloqueio, salvamento, bloqueio, barra de ferramentas, atalhos, configurações
-  files.ts            File System Access API, arrastar e soltar, seleção de arquivo; arquivos recentes
+  files.ts            File System Access API, arrastar e soltar, seleção de arquivo; arquivos recentes; arquivos que o sistema abre com o app
   groups.ts           a árvore de grupos, as etiquetas e a lixeira no painel esquerdo
   list.ts             a lista de entradas
   details.ts          uma entrada: leitura, edição sobre um rascunho, histórico, anexos, TOTP
@@ -604,7 +619,7 @@ src/app/              a página: o arquivo único, o PWA e o painel lateral da e
   ui.ts               caixas de diálogo, menu de contexto, popovers, toasts, ícones; painéis inferiores no celular
   screens.ts          o layout de celular: a lista ou a entrada, a gaveta de grupos, o botão voltar
   platform.ts         o que a página faz além de si mesma: nada, no arquivo e no PWA
-  update.ts           as atualizações do PWA: registra o sw.js, encontra uma versão em espera e a deixa entrar
+  update.ts           as atualizações do PWA: registra o sw.js, verifica de tempos em tempos, encontra uma versão em espera e a deixa entrar
 src/extension/        a extensão para Chrome
   manifest.json       o manifest dela; a compilação acrescenta a versão
   extension.ts        o platform.ts do painel lateral: o documento offscreen, a aba, Preencher

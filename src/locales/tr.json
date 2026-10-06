@@ -424,6 +424,8 @@
     "Version {version} is ready.": "Sürüm {version} hazır.",
     "A new version is ready.": "Yeni bir sürüm hazır.",
     "Update": "Güncelle",
-    "It also starts by itself the next time the app is opened.": "O da uygulamanın bir sonraki açılışında kendiliğinden başlar."
+    "It also starts by itself the next time the app is opened.": "O da uygulamanın bir sonraki açılışında kendiliğinden başlar.",
+    "Updated to version {version}.": "{version} sürümüne güncellendi.",
+    "Install updates by themselves when the app is locked and in the background": "Uygulama kilitliyken ve arka plandayken güncellemeleri kendiliğinden yükle"
   }
 }

@@ -1043,6 +1043,7 @@ try {
   await click('[data-setting="update"] button');
   check('pwa: a new version ready', await until(`${versionLine}.includes('Version 9.9.9 is ready.')`, 15000), true);
   check('pwa: and on the gate', await text('#gate-update'), 'Version 9.9.9 is ready. Update');
+  check('pwa: a dot on the settings', await evaluate(`document.querySelector('#settings').classList.contains('icon-button--badge')`), true);
   check('pwa: the old worker still serves', await workerVersion(), running);
   await evaluate(`window.__beforeReload = true`);
   await click('[data-setting="update"] button');
@@ -1053,6 +1054,67 @@ try {
   await reload();
   check('pwa: offline after the update', await until(`!!document.querySelector('#gate-pick')?.getClientRects().length`), true);
   pagesDown = false;
+  // The page served is the same, only the worker changed: what the app ran before is set back to see the note
+  await evaluate(`localStorage.setItem('html-password-manager-version', '0.0.1')`);
+  await reload();
+  check('pwa: "updated" said once', await until(`document.querySelector('.toast--shown')?.textContent === ${JSON.stringify(`Updated to version ${running}.`)}`), true);
+  check('pwa: and remembered', await evaluate(`localStorage.getItem('html-password-manager-version')`), running);
+
+  // A .kdbx opened with the installed app. Headless Chrome neither installs apps nor handles
+  // files, so a stand-in launchQueue takes the page's consumer and hands it a real handle
+  // from the origin-private file system, as Chrome hands one from the disk.
+  const manifest = JSON.parse((await send('Page.getAppManifest')).data);
+  check('pwa: the manifest takes .kdbx files, into the open window', [manifest.file_handlers, manifest.launch_handler], [
+    [{ action: './', accept: { 'application/x-keepass2': ['.kdbx'] } }],
+    { client_mode: 'focus-existing' },
+  ]);
+  const { identifier: launchScript } = await send('Page.addScriptToEvaluateOnNewDocument', {
+    source: `Object.defineProperty(window, 'launchQueue', { value: { setConsumer: (consumer) => { window.__launch = consumer; } } });`,
+  });
+  await reload();
+  const launch = (name) =>
+    evaluate(`(async () => {
+      const handle = await (await navigator.storage.getDirectory()).getFileHandle(${JSON.stringify(name)}, { create: true });
+      const stream = await handle.createWritable();
+      await stream.write(Uint8Array.from(atob(${JSON.stringify(dbBase64)}), (c) => c.charCodeAt(0)));
+      await stream.close();
+      window.__launch({ files: [handle] });
+    })()`);
+  check('pwa: the page takes launched files', await until(`typeof window.__launch === 'function'`), true);
+  await launch('Launched.kdbx');
+  check('pwa: a launched file asks for its password', await until(`!document.querySelector('#unlock').hidden && document.querySelector('#unlock-name').textContent === 'Launched'`), true);
+  await type(PASSWORD);
+  await press('Enter');
+  check('pwa: launched file unlocked', await until(`!document.querySelector('#app').hidden`), true);
+  check('pwa: and writable in place', await text('#status-file'), 'Launched.kdbx');
+  await evaluate(`(async () => window.__launch({ files: [await (await navigator.storage.getDirectory()).getFileHandle('Launched.kdbx')] }))()`);
+  await sleep(300);
+  check('pwa: the same file again leaves it open', await visible('#app'), true);
+  await launch('Other.kdbx');
+  check('pwa: another file locks the open one and asks for its password', await until(`document.querySelector('#app').hidden && document.querySelector('#unlock-name').textContent === 'Other'`), true);
+  await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: launchScript });
+
+  // Updates by themselves: only when chosen, with the database locked and the window out of sight
+  await type(PASSWORD);
+  await press('Enter');
+  await until(`!document.querySelector('#app').hidden`);
+  await click('#settings');
+  const autoUpdate = `[...document.querySelectorAll('.settings-row--check')].find((row) => row.textContent === 'Install updates by themselves when the app is locked and in the background')?.querySelector('input')`;
+  check('pwa: updating by itself offered, off', await evaluate(`${autoUpdate}?.checked`), false);
+  await evaluate(`${autoUpdate}.click()`);
+  await press('Escape');
+  await press('l', MOD);
+  await until(`!document.querySelector('#gate').hidden`);
+  nextVersion = '9.9.8';
+  await evaluate(`navigator.serviceWorker.getRegistration().then((registration) => registration.update())`);
+  check('pwa: in sight it waits', await until(`document.querySelector('#gate-update')?.textContent === 'Version 9.9.8 is ready. Update'`, 15000), true);
+  await evaluate(`window.__beforeReload = true`);
+  // A tab in front hides this one.
+  const { targetId: front } = await send('Target.createTarget', { url: 'about:blank', newWindow: false });
+  await sleep(1000);
+  await send('Target.closeTarget', { targetId: front });
+  check('pwa: out of sight it came in', await until(`!window.__beforeReload && document.readyState === 'complete'`, 15000), true);
+  check('pwa: the newest worker serves', await workerVersion(), '9.9.8');
   nextVersion = null;
 
   /* -------------------------------------------------------------- *

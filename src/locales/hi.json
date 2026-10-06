@@ -424,6 +424,8 @@
     "Version {version} is ready.": "संस्करण {version} तैयार है।",
     "A new version is ready.": "नया संस्करण तैयार है।",
     "Update": "अपडेट करें",
-    "It also starts by itself the next time the app is opened.": "अगली बार ऐप खोलने पर यह अपने आप भी शुरू हो जाएगा।"
+    "It also starts by itself the next time the app is opened.": "अगली बार ऐप खोलने पर यह अपने आप भी शुरू हो जाएगा।",
+    "Updated to version {version}.": "संस्करण {version} में अपडेट हो गया।",
+    "Install updates by themselves when the app is locked and in the background": "ऐप लॉक होने और बैकग्राउंड में रहने पर अपडेट अपने आप इंस्टॉल करें"
   }
 }

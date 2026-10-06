@@ -46,7 +46,9 @@ als PWA (Progressive Web App): Sie lässt sich im System installieren, läuft da
 App mit eigenem Fenster und Symbol und funktioniert offline. Auf dem Computer verwenden Sie in
 Chrome, Edge und Arc die Installationsschaltfläche in der Adressleiste; auf Android das ⋮-Menü
 von Chrome → App installieren; auf iOS Teilen → Zum Home-Bildschirm, in Safari oder in Chrome.
-Auch dort bleibt die Datenbank auf Ihrem Datenträger — siehe „[GitHub Pages](#github-pages)“.
+In Chrome oder Edge auf dem Computer installiert, öffnet sie auch eine `.kdbx` aus dem Finder
+oder Explorer (Öffnen mit) und speichert direkt wieder darin. Auch dort bleibt die Datenbank auf
+Ihrem Datenträger — siehe „[GitHub Pages](#github-pages)“.
 
 ![html-password-manager: Gruppen, Einträge und ein Eintrag in Bearbeitung](../password-manager.jpg)
 
@@ -595,22 +597,36 @@ Einzeldatei; die zuletzt geöffneten Dateien, die Einstellungen und die gemerkte
 zu dieser Adresse, getrennt von denen einer vom Datenträger geöffneten Kopie.
 
 Jedes Deployment ändert den Cache-Namen in `sw.js`, sodass der Browser von selbst den neuen
-Service Worker übernimmt — beim Start mit Verbindung, oder wenn Einstellungen → Nach Updates
-suchen danach fragt. Der neue Service Worker lädt seine Version in einen eigenen Cache und
-wartet; der laufende liefert weiterhin die alte Seite, auch offline. Die Einstellungen und der
+Service Worker übernimmt — beim Start mit Verbindung, alle paar Stunden, solange die App offen
+bleibt, oder wenn Einstellungen → Nach Updates suchen danach fragt. Der neue Service Worker lädt
+seine Version in einen eigenen Cache und wartet; der laufende liefert weiterhin die alte Seite,
+auch offline. Die Einstellungen — mit einem Punkt auf ihrer Schaltfläche — und der
 Entsperrbildschirm sagen dann „Version … ist bereit. Aktualisieren“: Aktualisieren sperrt die
 Datenbank (speichert sie oder fragt nach, wie jede Sperre), lässt den neuen Service Worker
-hinein und lädt die Seite neu. Ohne die Schaltfläche startet die neue Version von selbst,
-sobald jedes Fenster der App geschlossen wurde. Das ist zugleich
-der Kompromiss: Eine installierte PWA führt aus, was das letzte Deployment dort abgelegt hat,
-während eine heruntergeladene Datei die Version bleibt, die sie ist. Für eine auf dem
-Datenträger fest stehende Version nehmen Sie `password-manager-<tag>.html` aus einem Release und
-vergleichen sie mit `SHA256SUMS.txt`.
+hinein und lädt die Seite neu, die einmalig meldet, dass sie aktualisiert wurde. Ohne die
+Schaltfläche startet die neue Version von selbst, sobald jedes Fenster der App geschlossen
+wurde — oder, wenn „Updates automatisch installieren, wenn die App gesperrt und im Hintergrund
+ist“ in den Einstellungen angehakt ist, sobald keine Datenbank geöffnet und das Fenster außer
+Sicht ist. Das ist zugleich der Kompromiss: Eine installierte PWA führt aus, was das letzte
+Deployment dort abgelegt hat, während eine heruntergeladene Datei die Version bleibt, die sie
+ist. Für eine auf dem Datenträger fest stehende Version nehmen Sie `password-manager-<tag>.html`
+aus einem Release und vergleichen sie mit `SHA256SUMS.txt`.
+
+Das Manifest benennt `.kdbx` als Datei, die die App öffnet (`file_handlers`), und bindet sie an
+ein einziges Fenster (`launch_handler`, `focus-existing`): Eine vom System geöffnete Datei
+kommt in das bereits offene Fenster — zwei Fenster mit derselben Datei würden sich gegenseitig
+die Speicherungen überschreiben —, und sperrt dort zuerst die Datenbank, falls es eine andere
+ist. Die installierte App bittet den Browser, ihren Speicher zu behalten
+(`navigator.storage.persist()`), wie es das Merken einer Datenbank überall tut: Sonst könnte
+ein knapper werdender Datenträger die Offline-Kopie, die zuletzt geöffneten Dateien und die
+gemerkten Datenbanken mitnehmen.
 
 `npm run test:browser` öffnet auch `build/pages/`: Der Service Worker übernimmt die Seite, Chrome
 hält das Manifest für installierbar, und ohne Server lädt die Seite trotzdem und entsperrt die
 Beispieldatenbank; danach wird ein neues Deployment gefunden, wartet, und Aktualisieren lässt es
-hinein.
+hinein, oder es kommt von selbst, sobald die Seite verborgen ist. Headless Chrome übergibt einer
+App keine Dateien, daher verschafft ein stellvertretender `launchQueue` der Seite ein echtes
+Datei-Handle, das sich schreibbar öffnet.
 
 ## Projektstruktur
 
@@ -628,7 +644,7 @@ src/app/              die Seite: die Einzeldatei, die PWA und die Seitenleiste d
   template.html       Markup mit den Platzhaltern __STYLES__/__APP__/__ICON__, die CSP; auch panel.html der Erweiterung
   styles.css          Farbpalette, helles und dunkles Design, drei Bereiche; auf dem Smartphone ein Bildschirm auf einmal
   main.ts             Startbildschirm, Entsperren, Speichern, Sperren, Symbolleiste, Tastenkürzel, Einstellungen
-  files.ts            File System Access API, Drag-and-drop, Dateiauswahl; zuletzt geöffnete Dateien
+  files.ts            File System Access API, Drag-and-drop, Dateiauswahl; zuletzt geöffnete Dateien; vom System der App übergebene Dateien
   groups.ts           Gruppenbaum, Tags und Papierkorb in der linken Leiste
   list.ts             die Eintragsliste
   details.ts          ein Eintrag: Ansicht, Bearbeitung an einem Entwurf, Verlauf, Anhänge, TOTP
@@ -640,7 +656,7 @@ src/app/              die Seite: die Einzeldatei, die PWA und die Seitenleiste d
   ui.ts               Dialoge, Kontextmenü, Popovers, Toasts, Symbole; Sheets auf dem Smartphone
   screens.ts          das Smartphone-Layout: Liste oder Eintrag, die Gruppenschublade, die Zurück-Taste
   platform.ts         was die Seite über sich hinaus tut: nichts, in der Datei und der PWA
-  update.ts           die Updates der PWA: registriert sw.js, findet eine wartende Version, lässt sie hinein
+  update.ts           die Updates der PWA: registriert sw.js, prüft von Zeit zu Zeit, findet eine wartende Version, lässt sie hinein
 src/extension/        die Chrome-Erweiterung
   manifest.json       ihr Manifest; der Build ergänzt die Version
   extension.ts        platform.ts der Seitenleiste: das Offscreen-Dokument, der Tab, Ausfüllen

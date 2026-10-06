@@ -424,6 +424,8 @@
     "Version {version} is ready.": "ورژن {version} تیار ہے۔",
     "A new version is ready.": "نیا ورژن تیار ہے۔",
     "Update": "اپڈیٹ کریں",
-    "It also starts by itself the next time the app is opened.": "ایپ اگلی بار کھلنے پر یہ خود بخود بھی شروع ہو جائے گا۔"
+    "It also starts by itself the next time the app is opened.": "ایپ اگلی بار کھلنے پر یہ خود بخود بھی شروع ہو جائے گا۔",
+    "Updated to version {version}.": "ورژن {version} میں اپڈیٹ کر دیا گیا۔",
+    "Install updates by themselves when the app is locked and in the background": "ایپ لاک اور بیک گراؤنڈ میں ہونے پر اپڈیٹس خود بخود انسٹال کریں"
   }
 }

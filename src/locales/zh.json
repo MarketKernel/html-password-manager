@@ -418,6 +418,8 @@
     "Version {version} is ready.": "版本 {version} 已准备就绪。",
     "A new version is ready.": "新版本已准备就绪。",
     "Update": "更新",
-    "It also starts by itself the next time the app is opened.": "下次打开应用时，它也会自动启动。"
+    "It also starts by itself the next time the app is opened.": "下次打开应用时，它也会自动启动。",
+    "Updated to version {version}.": "已更新到版本 {version}。",
+    "Install updates by themselves when the app is locked and in the background": "锁定且在后台时自动安装更新"
   }
 }

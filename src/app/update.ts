@@ -26,6 +26,11 @@ let registration: ServiceWorkerRegistration | null = null;
 let state: UpdateState = { kind: 'idle' };
 let listener: (state: UpdateState) => void = () => undefined;
 let applying = false;
+// The browser looked when the app was launched; a window left open for days hears of nothing new after that.
+let lastCheck = Date.now();
+const QUIET_CHECK_EVERY = 6 * 60 * 60 * 1000;
+/** The version the app ran last time; not a secret. */
+const LAST_VERSION = 'html-password-manager-version';
 
 export const updateState = (): UpdateState => state;
 
@@ -64,12 +69,37 @@ export function startUpdates(onChange: (state: UpdateState) => void): void {
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (applying) location.reload();
   });
+  document.addEventListener('visibilitychange', quietCheck);
+  addEventListener('online', quietCheck);
+  window.setInterval(quietCheck, 60 * 60 * 1000);
+}
+
+/** Asks the server again now and then, saying nothing unless a new version turns up. */
+function quietCheck(): void {
+  if (!registration || !navigator.onLine || state.kind === 'checking' || state.kind === 'ready') return;
+  if (Date.now() - lastCheck < QUIET_CHECK_EVERY) return;
+  lastCheck = Date.now();
+  // updatefound tells of a new worker; a failure is tried again on the next tick or when the connection is back.
+  registration.update().catch(() => (lastCheck = 0));
+}
+
+/** True once, on the first start of a version other than the one that ran before. */
+export function justUpdated(): boolean {
+  if (!updatesHere) return false;
+  try {
+    const before = localStorage.getItem(LAST_VERSION);
+    localStorage.setItem(LAST_VERSION, __APP_VERSION__);
+    return before !== null && before !== __APP_VERSION__;
+  } catch {
+    return false;
+  }
 }
 
 /** Asks the server for a new version; the state ends as latest, offline or ready. */
 export async function checkForUpdate(): Promise<void> {
   if (!registration || state.kind === 'checking' || state.kind === 'ready') return;
   setState({ kind: 'checking' });
+  lastCheck = Date.now();
   try {
     await registration.update();
   } catch {
