@@ -1689,11 +1689,14 @@ platform.start({
     if (!db) void platform.resume().then((resumed) => (resumed && !db ? resume(resumed) : undefined));
   },
 });
+// The template shows the gate's first screen before the answer comes (in the extension a round trip
+// to the offscreen document, which wakes the worker): a file picked or dropped meanwhile stays.
+const firstGate = (): void => (file || db ? undefined : showGate('pick'));
 void platform
   .resume()
   .then(
-    (resumed) => (resumed ? resume(resumed) : showGate('pick')),
-    () => showGate('pick'),
+    (resumed) => (resumed ? resume(resumed) : firstGate()),
+    firstGate,
   )
   // After the gate is up, or it would cover the file the app was launched with.
   .then(() => onLaunchedFile((launched) => void openLaunched(launched)));
