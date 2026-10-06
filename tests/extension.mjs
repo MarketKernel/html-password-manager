@@ -332,7 +332,13 @@ try {
   }
   const origin = `chrome-extension://${extensionId}`;
   const workerTarget = await waitForTarget((t) => t.type === 'service_worker' && t.url === `${origin}/background.js`);
-  let worker = await attach(workerTarget.targetId, 'worker');
+  /** The worker, once its extension APIs are there: attached the moment it starts, it can be a step ahead of them. */
+  const attachWorker = async (targetId) => {
+    const session = await attach(targetId, 'worker');
+    await until(session, `typeof chrome === 'object' && !!chrome.i18n && !!chrome.action`);
+    return session;
+  };
+  let worker = await attachWorker(workerTarget.targetId);
   // The manifest's texts come from _locales/; this Chrome speaks English.
   check('manifest: name from _locales', await evaluate(worker, `chrome.i18n.getMessage('appName')`), 'Deterministic Password');
   check('manifest: toolbar title from _locales', await evaluate(worker, `chrome.action.getTitle({})`), 'Deterministic Password');
@@ -404,8 +410,9 @@ try {
     for (const type of ['mousePressed', 'mouseReleased']) await send('Input.dispatchMouseEvent', { type, x: box[0], y: box[1], button: 'left', clickCount: 1 }, panel);
     await sleep(80);
   };
+  // Waits for what it clicks: on a slow machine the panel can still be drawing what the last step asked for.
   const clickText = async (selector, label) => {
-    const found = await inPanel(`(() => {
+    const found = await until(panel, `(() => {
       document.querySelectorAll('[data-pick]').forEach((n) => n.removeAttribute('data-pick'));
       const hit = [...document.querySelectorAll(${JSON.stringify(selector)})].find((n) => n.textContent.includes(${JSON.stringify(label)}));
       if (hit) hit.setAttribute('data-pick', '');
@@ -413,6 +420,18 @@ try {
     })()`);
     if (!found) throw new Error(`No ${selector} with "${label}" in the panel`);
     await click('[data-pick]');
+  };
+  /**
+   * An entry of the list opened in the details. The panel can redraw the list
+   * just as it opens (the tab found, a fill asked for), and a click on a row
+   * that is replaced between the press and the release is lost: it is tried again.
+   */
+  const openEntry = async (label) => {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await clickText('.entry', label);
+      if (await until(panel, `document.querySelector('.details-title')?.textContent.includes(${JSON.stringify(label)}) ?? false`, 2000)) return;
+    }
+    throw new Error(`The entry "${label}" did not open in the panel`);
   };
   const type = async (value) => {
     await send('Input.insertText', { text: value }, panel);
@@ -465,7 +484,7 @@ try {
 
   /* The Fill button in the entry */
   await evaluate(siteTab, `document.querySelectorAll('input').forEach((i) => (i.value = '')); true`);
-  await clickText('.entry', 'Login');
+  await openEntry('Login');
   await clickText('.details-actions .button', 'Fill');
   check('panel: Fill fills the tab', [await until(siteTab, `document.querySelector('#password').value !== ''`), await value('#username'), await value('#password')], [true, 'alice', 'alice-pass']);
   check('panel: Fill says where', await toastText(), 'Filled into login.test');
@@ -513,7 +532,7 @@ try {
   await sleep(300);
   await evaluate(helper, `chrome.runtime.sendMessage({ to: 'background', type: 'hello', windowId: -1 }).then(() => true)`);
   const restarted = await waitForTarget((t) => t.type === 'service_worker' && t.url === `${origin}/background.js`);
-  worker = await attach(restarted.targetId, 'worker');
+  worker = await attachWorker(restarted.targetId);
   check('worker restarted: a fresh one', await evaluate(worker, `typeof self.__panelOpened`), 'undefined');
   openedBefore = openedSoFar;
   await recordPanel();
@@ -550,7 +569,7 @@ try {
       await until(panel, `!document.body.classList.contains('show-details')`);
     }
     await inPanel(`(() => { const i = document.querySelector('#search'); i.value = ${JSON.stringify(query)}; i.dispatchEvent(new Event('input')); })()`);
-    await clickText('.entry', query);
+    await openEntry(query);
   };
   await search('Secure');
   await clickText('.details-actions .button', 'Fill');
@@ -579,7 +598,7 @@ try {
   check('panel again: no password asked', await until(panel, `!document.querySelector('#app').hidden`), true);
   check('panel again: the entries of the site', await until(panel, `JSON.stringify([...document.querySelectorAll('.entry-title')].map((n) => n.textContent)) === '["Carol","Dave"]'`), true);
   check('panel again: still writable in place', await text('#status-file'), 'Extension.kdbx');
-  await clickText('.entry', 'Carol');
+  await openEntry('Carol');
   await clickText('.details-actions .button', 'Fill');
   check('steps 1: the user name alone', [await until(siteTab, `document.querySelector('#identifier').value !== ''`), await value('#identifier'), await evaluate(siteTab, `document.querySelector('[name=hidden]').value`)], [true, 'carol@example.com', '']);
   await closePanel();
@@ -625,7 +644,7 @@ try {
   await send('Browser.grantPermissions', { permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'], origin }).catch(() => undefined);
   await openPanel();
   await until(panel, `!document.querySelector('#app').hidden`);
-  await clickText('.entry', 'new.test');
+  await openEntry('new.test');
   await click('.field-value--secret + .field-actions .icon-button:last-child');
   const clipboard = () => evaluate(helper, `navigator.clipboard.readText()`, true);
   check('clipboard: the password copied', await clipboard(), derived);

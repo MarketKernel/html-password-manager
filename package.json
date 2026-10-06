@@ -1,6 +1,6 @@
 {
   "name": "html-password-manager",
-  "version": "0.9.6",
+  "version": "0.10.0",
   "private": true,
   "description": "A KeePass (.kdbx) password manager — one standalone HTML file, a PWA and a Chrome extension",
   "license": "MIT",
@@ -13,7 +13,9 @@
     "watch": "node build.mjs --watch",
     "typecheck": "tsc --noEmit",
     "test": "node tests/kdbx.mjs && node tests/generator.mjs && node tests/derived.mjs && node tests/legacy.mjs && node tests/match.mjs && node tests/seal.mjs && node tests/i18n.mjs",
-    "test:browser": "node --experimental-websocket tests/app.mjs && node tests/extension.mjs",
+    "test:browser": "npm run test:page && npm run test:extension",
+    "test:page": "node --experimental-websocket tests/app.mjs",
+    "test:extension": "node tests/extension.mjs",
     "i18n": "node tools/i18n.mjs",
     "shots": "node tools/shots.mjs",
     "check": "npm run typecheck && npm test && npm run build && npm run test:browser"
