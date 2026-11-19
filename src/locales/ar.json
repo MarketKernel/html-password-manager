@@ -2,6 +2,7 @@
   "errors": {
     "The browser refused to copy": "رفض المتصفح النسخ",
     "This browser cannot write files": "لا يستطيع هذا المتصفح كتابة الملفات",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "المتصفح لا يجيب بشأن «{name}». افتحه عبر «فتح ملف» — أو أعد تشغيل المتصفح.",
     "The browser was not allowed to read the file": "لم يُسمح للمتصفح بقراءة الملف",
     "The file is open read-only": "الملف مفتوح للقراءة فقط",
     "The database has not been saved yet": "لم تُحفظ قاعدة البيانات بعد",

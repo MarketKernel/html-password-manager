@@ -976,7 +976,16 @@ try {
   await until(`document.readyState === 'complete' && !document.querySelector('#recent').hidden`);
   check('fsa: recent file listed', await texts('.recent-name'), ['Database.kdbx']);
   await click('.recent-open');
+  // Chrome has been seen never to answer for a file from an earlier session: the click says
+  // what to do within seconds instead of "Unlocking…" for good.
+  await evaluate(`window.__query = FileSystemHandle.prototype.queryPermission; FileSystemHandle.prototype.queryPermission = () => new Promise(() => {})`);
   await type(PASSWORD);
+  const silentFrom = Date.now();
+  await press('Enter');
+  check('fsa: a silent browser is told', await until(`document.querySelector('#gate-error').textContent.startsWith('The browser does not answer for "Database.kdbx"')`), true);
+  check('fsa: told in one wait, not two', Date.now() - silentFrom < 3500, true);
+  check('fsa: the button free again', await evaluate(`[document.querySelector('#unlock-button').disabled, document.querySelector('#unlock-button').textContent.includes('Unlocking')]`), [false, false]);
+  await evaluate(`FileSystemHandle.prototype.queryPermission = window.__query`);
   await press('Enter');
   check('fsa: reopened', await until(`!document.querySelector('#app').hidden`), true);
   await clickNth('.entry', 'Sample Entry #2');

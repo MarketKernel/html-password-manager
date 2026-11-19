@@ -379,6 +379,7 @@
   "errors": {
     "The browser refused to copy": "Браузер не разрешил копирование",
     "This browser cannot write files": "Этот браузер не умеет записывать файлы",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "Браузер не отвечает насчёт «{name}». Откройте его через «Открыть файл» — или перезапустите браузер.",
     "The browser was not allowed to read the file": "Браузеру не разрешили прочитать файл",
     "The file is open read-only": "Файл открыт только для чтения",
     "The database has not been saved yet": "База ещё не сохранена",

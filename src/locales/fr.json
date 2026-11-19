@@ -2,6 +2,7 @@
   "errors": {
     "The browser refused to copy": "Le navigateur a refusé la copie",
     "This browser cannot write files": "Ce navigateur ne peut pas écrire de fichiers",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "Le navigateur ne répond pas au sujet de « {name} ». Ouvrez-le avec « Ouvrir un fichier » — ou redémarrez le navigateur.",
     "The browser was not allowed to read the file": "Le navigateur n’a pas été autorisé à lire le fichier",
     "The file is open read-only": "Le fichier est ouvert en lecture seule",
     "The database has not been saved yet": "La base de données n’a pas encore été enregistrée",

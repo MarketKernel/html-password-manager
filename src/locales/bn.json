@@ -2,6 +2,7 @@
   "errors": {
     "The browser refused to copy": "ব্রাউজার কপি করতে দেয়নি",
     "This browser cannot write files": "এই ব্রাউজার ফাইলে লিখতে পারে না",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "ব্রাউজার \"{name}\" সম্পর্কে সাড়া দিচ্ছে না। \"ফাইল খুলুন\" দিয়ে এটি খুলুন — অথবা ব্রাউজার আবার চালু করুন।",
     "The browser was not allowed to read the file": "ব্রাউজারকে ফাইলটি পড়ার অনুমতি দেওয়া হয়নি",
     "The file is open read-only": "ফাইলটি শুধু পড়ার জন্য খোলা হয়েছে",
     "The database has not been saved yet": "ডেটাবেস এখনও সংরক্ষণ করা হয়নি",

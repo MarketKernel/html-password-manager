@@ -2,6 +2,7 @@
   "errors": {
     "The browser refused to copy": "ब्राउज़र ने कॉपी करने से मना कर दिया",
     "This browser cannot write files": "यह ब्राउज़र फ़ाइलें नहीं लिख सकता",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "ब्राउज़र “{name}” के बारे में जवाब नहीं दे रहा। इसे “फ़ाइल खोलें” से खोलें — या ब्राउज़र फिर से शुरू करें।",
     "The browser was not allowed to read the file": "ब्राउज़र को फ़ाइल पढ़ने की अनुमति नहीं मिली",
     "The file is open read-only": "फ़ाइल केवल-पठन मोड में खुली है",
     "The database has not been saved yet": "डेटाबेस अभी तक सहेजा नहीं गया है",

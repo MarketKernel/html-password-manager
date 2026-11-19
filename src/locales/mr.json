@@ -367,6 +367,7 @@
   "errors": {
     "The browser refused to copy": "ब्राउझरने कॉपी करण्यास नकार दिला",
     "This browser cannot write files": "हा ब्राउझर फाइल लिहू शकत नाही",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "ब्राउझर “{name}” बद्दल उत्तर देत नाही. ती “फाइल उघडा” मधून उघडा — किंवा ब्राउझर पुन्हा सुरू करा.",
     "The browser was not allowed to read the file": "ब्राउझरला फाइल वाचण्याची परवानगी मिळाली नाही",
     "The file is open read-only": "फाइल केवळ-वाचन मोडमध्ये उघडली आहे",
     "The database has not been saved yet": "डेटाबेस अद्याप जतन केलेला नाही",

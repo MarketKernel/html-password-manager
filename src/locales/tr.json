@@ -367,6 +367,7 @@
   "errors": {
     "The browser refused to copy": "Tarayıcı kopyalamayı reddetti",
     "This browser cannot write files": "Bu tarayıcı dosya yazamıyor",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "Tarayıcı “{name}” için yanıt vermiyor. Onu “Dosya aç” ile açın — ya da tarayıcıyı yeniden başlatın.",
     "The browser was not allowed to read the file": "Tarayıcının dosyayı okumasına izin verilmedi",
     "The file is open read-only": "Dosya salt okunur açık",
     "The database has not been saved yet": "Veritabanı henüz kaydedilmedi",

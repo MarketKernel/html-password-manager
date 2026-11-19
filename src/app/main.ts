@@ -1704,7 +1704,7 @@ void platform
 /** A .kdbx opened from the Finder or Explorer with the installed app; it comes to this window when it is open already. */
 async function openLaunched(launched: HandleFile): Promise<void> {
   if (db) {
-    if (await file?.handle?.isSameEntry?.(launched.handle)) return;
+    if (file instanceof HandleFile && (await file.isSame(launched.handle))) return;
     await lock();
     if (db) return;
   }

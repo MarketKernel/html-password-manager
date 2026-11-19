@@ -2,6 +2,7 @@
   "errors": {
     "The browser refused to copy": "浏览器拒绝了复制",
     "This browser cannot write files": "此浏览器无法写入文件",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "浏览器对“{name}”没有响应。请通过“打开文件”打开它，或重新启动浏览器。",
     "The browser was not allowed to read the file": "浏览器无权读取该文件",
     "The file is open read-only": "文件以只读方式打开",
     "The database has not been saved yet": "数据库尚未保存",

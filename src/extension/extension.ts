@@ -140,7 +140,8 @@ async function fileOf(session: Session, data: ArrayBuffer): Promise<DbFile> {
   const recent = (await recentFiles()).find((item) => item.name === session.name);
   if (!recent) return new BlobFile(new File([data], session.name));
   const file = new HandleFile(recent.handle);
-  file.writable = Boolean(recent.handle.createWritable) && (await recent.handle.queryPermission?.({ mode: 'readwrite' }).catch(() => 'denied')) === 'granted';
+  // The panel waits on this to take the database up: where Chrome keeps silent, two seconds and read-only.
+  file.writable = Boolean(recent.handle.createWritable) && (await file.permission('readwrite').catch(() => 'denied')) === 'granted';
   return file;
 }
 

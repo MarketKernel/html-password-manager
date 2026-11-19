@@ -361,6 +361,7 @@
   "errors": {
     "The browser refused to copy": "Browser menolak menyalin",
     "This browser cannot write files": "Browser ini tidak dapat menulis file",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "Browser tidak menjawab soal “{name}”. Buka dengan “Buka file” — atau mulai ulang browser.",
     "The browser was not allowed to read the file": "Browser tidak diizinkan membaca file",
     "The file is open read-only": "File dibuka dalam mode hanya baca",
     "The database has not been saved yet": "Basis data belum disimpan",

@@ -63,8 +63,23 @@ const kdbxType = (): PickerType => ({
 
 export const canWriteInPlace = typeof window !== 'undefined' && typeof window.showOpenFilePicker === 'function';
 
+/**
+ * Chrome has been seen to stop answering anything about a file remembered from
+ * an earlier session — whether the page may open it, whether it is the one
+ * just opened — with no error either. Whoever waits on it waits for good: an
+ * "Unlocking…" that never ends, and every other file turned away meanwhile.
+ * Past two seconds `late` stands for the answer.
+ */
+export function answered<T>(asked: Promise<T>, late: T): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<T>((resolve) => (timer = setTimeout(() => resolve(late), 2000)));
+  return Promise.race([asked, timeout]).finally(() => clearTimeout(timer));
+}
+
 export class HandleFile implements DbFile {
   writable = false;
+  /** False when the browser did not say in time whether the page may write the file: it will not ask the user either. */
+  private answers = true;
 
   constructor(readonly handle: FileHandleLike) {}
 
@@ -85,24 +100,53 @@ export class HandleFile implements DbFile {
     await stream.close();
   }
 
+  /** The access the browser says the page has; null when it does not say in time. */
+  permission(mode: 'read' | 'readwrite'): Promise<PermissionState | null> {
+    if (!this.handle.queryPermission) return Promise.resolve('prompt');
+    return answered<PermissionState | null>(this.handle.queryPermission({ mode }), null);
+  }
+
   /** Read access must be re-granted after a reload; this needs a user gesture. */
   async ensureReadable(): Promise<void> {
     if (!this.handle.queryPermission || !this.handle.requestPermission) return;
-    if ((await this.handle.queryPermission({ mode: 'read' })) === 'granted') return;
+    // Right after the browser kept silent about writing, asking about reading would only add two seconds.
+    const state = this.answers ? await this.permission('read') : null;
+    if (state === 'granted') return;
+    // Where the browser says nothing about the file, it shows no prompt for it either: the click would do nothing.
+    // Picked anew, the same file is a handle it answers for.
+    if (state === null) {
+      throw new Error(t('errors', 'The browser does not answer for "{name}". Open it with "Open file" — or restart the browser.', { name: this.name }));
+    }
     if ((await this.handle.requestPermission({ mode: 'read' })) !== 'granted') {
       throw new Error(t('errors', 'The browser was not allowed to read the file'));
     }
   }
 
-  /** Asks for write access; a refusal only downgrades the database to read-only. */
+  /** Asks for write access; a refusal, or no answer, only downgrades the database to read-only. */
   async ensureWritable(): Promise<boolean> {
+    this.answers = true;
     if (!this.handle.createWritable) return (this.writable = false);
     try {
       if (!this.handle.requestPermission) return (this.writable = true);
-      if ((await this.handle.queryPermission?.({ mode: 'readwrite' })) === 'granted') return (this.writable = true);
+      const state = await this.permission('readwrite');
+      if (state === 'granted') return (this.writable = true);
+      if (state === null) {
+        this.answers = false;
+        return (this.writable = false);
+      }
       return (this.writable = (await this.handle.requestPermission({ mode: 'readwrite' })) === 'granted');
     } catch {
       return (this.writable = false);
+    }
+  }
+
+  /** Whether `other` is this very file; a browser that does not say in time is taken at the name. */
+  async isSame(other: FileHandleLike): Promise<boolean> {
+    if (!this.handle.isSameEntry) return false;
+    try {
+      return (await answered<boolean | null>(this.handle.isSameEntry(other), null)) ?? other.name === this.name;
+    } catch {
+      return false;
     }
   }
 }

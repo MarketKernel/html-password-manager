@@ -367,6 +367,7 @@
   "errors": {
     "The browser refused to copy": "బ్రౌజర్ కాపీ చేయడానికి నిరాకరించింది",
     "This browser cannot write files": "ఈ బ్రౌజర్ ఫైల్‌లను రాయలేదు",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "బ్రౌజర్ “{name}” గురించి స్పందించడం లేదు. దాన్ని “ఫైల్‌ను తెరవండి”తో తెరవండి — లేదా బ్రౌజర్‌ను మళ్లీ ప్రారంభించండి.",
     "The browser was not allowed to read the file": "బ్రౌజర్‌కు ఫైల్‌ను చదవడానికి అనుమతి లభించలేదు",
     "The file is open read-only": "ఫైల్ చదవడానికి మాత్రమే తెరవబడింది",
     "The database has not been saved yet": "డేటాబేస్ ఇంకా సేవ్ చేయబడలేదు",

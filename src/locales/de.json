@@ -367,6 +367,7 @@
   "errors": {
     "The browser refused to copy": "Der Browser hat das Kopieren verweigert",
     "This browser cannot write files": "Dieser Browser kann keine Dateien schreiben",
+    "The browser does not answer for \"{name}\". Open it with \"Open file\" — or restart the browser.": "Der Browser antwortet nicht zu „{name}“. Öffnen Sie die Datei mit „Datei öffnen“ – oder starten Sie den Browser neu.",
     "The browser was not allowed to read the file": "Der Browser durfte die Datei nicht lesen",
     "The file is open read-only": "Die Datei ist schreibgeschützt geöffnet",
     "The database has not been saved yet": "Die Datenbank wurde noch nicht gespeichert",
